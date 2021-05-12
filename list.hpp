@@ -2,19 +2,19 @@
 
 namespace ft
 {
-	template	<typename T, class Alloc = std::allocator<T> > class list;
+	template	<typename Tp, class Alloc = std::allocator<Tp> > class list;
 
-	template	<typename T, class Alloc>
+	template	<typename Tp, class Alloc>
 	class	list
 	{
 	private:
 
 	public:
-		typedef T								Value_type;
+		typedef Tp								Value_type;
 		typedef Alloc							allocator_type;
-		typedef	typename Alloc::reference		reference;
-		typedef	typename Alloc::const_reference	const_reference;
-		typedef	typename Alloc::pointer			pointer;
-		typedef	typename Alloc::const_pointer	const_pointer;
+		typedef typename Alloc::reference		reference;
+		typedef typename Alloc::const_reference	const_reference;
+		typedef typename Alloc::pointer			pointer;
+		typedef typename Alloc::const_pointer	const_pointer;
 	};
 }
