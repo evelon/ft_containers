@@ -8,17 +8,14 @@
 
 namespace ft
 {
-	template	<
-		typename Tp,
-		template <typename T> class Node = DoublyLinkedNode,
-		template <typename T> class Alloc = std::allocator>
-	class list;
+	template	<typename Tp, class Alloc = std::allocator<Tp> >
+	class	list;
 
-	template	<typename Tp, template <typename T> class Node, template <typename T> class Alloc>
+	template	<typename Tp, class Alloc>
 	class	list
 	{
 	private:
-		typedef Node<Tp>	node;
+		typedef DoublyLinkedNode	node;
 
 		node			blank_node;
 		allocator_type	allocator;
@@ -99,28 +96,63 @@ namespace ft
 		// Returns the number of elements in the list container.
 		size_type		size(void) const;
 		// Returns the maximum number of elements that the list container can hold.
-		size_type		max_size() const;
+		size_type		max_size(void) const;
 
 		// Returns a reference to the first element in the list container.
-		reference		front();
+		reference		front(void);
 		// Returns a const reference to the first element in the list container.
-		const_reference	front() const;
+		const_reference	front(void) const;
 
 		// Returns a reference to the last element in the list container.
-		reference		back();
+		reference		back(void);
 		// Returns a const reference to the last element in the list container.
-		const_reference	back() const;
+		const_reference	back(void) const;
 
 		// Range assign. Assigns new contents to the list container, replacing its current contents, and modifying its size accordingly. \
 		// The new contents are elements constructed from each of the elements in the range between "first" and "last", in the same order.
-		template <class InputIterator>
-		void assign (InputIterator first, InputIterator last);
+		template	<class InputIterator>
+		void	assign(InputIterator first, InputIterator last);
 		// Fill assign. Assigns new contents to the list container, replacing its current contents, and modifying its size accordingly. \
 		// The new contents are "n" elements, each initialized to a copy of "val".
-		void assign (size_type n, const value_type& val);
+		void	assign(size_type n, const value_type& val);
 
-		void push_front (const value_type& val);
-		void push_front (value_type&& val);
+		// Inserts a new element at the beginning of the list, right before its current first element, effectively increasing its size by one.
+		void	push_front(const value_type& val);
+		// Removes the first element in the list container, effectively reducing its size by one.
+		void	pop_front(void);
+		// Adds a new element at the end of the list container, after its current last element, effectively increasing the container size by one.
+		void	push_back(const value_type& val);
+		// Removes the last element in the list container, effectively reducing the container size by one.
+		void	pop_back(void);
+
+		// Single element insert. The container is extended by inserting a new element "val", before the element at the specified "position".
+		iterator insert	(iterator position, const value_type& val);
+		// Fill insert. The container is extended by inserting new elements containing "val", before the element at the specified "position".
+		void	insert(iterator position, size_type n, const value_type& val);
+		// Range insert. The container is extended by inserting new elements rangin from "first" to "last", before the element at the specified "position".
+		template <class InputIterator>
+		void insert(iterator position, InputIterator first, InputIterator last);
+
+		// Removes from the list container either an element, "position".
+		iterator erase (iterator position);
+		// Removes from the list container either a range of elements [first,last).
+		iterator erase (iterator first, iterator last);
+
+		// Exchanges the content of the container by the content of "lst", which is another list of the same type. Sizes may differ.
+		void	swap(list& lst);
+
+		// Resizes the container so that it contains "n" elements.
+		void	resize(size_type n, value_type val = value_type());
+		// Removes all elements from the list container (which are destroyed), and leaving the container with a size of 0.
+		void	clear(void);
+
+		// Splice entire list. Transfers all the elements of x into the container, inserting them at position.
+		void	splice(iterator position, list& x);
+		// Splice a single element. Transfers only the element pointed by i from x into the container, inserting them at position.
+		void	splice(iterator position, list& x, iterator i);
+		// Splice a range of elements. Transfers the range [first,last) from x into the container, inserting them at position
+		void	splice(iterator position, list& x, iterator first, iterator last);
+
 	};
 }
 
