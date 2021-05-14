@@ -2,6 +2,7 @@
 # define LIST_HPP
 
 # include <memory>
+# include "enable_if.hpp"
 # include "DoublyLinkedNode.hpp"
 # include "list_iterator.hpp"
 # include "list_reverse_iterator.hpp"
@@ -15,38 +16,45 @@ namespace ft
 	class	list
 	{
 	private:
-		typedef DoublyLinkedNode	node;
+		typedef DoublyLinkedNode<Tp, Alloc>						node;
+		typedef typename Alloc::template rebind<node>::other	node_allocator_type;
 
-		node			blank_node;
-		allocator_type	allocator;
-		size_type		size;
+	public:
+		typedef Tp										Value_type;
+		typedef Alloc									allocator_type;
+		typedef typename Alloc::reference				reference;
+		typedef typename Alloc::const_reference			const_reference;
+		typedef typename Alloc::pointer					pointer;
+		typedef typename Alloc::const_pointer			const_pointer;
+		typedef list_iterator<Tp, node>					iterator;
+		typedef list_iterator<const Tp, node>			const_iterator;
+		typedef list_reverse_iterator<Tp, node>			reverse_iterator;
+		typedef list_reverse_iterator<const Tp, node>	const_reverse_iterator;
+		typedef ptrdiff_t								difference_type;
+		typedef size_t									size_type;
+
+	private:
+		node*				blank_node;
+		allocator_type		allocator;
+		node_allocator_type	node_allocator;
+		size_type			size;
 
 		list(void);
 
 	public:
-		typedef Tp										Value_type;
-		typedef Alloc<Tp>								allocator_type;
-		typedef typename Alloc<Tp>::reference			reference;
-		typedef typename Alloc<Tp>::const_reference		const_reference;
-		typedef typename Alloc<Tp>::pointer				pointer;
-		typedef typename Alloc<Tp>::const_pointer		const_pointer;
-		typedef list_iterator<Tp, Node>					iterator;
-		typedef list_iterator<const Tp, Node>			const_iterator;
-		typedef list_reverse_iterator<Tp, Node>			reverse_iterator;
-		typedef list_reverse_iterator<const Tp, Node>	const_reverse_iterator;
-		typedef ptrdiff_t								difference_type;
-		typedef size_t									size_type;
-
 		// Default constructor. Construct list with an allocator instance "alloc"
 		explicit list(const allocator_type& alloc = allocator_type()):
-			blank_node(), allocator(alloc), size(0)
-		{};
+			allocator(alloc), node_allocator(alloc::rebind<node>::other()), size(0)
+		{
+			blank_node = node_allocator.allocate(1);
+			blank_node = node_allocator.construct(node());
+		};
 		// Fill constructor. Construct list with "n" number of values of "val", with an allocator instance "alloc"
 		explicit list(
 			size_type n,
 			const value_type& val = value_type(),
 			const allocator_type& alloc = allocator_type()):
-			blank_node(), allocator(alloc), size(n)
+			allocator(alloc), size(n)
 		{
 			for (int i = 0; i < n; i++)
 			{
@@ -72,9 +80,15 @@ namespace ft
 		list&	operator=(const list& lst);
 
 		// Returns an iterator pointing to the first element in the list container.
-		iterator		begin(void);
+		iterator		begin(void)
+		{
+			return (iterator(blank_node->next));
+		};
 		// Returns an const iterator pointing to the first element in the list container.
-		const_iterator	begin(void) const;
+		const_iterator	begin(void) const
+		{
+			return (iterator(blank_node->next));
+		};
 
 		// Returns an iterator referring to the past-the-end element in the list container.
 		iterator		end(void);
@@ -108,16 +122,16 @@ namespace ft
 		// Returns a const reference to the last element in the list container.
 		const_reference	back(void) const;
 
-		// Range assign. Assigns new contents to the list container, replacing its current contents, and modifying its size accordingly. \
-		// The new contents are elements constructed from each of the elements in the range between "first" and "last", in the same order.
+		// Range assign. Assigns new contents to the list container, replacing its current contents, and modifying its size accordingly. The new contents are elements constructed from each of the elements in the range between "first" and "last", in the same order.
 		template	<class InputIterator>
 		void	assign(InputIterator first, InputIterator last);
-		// Fill assign. Assigns new contents to the list container, replacing its current contents, and modifying its size accordingly. \
-		// The new contents are "n" elements, each initialized to a copy of "val".
+		// Fill assign. Assigns new contents to the list container, replacing its current contents, and modifying its size accordingly. The new contents are "n" elements, each initialized to a copy of "val".
+		template	<typename N, typename ft::enable_if<ft::is_integral<N>::value>::type>
 		void	assign(size_type n, const value_type& val);
 
 		// Inserts a new element at the beginning of the list, right before its current first element, effectively increasing its size by one.
-		void	push_front(const value_type& val);
+		void	push_front(const value_type& val)
+		{ blank_node};
 		// Removes the first element in the list container, effectively reducing its size by one.
 		void	pop_front(void);
 		// Adds a new element at the end of the list container, after its current last element, effectively increasing the container size by one.
@@ -130,7 +144,7 @@ namespace ft
 		// Fill insert. The container is extended by inserting new elements containing "val", before the element at the specified "position".
 		void	insert(iterator position, size_type n, const value_type& val);
 		// Range insert. The container is extended by inserting new elements rangin from "first" to "last", before the element at the specified "position".
-		template <class InputIterator>
+		template	<class InputIterator>
 		void insert(iterator position, InputIterator first, InputIterator last);
 
 		// Removes from the list container either an element, "position".
@@ -152,6 +166,33 @@ namespace ft
 		void	splice(iterator position, list& x, iterator i);
 		// Splice a range of elements. Transfers the range [first,last) from x into the container, inserting them at position
 		void	splice(iterator position, list& x, iterator first, iterator last);
+
+		// Removes from the container all the elements that compare equal to "val".
+		void	remove(const value_type& val);
+		// Removes from the container all the elements for which "Predicate pred" returns true.
+		template	<class Predicate>
+		void	remove_if(Predicate pred);
+
+		// Removes all but the first element from every consecutive group of equal elements in the container. An element is only removed from the list container if it compares equal to the element immediately preceding it.
+		void	unique(void);
+		// Removes all elements that makes "BinaryPredicate binary_pred" return true in the container. An alement will be compared to a preceding element by "biniary_pred".
+		template	<class BinaryPredicate>
+		void	unique(BinaryPredicate binary_pred);
+
+		// Merges x into the list by transferring all of its elements at their respective ordered positions into the container (both containers shall already be ordered).
+		void	merge(list& lst);
+		// Merges x into the list by transferring all of its elements at their respective ordered positions into the container (both containers shall already be ordered). Binary predicate "comp" shall be a function pointer or a function object.
+		template	<class Compare>
+		void	merge(list& x, Compare comp);
+
+		// Sorts the elements in the list by applying an algorithm that uses "operator<", altering their position within the container.
+		void sort(void);
+		// Sorts the elements in the list by applying an algorithm that uses "comp", altering their position within the container.
+		template	<class Compare>
+		void	sort (Compare comp);
+
+		// Reverses the order of the elements in the list container.
+		void	reverse(void);
 
 	};
 }

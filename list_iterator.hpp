@@ -6,15 +6,15 @@
 
 namespace ft
 {
-	template <typename Tp, template <typename T> class Node = DoublyLinkedNode>
+	template <typename Tp, class Node = DoublyLinkedNode<Tp> >
 	class	list_iterator;
 
-	template <typename Tp, template <typename T> class Node>
+	template <typename Tp, class Node>
 	class	list_iterator
 	{
 	private:
 		typedef list_iterator<Tp, Node>			iterator_type;
-		typedef Node<Tp>						node;
+		typedef Node							node;
 		node*									ptrToNode;
 
 	public:
@@ -26,6 +26,8 @@ namespace ft
 
 		list_iterator(void):
 			ptrToNode(nullptr) {};
+		list_iterator(node* nod):
+			ptrToNode(nod) {};
 		list_iterator(iterator_type const& iter):
 			ptrToNode(iter.ptrToNode) {};
 		list_iterator&	operator=(iterator_type const& iter)
@@ -43,27 +45,27 @@ namespace ft
 		iterator_type&	operator++(void)
 		{
 			if (ptrToNode->content != nullptr)
-				ptrToNode = ptrToNode->next;
+				ptrToNode = ptrToNode->getNext();
 			return (*this);
 		};
 		iterator_type&	operator--(void)
 		{
-			if (ptrToNode->prev->content != nullptr)
-				ptrToNode = ptrToNode->prev;
+			if (ptrToNode->getPrev()->content != nullptr)
+				ptrToNode = ptrToNode->getPrev();
 			return (*this);
 		};
 		iterator_type	operator++(int)
 		{
 			iterator_type	temp = *this;
 			if (ptrToNode->content != nullptr)
-				ptrToNode = ptrToNode->next;
+				ptrToNode = ptrToNode->getNext();
 			return (temp);
 		};
 		iterator_type	operator--(int)
 		{
 			iterator_type	temp = *this;
-			if (ptrToNode->prev->content != nullptr)
-				ptrToNode = ptrToNode->prev;
+			if (ptrToNode->getPrev()->content != nullptr)
+				ptrToNode = ptrToNode->getPrev();
 			return (temp);
 		};
 	};

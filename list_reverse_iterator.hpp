@@ -5,10 +5,10 @@
 
 namespace ft
 {
-	template <typename Tp, template <typename T> class Node = DoublyLinkedNode>
+	template <typename Tp, class Node = DoublyLinkedNode<Tp> >
 	class	list_reverse_iterator;
 
-	template <typename Tp, template <typename T> class Node>
+	template <typename Tp, class Node>
 	class	list_reverse_iterator: public list_iterator<Tp, Node>
 	{
 		list_iterator<Tp, Node>	base(void) const

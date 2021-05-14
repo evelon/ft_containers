@@ -5,33 +5,66 @@
 
 namespace ft
 {
-	template	<typename Tp, template <typename T> class Alloc = std::allocator>
-	struct	DoublyLinkedNode;
+	template	<typename Tp, class Alloc = std::allocator<Tp> >
+	class	DoublyLinkedNode;
 
-	template	<typename Tp, template <typename T> class Alloc>
-	struct	DoublyLinkedNode
+	template	<typename Tp, class Alloc>
+	class	DoublyLinkedNode
 	{
-		Tp*						content;
-		DoublyLinkedNode<Tp>*	next;
-		DoublyLinkedNode<Tp>*	prev;
+	private:
+		typedef DoublyLinkedNode<Tp, Alloc>	node;
 
-		DoublyLinkedNode(void):
-			content(nullptr), next(this), prev(this)
+	public:
+		typedef Tp										content_type;
+		typedef Alloc									allocator_type;
+		typedef typename Alloc::reference				reference;
+		typedef typename Alloc::const_reference			const_reference;
+		typedef typename Alloc::pointer					pointer;
+		typedef typename Alloc::const_pointer			const_pointer;
+
+	private:
+		allocator_type	allocator;
+		content_type*	content;
+		node*			next;
+		node*			prev;
+
+	public:
+		explicit DoublyLinkedNode(const allocator_type& alloc = allocator_type()):
+			allocator(alloc), content(nullptr), next(this), prev(this)
 		{};
-		DoublyLinkedNode(DoublyLinkedNode const& node):
-			content(new *node->content), next(node->next), prev(node->prev)
-		{};
+		DoublyLinkedNode(
+			const content_type& val,
+			const allocator_type& alloc = allocator_type()):
+			allocator(alloc), content(allocator.allocate(1)), next(this), prev(this)
+		{ allocator.construct(content, val); };
+		DoublyLinkedNode(
+			DoublyLinkedNode const& node,
+			const allocator_type& alloc = allocator_type()):
+			allocator(alloc), content(allocator.allocate(1)), next(node.next), prev(node.prev)
+		{ allocator.construct(this->content, *(node.content)); };
 		DoublyLinkedNode(Tp value, DoublyLinkedNode* next_node, DoublyLinkedNode* prev_node):
-			content(new Tp(value)), next(next_node), prev(prev_node)
-		{};
+			content(allocator.allocate(1)), next(next_node), prev(prev_node)
+		{ allocator.construct(this->content, value); };
 		DoublyLinkedNode&	operator=(DoublyLinkedNode const& node)
 		{
-			*this->content = *node.content;
+			allocator.destroy(this->content);
+			allocator.construct(this->content, *(node.content));
 			this->next = next;
 			this->prev = prev;
-		}
+		};
 		~DoublyLinkedNode(void)
-			{ delete content; }
+		{
+			prev->next = next;
+			next->prev = prev;
+			allocator.destroy(this->content);
+		};
+
+		content_type const&	getContent(void)
+		{ return (*content); }
+		node*&	getNext(void)
+		{ return (next); }
+		node*&	getPrev(void)
+		{ return (prev); }
 
 		void	AddNext(DoublyLinkedNode next_node)
 		{
@@ -40,7 +73,7 @@ namespace ft
 			next_node->next = next_next;
 			next_node->prev = this;
 			next_next->prev = next_node;
-		}
+		};
 		void	AddPrev(DoublyLinkedNode prev_node)
 		{
 			DoublyLinkedNode	prev_prev = this->prev;
@@ -48,7 +81,7 @@ namespace ft
 			prev_node->prev = prev_prev;
 			prev_node->next = this;
 			prev_prev->next = prev_node;
-		}
+		};
 	};
 }
 

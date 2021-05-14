@@ -3,6 +3,7 @@
 
 int	main()
 {
-	ft::list_iterator<std::list<int> >	iter;
+	ft::DoublyLinkedNode<int> node(3);
+	ft::list_iterator<int>	iter;
 	return (1);
 }
