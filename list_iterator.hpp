@@ -12,7 +12,7 @@ namespace ft
 	template <typename Tp, class Node>
 	class	list_iterator
 	{
-	private:
+	protected:
 		typedef list_iterator<Tp, Node>			iterator_type;
 		typedef Node							node;
 		node*									ptrToNode;

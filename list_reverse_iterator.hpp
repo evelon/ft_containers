@@ -11,17 +11,22 @@ namespace ft
 	template <typename Tp, class Node>
 	class	list_reverse_iterator: public list_iterator<Tp, Node>
 	{
-		list_iterator<Tp, Node>	base(void) const
-			{ list_iterator<Tp, Node> temp = *this; return (--temp); };
-		iterator_type&	operator++(void)
-			{ return (operator--()); };
-		iterator_type&	operator--(void)
-			{ return (operator++()); };
-		iterator_type	operator++(int)
-			{ return (operator--(0)); };
-		iterator_type	operator--(int)
-			{ return (operator++(0)); };
-	}
+	private:
+		typedef list_iterator<Tp, Node>			iterator_type;
+		typedef list_reverse_iterator<Tp, Node>	reverse_iterator_type;
+
+	public:
+		reverse_iterator_type	base(void) const
+			{ iterator_type temp = *this; return (--temp); };
+		reverse_iterator_type&	operator++(void)
+			{ return (static_cast<iterator_type>(this)->operator--()); };
+		reverse_iterator_type&	operator--(void)
+			{ return (static_cast<iterator_type>(this)->operator++()); };
+		reverse_iterator_type	operator++(int)
+			{ return (static_cast<iterator_type>(this)->operator--(0)); };
+		reverse_iterator_type	operator--(int)
+			{ return (static_cast<iterator_type>(this)->operator++(0)); };
+	};
 };
 
 #endif

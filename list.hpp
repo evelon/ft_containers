@@ -17,7 +17,7 @@ namespace ft
 	{
 	private:
 		typedef DoublyLinkedNode<Tp, Alloc>						node;
-		typedef typename Alloc::template rebind<node>::other	node_allocator_type;
+		typedef typename Alloc::template rebind<node>::other	node_allocator;
 
 	public:
 		typedef Tp										Value_type;
@@ -34,20 +34,28 @@ namespace ft
 		typedef size_t									size_type;
 
 	private:
-		node*				blank_node;
-		allocator_type		allocator;
-		node_allocator_type	node_allocator;
-		size_type			size;
+		node*			blank_node;
+		allocator_type	allocator;
+		node_allocator	node_alloc;
+		size_type		list_size;
 
 		list(void);
+		size_type	node_alloc_max_size() const throw()
+		{
+			return (
+				std::min<size_type>(
+					node_alloc.max_size(),
+					std::numeric_limits<difference_type>
+			);
+		}
 
 	public:
 		// Default constructor. Construct list with an allocator instance "alloc"
 		explicit list(const allocator_type& alloc = allocator_type()):
-			allocator(alloc), node_allocator(alloc::rebind<node>::other()), size(0)
+			allocator(alloc), node_alloc(alloc::rebind<node>::other()), size(0)
 		{
-			blank_node = node_allocator.allocate(1);
-			blank_node = node_allocator.construct(node());
+			blank_node = node_alloc.allocate(1);
+			blank_node = node_alloc.construct(node());
 		};
 		// Fill constructor. Construct list with "n" number of values of "val", with an allocator instance "alloc"
 		explicit list(
@@ -81,34 +89,38 @@ namespace ft
 
 		// Returns an iterator pointing to the first element in the list container.
 		iterator		begin(void)
-		{
-			return (iterator(blank_node->next));
-		};
+			{ return (iterator(blank_node->getNext())); ;
 		// Returns an const iterator pointing to the first element in the list container.
 		const_iterator	begin(void) const
-		{
-			return (iterator(blank_node->next));
-		};
+			{ return (iterator(blank_node->getNext())); };
 
 		// Returns an iterator referring to the past-the-end element in the list container.
 		iterator		end(void);
+			{ return (iterator(blank_node)); };
 		// Returns an const iterator referring to the past-the-end element in the list container.
-		const_iterator	begin(void) const;
+		const_iterator	end(void) const;
+			{ return (iterator(blank_node)); };
 
 		// Returns a reverse iterator pointing to the last element in the container.
 		reverse_iterator		rbegin(void);
+			{ return (reverse_iterator(blank_node->getPrev())); };
 		// Returns a const reverse iterator pointing to the last element in the container.
 		const_reverse_iterator	rbegin(void);
+			{ return (reverse_iterator(blank_node->getPrev())); };
 
 		// Returns a reverse iterator pointing to the element preceding the first element in the list container.
 		reverse_iterator		rend(void);
+			{ return (reverse_iterator(blank_node)); };
 		// Returns a const reverse iterator pointing to the element preceding the first element in the list container.
 		const_reverse_iterator	rend(void) const;
+			{ return (reverse_iterator(blank_node)); };
 
 		// Returns whether the list container is empty.
-		bool			empty(void) const;
+		bool			empty(void) const
+			{ return (!list_size); };
 		// Returns the number of elements in the list container.
 		size_type		size(void) const;
+			{ return (list_size); }
 		// Returns the maximum number of elements that the list container can hold.
 		size_type		max_size(void) const;
 
