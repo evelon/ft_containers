@@ -7,6 +7,8 @@
 # include "list_iterator.hpp"
 # include "base_reverse_iterator.hpp"
 
+# include <unistd.h>
+
 namespace ft
 {
 	template	<typename Tp, class Alloc = std::allocator<Tp> >
@@ -46,6 +48,23 @@ namespace ft
 			if (node_max > type_max)
 				return (type_max);
 			return (node_max);
+		}
+
+		// Find a node corresponding to an iterator "position". "ret_node" becomes the result value.
+		iterator	find_node(iterator position, node*& ret_node)
+		{
+			ret_node = blank_node->getNext();
+			iterator	it = this->begin();
+			size_type	i = 0;
+			while (it != position)
+			{
+				if (i > list_size || it == this->end())
+					return (this->end());
+				ret_node = ret_node->getNext();
+				it++;
+				i++;
+			}
+			return (it);
 		}
 
 	public:
@@ -88,13 +107,13 @@ namespace ft
 		};
 		// Copy constructor. Construct list by copying the list "lst".
 		list(const list& lst):
-			allocator(lst.alloc),
-			node_alloc(),
+			allocator(lst.allocator),
+			node_alloc(lst.node_alloc),
 			blank_node(node_alloc.allocate(1)),
 			list_size(0)
 		{
 			node_alloc.construct(blank_node, *blank_node);
-			for (iterator it = lst.begin(); it != lst.end(); it++)
+			for (const_iterator it = lst.begin(); it != lst.end(); it++)
 				push_back(*it);
 		};
 
@@ -254,37 +273,23 @@ namespace ft
 		// Single element insert. The container is extended by inserting a new element "val", before the element at the specified "position".
 		iterator	insert(iterator position, const value_type& val)
 		{
-			node*		target = blank_node->getNext();
-			iterator	it = this->begin();
-			int			i = 0;
-			while (it != position)
-			{
-				if (i > list_size || it == this->last())
-					return ;
-				target = target->getNext();
-				it++;
-				i++;
-			}
-			target->AddNext(val);
+			node*		pos_node;
+			iterator	it = find_node(position, pos_node);
+			if (it != position)
+				return ;
+			pos_node->AddNext(val);
 			list_size++;
 		};
 		// Fill insert. The container is extended by inserting new elements containing "val", before the element at the specified "position".
 		void		insert(iterator position, size_type n, const value_type& val)
 		{
-			node*		target = blank_node->getNext();
-			iterator	it = this->begin();
-			int			i = 0;
-			while (it != position)
-			{
-				if (i > list_size || it == this->last())
-					return ;
-				target = target->getNext();
-				it++;
-				i++;
-			}
+			node*		pos_node;
+			iterator	it = find_node(position, pos_node);
+			if (it != position)
+				return ;
 			for (int i = 0; i < n; i++)
 			{
-				target->AddNext(val);
+				pos_node->AddNext(val);
 				list_size++;
 			}
 		};
@@ -292,20 +297,22 @@ namespace ft
 		template	<class InputIterator>
 		void		insert(iterator position, InputIterator first, InputIterator last)
 		{
-			node*		target = blank_node->getNext();
-			iterator	it = this->begin();
-			int			i = 0;
-			while (it != position)
-			{
-				if (i > list_size || it == this->last())
-					return ;
-				target = target->getNext();
-				it++;
-				i++;
-			}
+			node*		pos_node;
+			iterator	it = find_node(position, pos_node);
+			if (it != position)
+				return ;
+			pos_node = pos_node->getNext();
+
+			list	temp_list(first, last);
+			first = temp_list.begin();
+			last = temp_list.end();
 			for (; first != last; first++)
 			{
-				target->AddNext(*first);
+				std::cout << *first << std::endl;
+				node*	temp = node_alloc.allocate(1);
+				node_alloc.construct(temp, *temp);
+				temp->setContent(*first);
+				pos_node->AddPrev(temp);
 				list_size++;
 			}
 		};
@@ -313,48 +320,34 @@ namespace ft
 		// Removes from the list container either an element, "position".
 		iterator erase (iterator position)
 		{
-			node*		target = blank_node->getNext();
-			iterator	it = this->begin();
-			size_type	i = 0;
-			while (it != position)
-			{
-				if (i > list_size || it == this->end())
-					return (it);
-				target = target->getNext();
-				it++;
-				i++;
-			}
+			node*		pos_node;
+			iterator	it = find_node(position, pos_node);
+			if (it != position)
+				return (it);
 			it++;
-			node_alloc.destroy(target);
-			node_alloc.deallocate(target, 1);
+			node_alloc.destroy(pos_node);
+			node_alloc.deallocate(pos_node, 1);
 			list_size--;
 			return (it);
 		};
 		// Removes from the list container either a range of elements [first,last).
 		iterator erase (iterator first, iterator last)
 		{
-			node*		target = blank_node->getNext();
-			iterator	it = this->begin();
-			size_type	i = 0;
-			while (it != first)
-			{
-				if (i > list_size || it == this->end())
-					return (this->end());
-				target = target->getNext();
-				it++;
-				i++;
-			}
+			node*		pos_node;
+			iterator	it = find_node(first, pos_node);
+			if (it != first)
+				return (it);
 			node*	temp;
 			while (it != last)
 			{
 				if (it == this->end())
 					break ;
 				it++;
-				temp = target->getNext();
-				node_alloc.destroy(target);
-				node_alloc.deallocate(target, 1);
+				temp = pos_node->getNext();
+				node_alloc.destroy(pos_node);
+				node_alloc.deallocate(pos_node, 1);
+				pos_node = temp;
 				list_size--;
-				target = temp;
 			}
 			return (it);
 		};
@@ -376,8 +369,10 @@ namespace ft
 		void	resize(size_type n, value_type val = value_type())
 		{
 			for (size_type i = 0; i < n; i++)
+			{
 				push_back(val);
-			list_size += n;
+				list_size++;
+			}
 		};
 		// Removes all elements from the list container (which are destroyed), and leaving the container with a size of 0.
 		void	clear(void)
@@ -390,35 +385,67 @@ namespace ft
 		// Splice entire list. Transfers all the elements of x into the container, inserting them at position.
 		void	splice(iterator position, list& lst)
 		{
-			node*		target = blank_node->getNext();
-			iterator	it = this->begin();
-			size_type	i = 0;
-			while (it != position)
-			{
-				if (i > list_size || it == this->last())
-					return ;
-				target = target->getNext();
-				it++;
-				i++;
-			}
+			node*		pos_node;
+			iterator	it = find_node(position, pos_node);
+			if (it != position)
+				return ;
+			pos_node = pos_node->getNext();
 
-			node*	next_node;
-			node*	temp;
-			temp = lst.blank_node;
-			while (next_node != lst.blank_node)
+			list	temp_list(lst);
+
+			node*	cur_node = temp_list.blank_node;
+			node*	next_node = cur_node->getNext();
+			while (next_node != temp_list.blank_node)
 			{
-				next_node = temp->getNext();
-				target.AddNext(temp);
-				temp = next_node;
+				next_node = cur_node->getNext();
+				node*	temp = node_alloc.allocate(1);
+				node_alloc.construct(temp, *cur_node);
+				pos_node->AddPrev(temp);
+				cur_node = next_node;
+				list_size++;
 			}
 		};
 		// Splice a single element. Transfers only the element pointed by i from x into the container, inserting them at position.
 		void	splice(iterator position, list& lst, iterator i)
 		{
-
+			node*		target_node;
+			iterator	it = lst.find_node(i, target_node);
+			if (it != i)
+				return ;
+			node*		pos_node;
+			it = find_node(position, pos_node);
+			if (it != position)
+				return ;
+			node*	temp = node_alloc.allocate(1);
+			node_alloc.construct(temp, *target_node);
+			pos_node->AddPrev(temp);
+			list_size++;
 		};
 		// Splice a range of elements. Transfers the range [first,last) from x into the container, inserting them at position
-		void	splice(iterator position, list& lst, iterator first, iterator last);
+		// void	splice(iterator position, list& lst, iterator first, iterator last)
+		// {
+		// 	node*	target_node;
+		// 	iterator	it = lst.find_node(first, target_node);
+		// 	if (it != first)
+		// 		return ;
+		// 	node*		pos_node;
+		// 	iterator	it = find_node(position, pos_node);
+		// 	if (it != position)
+		// 		return ;
+		// 	pos_node = pos_node->getNext();
+
+		// 	list	temp_list(first, last);
+		// 	first = temp_list.begin();
+		// 	last = temp_list.end();
+		// 	for (; first != last; first++)
+		// 	{
+		// 		std::cout << *first << std::endl;
+		// 		node*	temp = node_alloc.allocate(1);
+		// 		temp->setContent(*first);
+		// 		pos_node->AddPrev(temp);
+		// 		list_size++;
+		// 	}
+		// };
 
 		// // Removes from the container all the elements that compare equal to "val".
 		// void	remove(const value_type& val);

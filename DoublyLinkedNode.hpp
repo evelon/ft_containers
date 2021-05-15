@@ -59,7 +59,10 @@ namespace ft
 			next(ori_node.next),
 			prev(ori_node.prev)
 			{
-				allocator.construct(this->content, *ori_node.content);
+				if (ori_node.content)
+					allocator.construct(this->content, *ori_node.content);
+				else
+					this->content = nullptr;
 				if (&ori_node == this)
 				{
 					this->content = nullptr;
@@ -119,19 +122,17 @@ namespace ft
 
 		void	AddNext(DoublyLinkedNode* next_node)
 		{
-			DoublyLinkedNode*	next_next = this->next;
-			this->next = next_node;
-			next_node->next = next_next;
+			this->next->prev = next_node;
+			next_node->next = this->next;
 			next_node->prev = this;
-			next_next->prev = next_node;
+			this->next = next_node;
 		};
 		void	AddPrev(DoublyLinkedNode* prev_node)
 		{
-			DoublyLinkedNode*	prev_prev = this->prev;
-			this->prev = prev_node;
-			prev_node->prev = prev_prev;
+			this->prev->next = prev_node;
+			prev_node->prev = this->prev;
 			prev_node->next = this;
-			prev_prev->next = prev_node;
+			this->prev = prev_node;
 		};
 	};
 }
