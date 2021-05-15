@@ -9,6 +9,15 @@ namespace ft
 	struct	enable_if<true, T>
 	{ typedef T	type; };
 
+	// disable_if has a type "type" if bool "B" is false.
+	template	<bool B, typename T = void>
+	struct	disable_if
+	{ typedef T	type; };
+
+	template	<typename T>
+	struct	disable_if<true, T>
+	{};
+
 	// If a typename "N" is interal type, the member variable "value" is true.
 	template	<typename N>
 	struct	is_integral
@@ -47,19 +56,11 @@ namespace ft
 	{ static const bool	value = true; };
 
 	template	<>
-	struct	is_integral<signed short>
-	{ static const bool	value = true; };
-
-	template	<>
 	struct	is_integral<unsigned short>
 	{ static const bool	value = true; };
 
 	template	<>
 	struct	is_integral<int>
-	{ static const bool	value = true; };
-
-	template	<>
-	struct	is_integral<signed int>
 	{ static const bool	value = true; };
 
 	template	<>
@@ -71,19 +72,11 @@ namespace ft
 	{ static const bool	value = true; };
 
 	template	<>
-	struct	is_integral<signed long>
-	{ static const bool	value = true; };
-
-	template	<>
 	struct	is_integral<unsigned long>
 	{ static const bool	value = true; };
 
 	template	<>
 	struct	is_integral<long long>
-	{ static const bool	value = true; };
-
-	template	<>
-	struct	is_integral<signed long long>
 	{ static const bool	value = true; };
 
 	template	<>

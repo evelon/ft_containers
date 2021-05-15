@@ -39,32 +39,34 @@ namespace ft
 		bool		operator!=(iterator_type const& iter) const
 			{ return (this->ptrToNode != iter.ptrToNode); };
 		reference	operator*(void)
-			{ return (*this->ptrToNode); };
+		{
+			return (*this->ptrToNode->getContent());
+		};
 		pointer		operator->(void) const
-			{ return (*this->ptrToNode); };
+			{ return (this->ptrToNode->getContent()); };
 		iterator_type&	operator++(void)
 		{
-			if (ptrToNode->content != nullptr)
+			if (ptrToNode->getContent() != nullptr)
 				ptrToNode = ptrToNode->getNext();
 			return (*this);
 		};
 		iterator_type&	operator--(void)
 		{
-			if (ptrToNode->getPrev()->content != nullptr)
+			if (ptrToNode->getContent() != nullptr)
 				ptrToNode = ptrToNode->getPrev();
 			return (*this);
 		};
 		iterator_type	operator++(int)
 		{
 			iterator_type	temp = *this;
-			if (ptrToNode->content != nullptr)
+			if (ptrToNode->getContent() != nullptr)
 				ptrToNode = ptrToNode->getNext();
 			return (temp);
 		};
 		iterator_type	operator--(int)
 		{
 			iterator_type	temp = *this;
-			if (ptrToNode->getPrev()->content != nullptr)
+			if (ptrToNode->getContent() != nullptr)
 				ptrToNode = ptrToNode->getPrev();
 			return (temp);
 		};
