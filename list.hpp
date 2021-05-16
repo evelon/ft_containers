@@ -21,6 +21,55 @@ namespace ft
 		typedef DoublyLinkedNode<Tp, Alloc>						node;
 		typedef typename Alloc::template rebind<node>::other	node_allocator;
 
+		class	node_iterator: public list_iterator<Tp, node>
+		{
+		private:
+			typedef list_iterator<Tp, node>	iterator;
+		public:
+			node_iterator():
+				iterator() {};
+			node_iterator(node_iterator const& n_it):
+				iterator(n_it) {};
+			node_iterator(iterator const& it):
+				iterator(it) {};
+			node_iterator&	operator=(node_iterator const& n_it)
+				{ this->ptrToNode = n_it.ptrToNode; return (*this); }
+			node_iterator&	operator=(iterator const& it)
+				{ this->ptrToNode = it.ptrToNode; return (*this); }
+			virtual ~node_iterator() {};
+
+
+			node_iterator&	operator++(void)
+			{
+				if (this->ptrToNode->getContent() != nullptr)
+					this->ptrToNode = this->ptrToNode->getNext();
+				return (*this);
+			};
+			node_iterator&	operator--(void)
+			{
+				if (this->ptrToNode->getContent() != nullptr)
+					this->ptrToNode = this->ptrToNode->getPrev();
+				return (*this);
+			};
+			node_iterator	operator++(int)
+			{
+				node_iterator	temp = *this;
+				if (this->ptrToNode->getContent() != nullptr)
+					this->ptrToNode = this->ptrToNode->getNext();
+				return (temp);
+			};
+			node_iterator	operator--(int)
+			{
+				node_iterator	temp = *this;
+				if (this->ptrToNode->getContent() != nullptr)
+					this->ptrToNode = this->ptrToNode->getPrev();
+				return (temp);
+			};
+
+			node*&	getNode(void)
+				{ return (this->ptrToNode); };
+		};
+
 	public:
 		typedef Tp										value_type;
 		typedef Alloc									allocator_type;
@@ -50,22 +99,28 @@ namespace ft
 			return (node_max);
 		}
 
-		// Find a node corresponding to an iterator "position". "ret_node" becomes the result value.
-		iterator	find_node(iterator position, node*& ret_node)
+		bool	is_included(iterator& position, list& lst)
 		{
-			ret_node = blank_node->getNext();
-			iterator	it = this->begin();
 			size_type	i = 0;
-			while (it != position)
-			{
-				if (i > list_size || it == this->end())
-					return (this->end());
-				ret_node = ret_node->getNext();
-				it++;
-				i++;
-			}
-			return (it);
+			for (iterator it = lst.begin(); it != position; it++)
+				if (i++ > lst.list_size)
+					return (false);
+			return (true);
 		}
+
+		// bool	basic_compare(value_type a, value_type b)
+		// {
+		// 	if (a <= b)
+		// 		return (true);
+		// 	return (false);
+		// }
+		// // Sort from "first" node to "last" node.
+		// template	<class Predicate>
+		// void	quick_sort(node* first_node, node* last_node, Predicate compare)
+		// {
+		// 	value_type	pivot = first_node;
+
+		// }
 
 	public:
 		// Default constructor. Construct list with an allocator instance "alloc"
@@ -74,7 +129,7 @@ namespace ft
 			node_alloc(),
 			blank_node(node_alloc.allocate(1)),
 			list_size(0)
-		{ node_alloc.construct(blank_node, *blank_node); };
+		{ node_alloc.construct(blank_node, *blank_node, alloc); };
 		// Fill constructor. Construct list with "n" number of values of "val", with an allocator instance "alloc"
 		explicit list(
 			size_type n,
@@ -85,7 +140,7 @@ namespace ft
 			blank_node(node_alloc.allocate(1)),
 			list_size(0)
 		{
-			node_alloc.construct(blank_node, *blank_node);
+			node_alloc.construct(blank_node, *blank_node, alloc);
 			for (size_type i = 0; i < n; i++)
 				push_back(val);
 		};
@@ -101,7 +156,7 @@ namespace ft
 			blank_node(node_alloc.allocate(1)),
 			list_size(0)
 		{
-			node_alloc.construct(blank_node, *blank_node);
+			node_alloc.construct(blank_node, *blank_node, alloc);
 			for (; first != last; first++)
 				push_back(*first);
 		};
@@ -112,7 +167,7 @@ namespace ft
 			blank_node(node_alloc.allocate(1)),
 			list_size(0)
 		{
-			node_alloc.construct(blank_node, *blank_node);
+			node_alloc.construct(blank_node, *blank_node, lst.allocator);
 			for (const_iterator it = lst.begin(); it != lst.end(); it++)
 				push_back(*it);
 		};
@@ -273,46 +328,50 @@ namespace ft
 		// Single element insert. The container is extended by inserting a new element "val", before the element at the specified "position".
 		iterator	insert(iterator position, const value_type& val)
 		{
-			node*		pos_node;
-			iterator	it = find_node(position, pos_node);
-			if (it != position)
-				return ;
-			pos_node->AddNext(val);
+			if (!is_included(position, *this))
+				return (position);
+			node*	new_node(node_alloc.allocate(1));
+			node_alloc.construct(new_node, *new_node);
+			new_node->setContent(val);
+			node_iterator	nit = position;
+			nit.getNode()->AddNext(new_node);
 			list_size++;
+			return (nit++);
 		};
 		// Fill insert. The container is extended by inserting new elements containing "val", before the element at the specified "position".
 		void		insert(iterator position, size_type n, const value_type& val)
 		{
-			node*		pos_node;
-			iterator	it = find_node(position, pos_node);
-			if (it != position)
+			if (!is_included(position, *this))
 				return ;
-			for (int i = 0; i < n; i++)
+			node_iterator	nit(position);
+			node*			temp;
+			for (size_type i = 0; i < n; i++)
 			{
-				pos_node->AddNext(val);
+				temp = node_alloc.allocate(1);
+				node_alloc.construct(temp, *temp);
+				temp->setContent(val);
+				nit.getNode()->AddNext(temp);
 				list_size++;
 			}
-		};
+		}
 		// Range insert. The container is extended by inserting new elements rangin from "first" to "last", before the element at the specified "position".
 		template	<class InputIterator>
-		void		insert(iterator position, InputIterator first, InputIterator last)
+		void		insert(iterator position, InputIterator first, InputIterator last, typename ft::disable_if<is_integral<InputIterator>::value>::type* = 0)
 		{
-			node*		pos_node;
-			iterator	it = find_node(position, pos_node);
-			if (it != position)
+			if (!is_included(position, *this))
 				return ;
-			pos_node = pos_node->getNext();
+			node_iterator	nit(position);
 
 			list	temp_list(first, last);
-			first = temp_list.begin();
-			last = temp_list.end();
-			for (; first != last; first++)
+			node_iterator	first_n(temp_list.begin());
+			node_iterator	last_n(temp_list.end());
+			node*			temp;
+			nit++;
+			for (; first_n != last_n; first_n++)
 			{
-				std::cout << *first << std::endl;
-				node*	temp = node_alloc.allocate(1);
-				node_alloc.construct(temp, *temp);
-				temp->setContent(*first);
-				pos_node->AddPrev(temp);
+				temp = node_alloc.allocate(1);
+				node_alloc.construct(temp, *first_n.getNode());
+				nit.getNode()->AddPrev(temp);
 				list_size++;
 			}
 		};
@@ -320,36 +379,34 @@ namespace ft
 		// Removes from the list container either an element, "position".
 		iterator erase (iterator position)
 		{
-			node*		pos_node;
-			iterator	it = find_node(position, pos_node);
-			if (it != position)
-				return (it);
-			it++;
-			node_alloc.destroy(pos_node);
-			node_alloc.deallocate(pos_node, 1);
+			if (!is_included(position, *this))
+				return (position);
+			node_iterator	nit(position++);
+			node_alloc.destroy(nit.getNode());
+			node_alloc.deallocate(nit.getNode(), 1);
 			list_size--;
-			return (it);
+			return (position);
 		};
 		// Removes from the list container either a range of elements [first,last).
 		iterator erase (iterator first, iterator last)
 		{
-			node*		pos_node;
-			iterator	it = find_node(first, pos_node);
-			if (it != first)
-				return (it);
-			node*	temp;
-			while (it != last)
+			if (!is_included(first, *this) || !is_included(last, *this))
+				return (last);
+			node_iterator	nit(first);
+			node*			pos_node(nit.getNode());
+			node*			temp;
+			while (first != last)
 			{
-				if (it == this->end())
+				if (first == this->end())
 					break ;
-				it++;
+				first++;
 				temp = pos_node->getNext();
 				node_alloc.destroy(pos_node);
 				node_alloc.deallocate(pos_node, 1);
 				pos_node = temp;
 				list_size--;
 			}
-			return (it);
+			return (first);
 		};
 
 		// Exchanges the content of the container by the content of "lst", which is another list of the same type. Sizes may differ.
@@ -385,50 +442,56 @@ namespace ft
 		// Splice entire list. Transfers all the elements of x into the container, inserting them at position.
 		void	splice(iterator position, list& lst)
 		{
-			node*		pos_node;
-			iterator	it = find_node(position, pos_node);
-			if (it != position)
+			if (!is_included(position, *this))
 				return ;
-			pos_node = pos_node->getNext();
-
-			list	temp_list(lst);
-
-			node*	cur_node = temp_list.blank_node;
+			node_iterator	nit(position);
+			node*	pos_node = nit.getNode()->getNext();
+			node*	cur_node = lst.blank_node->getNext();
 			node*	next_node = cur_node->getNext();
-			while (next_node != temp_list.blank_node)
+			while (next_node != lst.blank_node)
 			{
-				std::cout << "test";
 				next_node = cur_node->getNext();
 				pos_node->AddPrev(cur_node->PopGetNode());
 				cur_node = next_node;
-				list_size++;
+				this->list_size++;
+				lst.list_size--;
 			}
 		};
 		// Splice a single element. Transfers only the element pointed by i from x into the container, inserting them at position.
 		void	splice(iterator position, list& lst, iterator i)
 		{
-			node*		target_node;
-			iterator	it = lst.find_node(i, target_node);
-			if (it != i)
+			if (!is_included(position, *this) || !is_included(i, lst))
 				return ;
-			node*		pos_node;
-			it = find_node(position, pos_node);
-			if (it != position)
-				return ;
-			node*	temp = node_alloc.allocate(1);
-			node_alloc.construct(temp, *target_node);
-			pos_node->AddPrev(temp);
-			list_size++;
+			node_iterator	this_nit(position);
+			node_iterator	that_nit(i);
+
+			this_nit.getNode()->AddPrev(that_nit.getNode()->PopGetNode());
+			lst.list_size--;
+			this->list_size++;
 		};
 		// Splice a range of elements. Transfers the range [first,last) from x into the container, inserting them at position
-		// void	splice(iterator position, list& lst, iterator first, iterator last)
+		void	splice(iterator position, list& lst, iterator first, iterator last)
+		{
+			list			temp_list(first, last);
+			node_iterator	first_n(temp_list.begin());
+			node_iterator	last_n(temp_list.end());
+			node_iterator	pos_n(position);
+			pos_n++;
+			node_iterator	temp;
+			while (first_n != last_n && lst.list_size != 0)
+			{
+				pos_n.getNode()->AddPrev(first_n++.getNode()->PopGetNode());
+				this->list_size++;
+				lst.list_size--;
+			}
+		};
 		// {
 		// 	node*	target_node;
 		// 	iterator	it = lst.find_node(first, target_node);
 		// 	if (it != first)
 		// 		return ;
 		// 	node*		pos_node;
-		// 	iterator	it = find_node(position, pos_node);
+		// 	it = this->find_node(position, pos_node);
 		// 	if (it != position)
 		// 		return ;
 		// 	pos_node = pos_node->getNext();
@@ -438,34 +501,104 @@ namespace ft
 		// 	last = temp_list.end();
 		// 	for (; first != last; first++)
 		// 	{
-		// 		std::cout << *first << std::endl;
 		// 		node*	temp = node_alloc.allocate(1);
 		// 		temp->setContent(*first);
 		// 		pos_node->AddPrev(temp);
-		// 		list_size++;
+		// 		this->list_size++;
+		// 		lst.list_size--;
 		// 	}
 		// };
 
-		// // Removes from the container all the elements that compare equal to "val".
-		// void	remove(const value_type& val);
-		// // Removes from the container all the elements for which "Predicate pred" returns true.
-		// template	<class Predicate>
-		// void	remove_if(Predicate pred);
-
-		// // Removes all but the first element from every consecutive group of equal elements in the container. An element is only removed from the list container if it compares equal to the element immediately preceding it.
-		// void	unique(void);
-		// // Removes all elements that makes "BinaryPredicate binary_pred" return true in the container. An alement will be compared to a preceding element by "biniary_pred".
-		// template	<class BinaryPredicate>
-		// void	unique(BinaryPredicate binary_pred);
-
+		// Removes from the container all the elements that compare equal to "val".
+		void	remove(const value_type& val)
+		{
+			node*	cur_node = blank_node->getNext();
+			node*	next_node;
+			while (cur_node != blank_node)
+			{
+				next_node = cur_node->getNext();
+				if (*cur_node->getContent() == val)
+				{
+					node_alloc.destroy(cur_node);
+					node_alloc.deallocate(cur_node, 1);
+					list_size--;
+				}
+				cur_node = next_node;
+			}
+		};
+		// Removes from the container all the elements for which "Predicate pred" returns true.
+		template	<class Predicate>
+		void	remove_if(Predicate pred)
+		{
+			node*	cur_node = blank_node->getNext();
+			node*	next_node;
+			while (cur_node != blank_node)
+			{
+				next_node = cur_node->getNext();
+				if (pred(*cur_node->getContent()))
+				{
+					node_alloc.destroy(cur_node);
+					node_alloc.deallocate(cur_node, 1);
+					list_size--;
+				}
+				cur_node = next_node;
+			}
+		}
+		// Removes all but the first element from every consecutive group of equal elements in the container. An element is only removed from the list container if it compares equal to the element immediately preceding it.
+		void	unique(void)
+		{
+			node*	cur_node = blank_node->getNext()->getNext();
+			node*	next_node;
+			while (cur_node != blank_node)
+			{
+				next_node = cur_node->getNext();
+				if (*cur_node->getContent() == *cur_node->getPrev()->getContent())
+				{
+					node_alloc.destroy(cur_node);
+					node_alloc.deallocate(cur_node, 1);
+					list_size--;
+				}
+				cur_node = next_node;
+			}
+		};
+		// Removes all elements that makes "BinaryPredicate binary_pred" return true in the container. An alement will be compared to a preceding element by "biniary_pred".
+		template	<class BinaryPredicate>
+		void	unique(BinaryPredicate binary_pred)
+		{
+			node*	cur_node = blank_node->getNext()->getNext();
+			node*	next_node;
+			while (cur_node != blank_node)
+			{
+				next_node = cur_node->getNext();
+				if (binary_pred(*cur_node->getContent(), *cur_node->getPrev()->getContent()))
+				{
+					node_alloc.destroy(cur_node);
+					node_alloc.deallocate(cur_node, 1);
+					list_size--;
+				}
+				cur_node = next_node;
+			}
+		};
 		// // Merges x into the list by transferring all of its elements at their respective ordered positions into the container (both containers shall already be ordered).
-		// void	merge(list& lst);
+		// void	merge(list& lst)
+		// {
+		// 	node*	this_node = this->blank_node->getNext();
+		// 	node*	that_node = lst.blank_node->getNext();
+		// 	while (this_node != blank_node)
+		// 	{
+		// 		while (*that_node->getContent <= *this_node->getContent)
+		// 	}
+
+		// }
 		// // Merges x into the list by transferring all of its elements at their respective ordered positions into the container (both containers shall already be ordered). Binary predicate "comp" shall be a function pointer or a function object.
 		// template	<class Compare>
 		// void	merge(list& x, Compare comp);
 
 		// // Sorts the elements in the list by applying an algorithm that uses "operator<", altering their position within the container.
-		// void sort(void);
+		// void sort(void)
+		// {
+
+		// };
 		// // Sorts the elements in the list by applying an algorithm that uses "comp", altering their position within the container.
 		// template	<class Compare>
 		// void	sort (Compare comp);

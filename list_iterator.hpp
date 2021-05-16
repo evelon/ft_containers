@@ -1,15 +1,14 @@
 #ifndef LIST_ITERATOR_HPP
 # define LIST_ITERATOR_HPP
 
-# include <iterator>
 # include "DoublyLinkedNode.hpp"
 
 namespace ft
 {
-	template <typename Tp, class Node = DoublyLinkedNode<Tp> >
+	template	<typename Tp, class Node = DoublyLinkedNode<Tp> >
 	class	list_iterator;
 
-	template <typename Tp, class Node>
+	template	<typename Tp, class Node>
 	class	list_iterator
 	{
 	protected:
@@ -30,9 +29,9 @@ namespace ft
 			ptrToNode(nod) {};
 		list_iterator(iterator_type const& iter):
 			ptrToNode(iter.ptrToNode) {};
-		list_iterator&	operator=(iterator_type const& iter)
+		iterator_type&	operator=(iterator_type const& iter)
 			{ this->ptrToNode = iter.ptrToNode; return (*this); };
-		~list_iterator(void) {};
+		virtual ~list_iterator(void) {};
 
 		bool		operator==(iterator_type const& iter) const
 			{ return (this->ptrToNode == iter.ptrToNode); };

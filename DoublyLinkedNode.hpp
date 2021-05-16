@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include <iostream>
+
 namespace ft
 {
 	template	<typename Tp, class Alloc = std::allocator<Tp> >
@@ -53,25 +55,29 @@ namespace ft
 			node const& ori_node,
 			const allocator_type& alloc = allocator_type()):
 			allocator(alloc),
-			content(allocator.allocate(1)),
+			content(),
 			null_content(),
 			null_content_ptr(&null_content),
 			next(ori_node.next),
 			prev(ori_node.prev)
 			{
-				if (ori_node.content)
-					allocator.construct(this->content, *ori_node.content);
-				else
-					this->content = nullptr;
 				if (&ori_node == this)
 				{
 					this->content = nullptr;
 					this->next = this;
 					this->prev = this;
+					return ;
 				}
+				if (ori_node.content)
+				{
+					this->content = allocator.allocate(1);
+					allocator.construct(this->content, *ori_node.content);
+				}
+				else
+					this->content = nullptr;
 			};
 		DoublyLinkedNode(
-			Tp value,
+			content_type value,
 			node* next_node,
 			node* prev_node,
 			const allocator_type& alloc = allocator_type()):
@@ -97,10 +103,11 @@ namespace ft
 				prev->next = next;
 				next->prev = prev;
 			}
-			allocator.destroy(this->content);
-			allocator.deallocate(this->content, 1);
+			if (!content)
+				return ;
+			allocator.destroy(content);
+			allocator.deallocate(content, 1);
 		};
-
 		content_type*&	getContent(void)
 		{
 			if (!content)
@@ -119,7 +126,6 @@ namespace ft
 				content = allocator.allocate(1);
 			allocator.construct(content, val);
 		};
-
 		void	AddNext(DoublyLinkedNode* next_node)
 		{
 			this->next->prev = next_node;
@@ -139,7 +145,7 @@ namespace ft
 			this->next->prev = this->prev;
 			this->prev->next = this->next;
 			this->next = this;
-			this->prev = next;
+			this->prev = this;
 			return (this);
 		}
 	};

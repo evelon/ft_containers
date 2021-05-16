@@ -17,8 +17,16 @@ void	print_lst(ft::list<int> lst)
 	std::cout << std::endl;
 }
 
+bool	is_twelve(int a)
+{
+	if (a == 12)
+		return (true);
+	return (false);
+}
+
 int	main()
 {
+
 	ft::list<int>	lst;
 
 	for (int i = 0; i < 5; i++)
@@ -35,7 +43,7 @@ int	main()
 	ft::list<int>	lst2(4, 35);
 
 
-	// size_check(lst);
+	size_check(lst);
 
 	for (ft::list<int>::iterator it = lst.begin(); it != lst.end(); it++)
 		std::cout << *it << std::endl;
@@ -43,18 +51,20 @@ int	main()
 	// size_check(lst);
 	lst.swap(lst2);
 	ft::list<int>::iterator	it = lst.begin();
-	it++;
-	it++;
-	it++;
-	std::cout << *++lst2.begin() << std::endl;;
+
+	std::cout << *it << std::endl << std::endl;;
 	print_lst(lst);
 	print_lst(lst2);
 
-	lst.splice(it, lst2);
-	// size_check(lst);
-
+	std::cout << "out: " << &*(++lst.begin()) << std::endl;
+	ft::list<int>::iterator	ite = lst.begin();
+		ite++;
+		ite++;
+	lst.splice(ite, lst2);
 	print_lst(lst);
+	size_check(lst);
 	print_lst(lst2);
-
+	size_check(lst2);
+	system("leaks a.out > leaks");
 	return (0);
 }
