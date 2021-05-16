@@ -388,10 +388,7 @@ namespace ft
 			node*		pos_node;
 			iterator	it = find_node(position, pos_node);
 			if (it != position)
-			{
-				std::cout << "abc";
 				return ;
-			}
 			pos_node = pos_node->getNext();
 
 			list	temp_list(lst);
