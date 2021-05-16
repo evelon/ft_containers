@@ -10,6 +10,13 @@ void	size_check(ft::list<int> lst)
 	std::cout << "size: " << lst.size() << "?=" << i << std::endl;
 }
 
+void	print_lst(ft::list<int> lst)
+{
+	for (ft::list<int>::iterator it = lst.begin(); it != lst.end(); it++)
+		std::cout << *it << std::endl;
+	std::cout << std::endl;
+}
+
 int	main()
 {
 	ft::list<int>	lst;
@@ -40,16 +47,14 @@ int	main()
 	it++;
 	it++;
 	std::cout << *++lst2.begin() << std::endl;;
-	lst.insert(it, ++lst2.begin(), --lst2.end());
+	print_lst(lst);
+	print_lst(lst2);
+
+	lst.splice(it, lst2);
 	// size_check(lst);
 
-
-	bit = lst.begin();
-	eit = lst.end();
-	for (; bit != eit; bit++)
-		std::cout << *bit << std::endl;
-
-	size_check(lst);
+	print_lst(lst);
+	print_lst(lst2);
 
 	return (0);
 }

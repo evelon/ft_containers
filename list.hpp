@@ -388,7 +388,10 @@ namespace ft
 			node*		pos_node;
 			iterator	it = find_node(position, pos_node);
 			if (it != position)
+			{
+				std::cout << "abc";
 				return ;
+			}
 			pos_node = pos_node->getNext();
 
 			list	temp_list(lst);
@@ -397,10 +400,9 @@ namespace ft
 			node*	next_node = cur_node->getNext();
 			while (next_node != temp_list.blank_node)
 			{
+				std::cout << "test";
 				next_node = cur_node->getNext();
-				node*	temp = node_alloc.allocate(1);
-				node_alloc.construct(temp, *cur_node);
-				pos_node->AddPrev(temp);
+				pos_node->AddPrev(cur_node->PopGetNode());
 				cur_node = next_node;
 				list_size++;
 			}

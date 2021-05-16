@@ -134,6 +134,14 @@ namespace ft
 			prev_node->next = this;
 			this->prev = prev_node;
 		};
+		node*	PopGetNode(void)
+		{
+			this->next->prev = this->prev;
+			this->prev->next = this->next;
+			this->next = this;
+			this->prev = next;
+			return (this);
+		}
 	};
 }
 
