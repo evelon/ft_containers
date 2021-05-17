@@ -3,8 +3,6 @@
 
 #include <memory>
 
-#include <iostream>
-
 namespace ft
 {
 	template	<typename Tp, class Alloc = std::allocator<Tp> >

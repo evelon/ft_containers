@@ -4,6 +4,7 @@
 # include "list_iterator.hpp"
 
 # include <iostream>
+# include <iterator>
 
 namespace ft
 {
@@ -31,9 +32,15 @@ namespace ft
 		iterator_type	base(void) const
 			{ iterator_type temp(*this); return (++temp); };
 		reverse_iterator_type&	operator++(void)
-			{ return (static_cast<iterator_type*>(this)->operator--()); };
+		{
+			static_cast<iterator_type*>(this)->operator--();
+			return (*this);
+		}
 		reverse_iterator_type&	operator--(void)
-			{ return (static_cast<iterator_type*>(this)->operator++()); };
+		{
+			static_cast<iterator_type*>(this)->operator++();
+			return (*this);
+		}
 		reverse_iterator_type	operator++(int)
 			{ return (static_cast<iterator_type*>(this)->operator--(0)); };
 		reverse_iterator_type	operator--(int)

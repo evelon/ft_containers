@@ -12,16 +12,14 @@ void	size_check(ft::list<int> lst)
 
 void	print_lst(ft::list<int> lst)
 {
-	for (ft::list<int>::iterator it = lst.begin(); it != lst.end(); it++)
-		std::cout << *it << std::endl;
+	for (ft::list<int>::reverse_iterator rit = lst.rbegin(); rit != lst.rend(); ++rit)
+		std::cout << *rit << std::endl;
 	std::cout << std::endl;
 }
 
-bool	is_twelve(int a)
+bool	reverse(int a, int b)
 {
-	if (a == 12)
-		return (true);
-	return (false);
+	return (a > b);
 }
 
 int	main()
@@ -33,8 +31,8 @@ int	main()
 		lst.push_back(i);
 
 	// size_check(lst);
-	ft::list<int>::iterator bit = lst.begin();
-	ft::list<int>::iterator eit = lst.end();
+	// ft::list<int>::iterator bit = lst.begin();
+	// ft::list<int>::iterator eit = lst.end();
 
 	lst.resize(7, 12);
 
@@ -61,10 +59,15 @@ int	main()
 		ite++;
 		ite++;
 	lst.splice(ite, lst2);
+	lst.sort();
 	print_lst(lst);
 	size_check(lst);
 	print_lst(lst2);
 	size_check(lst2);
+
+	std::cout << (lst == lst2);
+
+	// ft::list<int>::const_iterator cit = ite;
 	system("leaks a.out > leaks");
 	return (0);
 }

@@ -9,6 +9,7 @@
 
 # include <unistd.h>
 
+
 namespace ft
 {
 	template	<typename Tp, class Alloc = std::allocator<Tp> >
@@ -65,9 +66,20 @@ namespace ft
 					this->ptrToNode = this->ptrToNode->getPrev();
 				return (temp);
 			};
-
 			node*&	getNode(void)
 				{ return (this->ptrToNode); };
+			node*&	getNext(void)
+				{ return (this->ptrToNode->getNext()); }
+			node*&	getPrev(void)
+				{ return (this->ptrToNode->getNext()); }
+			void	AddNext(node* nod)
+				{ this->ptrToNode->AddNext(nod); }
+			void	AddNext(node_iterator nit)
+				{ this->ptrToNode->AddNext(nit->getNode()); }
+			void	AddPrev(node* nod)
+				{ this->ptrToNode->AddPrev(nod); }
+			void	AddPrev(node_iterator nit)
+				{ this->ptrToNode->AddPrev(nit->getNode()); }
 		};
 
 	public:
@@ -108,19 +120,38 @@ namespace ft
 			return (true);
 		}
 
-		// bool	basic_compare(value_type a, value_type b)
-		// {
-		// 	if (a <= b)
-		// 		return (true);
-		// 	return (false);
-		// }
-		// // Sort from "first" node to "last" node.
-		// template	<class Predicate>
-		// void	quick_sort(node* first_node, node* last_node, Predicate compare)
-		// {
-		// 	value_type	pivot = first_node;
+		struct	basic_compare
+		{
+			bool	operator()(value_type const& a, value_type const& b) const
+			{ return (a < b); }
+		};
+		// Sort from "first" node to "last" node.
+		template	<class Predicate>
+		void	quick_sort(iterator left, iterator right, Predicate compare)
+		{
+			iterator	check = left;
+			if (left == right || --check == right)
+				return ;
+			value_type	pivot = *left;
+			value_type	temp;
+			iterator	i = left;
+			iterator	j = right;
 
-		// }
+			while (i != j)
+			{
+				while (compare(pivot, *j))
+					j--;
+				while (i != j && !compare(pivot, *i))
+					i++;
+				temp = *i;
+				*i = *j;
+				*j = temp;
+			}
+			*left = *i;
+			*i-- = pivot;
+			quick_sort(left, i++, compare);
+			quick_sort(++i, right, compare);
+		}
 
 	public:
 		// Default constructor. Construct list with an allocator instance "alloc"
@@ -280,14 +311,26 @@ namespace ft
 			InputIterator last,
 			typename ft::disable_if<is_integral<InputIterator>::value>::type* = 0)
 		{
+			for (size_type i = 0; i < list_size; i++)
+				pop_back();
+			list_size = 0;
 			for (; first != last; first++)
+			{
 				push_back(*first);
+				list_size++;
+			}
 		};
 		// Fill assign. Assigns new contents to the list container, replacing its current contents, and modifying its size accordingly. The new contents are "n" elements, each initialized to a copy of "val".
 		void	assign(size_type n, const value_type& val)
 		{
+			for (size_type i = 0; i < list_size; i++)
+				pop_back();
+			list_size = 0;
 			for (size_type i = 0; i < n; i++)
+			{
 				push_back(val);
+				list_size++;
+			}
 		};
 
 		// Inserts a new element at the beginning of the list, right before its current first element, effectively increasing its size by one.
@@ -334,7 +377,7 @@ namespace ft
 			node_alloc.construct(new_node, *new_node);
 			new_node->setContent(val);
 			node_iterator	nit = position;
-			nit.getNode()->AddNext(new_node);
+			nit.AddNext(new_node);
 			list_size++;
 			return (nit++);
 		};
@@ -350,7 +393,7 @@ namespace ft
 				temp = node_alloc.allocate(1);
 				node_alloc.construct(temp, *temp);
 				temp->setContent(val);
-				nit.getNode()->AddNext(temp);
+				nit.AddNext(temp);
 				list_size++;
 			}
 		}
@@ -371,7 +414,7 @@ namespace ft
 			{
 				temp = node_alloc.allocate(1);
 				node_alloc.construct(temp, *first_n.getNode());
-				nit.getNode()->AddPrev(temp);
+				nit.AddPrev(temp);
 				list_size++;
 			}
 		};
@@ -465,7 +508,7 @@ namespace ft
 			node_iterator	this_nit(position);
 			node_iterator	that_nit(i);
 
-			this_nit.getNode()->AddPrev(that_nit.getNode()->PopGetNode());
+			this_nit.AddPrev(that_nit.getNode()->PopGetNode());
 			lst.list_size--;
 			this->list_size++;
 		};
@@ -480,34 +523,11 @@ namespace ft
 			node_iterator	temp;
 			while (first_n != last_n && lst.list_size != 0)
 			{
-				pos_n.getNode()->AddPrev(first_n++.getNode()->PopGetNode());
+				pos_n.AddPrev(first_n++.getNode()->PopGetNode());
 				this->list_size++;
 				lst.list_size--;
 			}
 		};
-		// {
-		// 	node*	target_node;
-		// 	iterator	it = lst.find_node(first, target_node);
-		// 	if (it != first)
-		// 		return ;
-		// 	node*		pos_node;
-		// 	it = this->find_node(position, pos_node);
-		// 	if (it != position)
-		// 		return ;
-		// 	pos_node = pos_node->getNext();
-
-		// 	list	temp_list(first, last);
-		// 	first = temp_list.begin();
-		// 	last = temp_list.end();
-		// 	for (; first != last; first++)
-		// 	{
-		// 		node*	temp = node_alloc.allocate(1);
-		// 		temp->setContent(*first);
-		// 		pos_node->AddPrev(temp);
-		// 		this->list_size++;
-		// 		lst.list_size--;
-		// 	}
-		// };
 
 		// Removes from the container all the elements that compare equal to "val".
 		void	remove(const value_type& val)
@@ -579,34 +599,107 @@ namespace ft
 				cur_node = next_node;
 			}
 		};
-		// // Merges x into the list by transferring all of its elements at their respective ordered positions into the container (both containers shall already be ordered).
-		// void	merge(list& lst)
-		// {
-		// 	node*	this_node = this->blank_node->getNext();
-		// 	node*	that_node = lst.blank_node->getNext();
-		// 	while (this_node != blank_node)
-		// 	{
-		// 		while (*that_node->getContent <= *this_node->getContent)
-		// 	}
+		// Merges x into the list by transferring all of its elements at their respective ordered positions into the container (both containers shall already be ordered).
+		void	merge(list& lst)
+		{ merge(lst, basic_compare()); }
+		// Merges x into the list by transferring all of its elements at their respective ordered positions into the container (both containers shall already be ordered). Binary predicate "comp" shall be a function pointer or a function object.
+		template	<class Compare>
+		void	merge(list& lst, Compare comp)
+		{
+			node_iterator	this_nit(this->begin());
+			node_iterator	that_nit(lst.begin());
 
-		// }
-		// // Merges x into the list by transferring all of its elements at their respective ordered positions into the container (both containers shall already be ordered). Binary predicate "comp" shall be a function pointer or a function object.
-		// template	<class Compare>
-		// void	merge(list& x, Compare comp);
+			while (this_nit != this->end())
+			{
+				while (comp(*that_nit, *this_nit) && that_nit != lst.end())
+				{
+					that_nit++;
+					this_nit.AddPrev(that_nit.getPrev()->PopGetNode());
+				}
+					std::cout << *this_nit <<std::endl;
+				this_nit++;
+			}
+		};
 
-		// // Sorts the elements in the list by applying an algorithm that uses "operator<", altering their position within the container.
-		// void sort(void)
-		// {
-
-		// };
-		// // Sorts the elements in the list by applying an algorithm that uses "comp", altering their position within the container.
-		// template	<class Compare>
-		// void	sort (Compare comp);
+		// Sorts the elements in the list by applying an algorithm that uses "operator<", altering their position within the container.
+		void	sort(void)
+		{ quick_sort(begin(), --end(), basic_compare()); };
+		// Sorts the elements in the list by applying an algorithm that uses "comp", altering their position within the container.
+		template	<class Compare>
+		void	sort (Compare comp)
+		{ quick_sort(begin(), --end(), comp); };
 
 		// // Reverses the order of the elements in the list container.
-		// void	reverse(void);
+		void	reverse(void)
+		{
+			iterator	first = begin();
+			iterator	last = --end();
+			value_type	temp;
 
+			while (first != last)
+			{
+				temp = *first;
+				*first = *last;
+				*last = temp;
+				first++;
+				if (first == last)
+					break ;
+				last--;
+			}
+		};
 	};
+
+	template	<class T, class Alloc>
+	bool	operator==(const list<T,Alloc>& lhs, const list<T,Alloc>& rhs)
+	{
+		if (lhs.size() != rhs.size())
+			return (false);
+		typename list<T,Alloc>::const_iterator	lit = lhs.begin();
+		typename list<T,Alloc>::const_iterator	rit = rhs.begin();
+		while (lit != lhs.end() || rit != rhs.end())
+		{
+			if (*lit != *rit)
+				return (false);
+			lit++;
+			rit++;
+		}
+		return (true);
+	};
+
+	template	<class T, class Alloc>
+	bool	operator!=(const list<T,Alloc>& lhs, const list<T,Alloc>& rhs)
+		{ return (!(lhs == rhs)); };
+
+	template	<class T, class Alloc>
+	bool	operator<(const list<T,Alloc>& lhs, const list<T,Alloc>& rhs)
+	{
+		typename list<T,Alloc>::const_iterator	lit = lhs.begin();
+		typename list<T,Alloc>::const_iterator	rit = rhs.begin();
+		while (lit != lhs.end() && rit != rhs.end())
+		{
+			if (*lit < *rit)
+				return (true);
+			else if (*lit > *rit)
+				return (false);
+			lit++;
+			rit++;
+		}
+		if (lit == lhs.end() && rit != rhs.end())
+			return (true);
+		return (false);
+	};
+
+	template	<class T, class Alloc>
+	bool	operator<=(const list<T,Alloc>& lhs, const list<T,Alloc>& rhs)
+		{ return (!(rhs < lhs)); };
+
+	template	<class T, class Alloc>
+	bool	operator>(const list<T,Alloc>& lhs, const list<T,Alloc>& rhs)
+		{ return (rhs < lhs); };
+
+	template	<class T, class Alloc>
+	bool	operator>=(const list<T,Alloc>& lhs, const list<T,Alloc>& rhs)
+		{ return (!(lhs < rhs)); };
 }
 
 #endif

@@ -2,6 +2,9 @@
 # define LIST_ITERATOR_HPP
 
 # include "DoublyLinkedNode.hpp"
+# include "enable_if.hpp"
+
+#include <iostream>
 
 namespace ft
 {
@@ -12,7 +15,7 @@ namespace ft
 	class	list_iterator
 	{
 	protected:
-		typedef list_iterator<Tp, Node>			iterator_type;
+		typedef list_iterator<Tp, Node>			iterator;
 		typedef Node							node;
 		node*									ptrToNode;
 
@@ -27,44 +30,64 @@ namespace ft
 			ptrToNode(nullptr) {};
 		list_iterator(node* nod):
 			ptrToNode(nod) {};
-		list_iterator(iterator_type const& iter):
+		list_iterator(iterator const& iter):
 			ptrToNode(iter.ptrToNode) {};
-		iterator_type&	operator=(iterator_type const& iter)
-			{ this->ptrToNode = iter.ptrToNode; return (*this); };
-		virtual ~list_iterator(void) {};
-
-		bool		operator==(iterator_type const& iter) const
-			{ return (this->ptrToNode == iter.ptrToNode); };
-		bool		operator!=(iterator_type const& iter) const
-			{ return (this->ptrToNode != iter.ptrToNode); };
-		reference	operator*(void)
+		template	<typename _Tp, typename N>
+		list_iterator(
+			list_iterator<_Tp, N> const& iter,
+			typename ft::disable_if<is_const_of<Tp, _Tp>::value>::type* = 0):
+			ptrToNode(((iterator*)(&iter))->ptrToNode)
+		{};
+		template	<typename _Tp, typename N>
+		iterator&	operator=(list_iterator<_Tp, N> const& iter)
 		{
-			return (*this->ptrToNode->getContent());
+			typename ft::enable_if<is_const_same<_Tp, Tp>::value>::type*	dummy;
+			(void)dummy;
+			this->ptrToNode = ((iterator*)(&iter))->ptrToNode;
+			return (*this);
 		};
+
+
+		template	<typename _Tp, typename N>
+		bool		operator==(list_iterator<_Tp, N> const& iter) const
+		{
+			typename ft::enable_if<is_const_same<_Tp, Tp>::value>::type*	dummy;
+			(void)dummy;
+			return (this->ptrToNode == ((iterator*)(&iter))->ptrToNode);
+		};
+		template	<typename _Tp, typename N>
+		bool		operator!=(list_iterator<_Tp, N> const& iter) const
+		{
+			typename ft::enable_if<is_const_same<_Tp, Tp>::value>::type*	dummy;
+			(void)dummy;
+			return (this->ptrToNode != ((iterator*)(&iter))->ptrToNode);
+		};
+		reference	operator*(void)
+		{ return (*this->ptrToNode->getContent()); };
 		pointer		operator->(void) const
 			{ return (this->ptrToNode->getContent()); };
-		iterator_type&	operator++(void)
+		iterator&	operator++(void)
 		{
 			if (ptrToNode->getContent() != nullptr)
 				ptrToNode = ptrToNode->getNext();
 			return (*this);
 		};
-		iterator_type&	operator--(void)
+		iterator&	operator--(void)
 		{
 			if (ptrToNode->getContent() != nullptr)
 				ptrToNode = ptrToNode->getPrev();
 			return (*this);
 		};
-		iterator_type	operator++(int)
+		iterator	operator++(int)
 		{
-			iterator_type	temp = *this;
+			iterator	temp = *this;
 			if (ptrToNode->getContent() != nullptr)
 				ptrToNode = ptrToNode->getNext();
 			return (temp);
 		};
-		iterator_type	operator--(int)
+		iterator	operator--(int)
 		{
-			iterator_type	temp = *this;
+			iterator	temp = *this;
 			if (ptrToNode->getContent() != nullptr)
 				ptrToNode = ptrToNode->getPrev();
 			return (temp);
