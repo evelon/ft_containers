@@ -146,6 +146,13 @@ namespace ft
 			this->prev = this;
 			return (this);
 		}
+		void	ContentExchange(node*& nod)
+		{
+			content_type*	temp;
+			temp = nod->content;
+			nod->content = this->content;
+			this->content = temp;
+		}
 	};
 }
 

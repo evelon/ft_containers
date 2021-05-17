@@ -106,9 +106,9 @@ namespace ft
 		{
 			size_type	node_max = node_alloc.max_size();
 			size_type	type_max = std::numeric_limits<difference_type>::max();
-			if (node_max > type_max)
+			if (2 * node_max > type_max)
 				return (type_max);
-			return (node_max);
+			return (2 * node_max);
 		}
 
 		bool	is_included(iterator& position, list& lst)
@@ -132,23 +132,19 @@ namespace ft
 			iterator	check = left;
 			if (left == right || --check == right)
 				return ;
-			value_type	pivot = *left;
-			value_type	temp;
-			iterator	i = left;
-			iterator	j = right;
+			node_iterator	pivot = left;
+			node_iterator	i = left;
+			node_iterator	j = right;
 
 			while (i != j)
 			{
-				while (compare(pivot, *j))
+				while (compare(*pivot, *j))
 					j--;
-				while (i != j && !compare(pivot, *i))
+				while (i != j && !compare(*pivot, *i))
 					i++;
-				temp = *i;
-				*i = *j;
-				*j = temp;
+				i.getNode()->ContentExchange(j.getNode());
 			}
-			*left = *i;
-			*i-- = pivot;
+			pivot.getNode()->ContentExchange((i--).getNode());
 			quick_sort(left, i++, compare);
 			quick_sort(++i, right, compare);
 		}
@@ -221,7 +217,7 @@ namespace ft
 		list&	operator=(const list& lst)
 		{
 			node*	cur_node = this->blank_node->getNext();
-			if (lst.size() <= this->list_size)
+			if (lst.list_size <= this->list_size)
 			{
 				for (const_iterator it = lst.begin(); it != lst.end(); it++)
 				{
@@ -311,26 +307,20 @@ namespace ft
 			InputIterator last,
 			typename ft::disable_if<is_integral<InputIterator>::value>::type* = 0)
 		{
-			for (size_type i = 0; i < list_size; i++)
-				pop_back();
+			while (blank_node->getNext() != blank_node)
+				pop_front();
 			list_size = 0;
 			for (; first != last; first++)
-			{
 				push_back(*first);
-				list_size++;
-			}
 		};
 		// Fill assign. Assigns new contents to the list container, replacing its current contents, and modifying its size accordingly. The new contents are "n" elements, each initialized to a copy of "val".
 		void	assign(size_type n, const value_type& val)
 		{
-			for (size_type i = 0; i < list_size; i++)
+			while (blank_node->getNext() != blank_node)
 				pop_back();
 			list_size = 0;
 			for (size_type i = 0; i < n; i++)
-			{
 				push_back(val);
-				list_size++;
-			}
 		};
 
 		// Inserts a new element at the beginning of the list, right before its current first element, effectively increasing its size by one.
@@ -376,10 +366,10 @@ namespace ft
 			node*	new_node(node_alloc.allocate(1));
 			node_alloc.construct(new_node, *new_node);
 			new_node->setContent(val);
-			node_iterator	nit = position;
-			nit.AddNext(new_node);
+			node_iterator	nit = position--;
+			nit.AddPrev(new_node);
 			list_size++;
-			return (nit++);
+			return (++position);
 		};
 		// Fill insert. The container is extended by inserting new elements containing "val", before the element at the specified "position".
 		void		insert(iterator position, size_type n, const value_type& val)
@@ -393,7 +383,7 @@ namespace ft
 				temp = node_alloc.allocate(1);
 				node_alloc.construct(temp, *temp);
 				temp->setContent(val);
-				nit.AddNext(temp);
+				nit.AddPrev(temp);
 				list_size++;
 			}
 		}
@@ -409,7 +399,6 @@ namespace ft
 			node_iterator	first_n(temp_list.begin());
 			node_iterator	last_n(temp_list.end());
 			node*			temp;
-			nit++;
 			for (; first_n != last_n; first_n++)
 			{
 				temp = node_alloc.allocate(1);
@@ -468,11 +457,16 @@ namespace ft
 		// Resizes the container so that it contains "n" elements.
 		void	resize(size_type n, value_type val = value_type())
 		{
+			node_iterator	nit = begin();
 			for (size_type i = 0; i < n; i++)
 			{
-				push_back(val);
-				list_size++;
+				if (nit != end())
+					nit++;
+				else
+					push_back(val);
 			}
+			while (n < list_size)
+				pop_back();
 		};
 		// Removes all elements from the list container (which are destroyed), and leaving the container with a size of 0.
 		void	clear(void)
@@ -487,7 +481,7 @@ namespace ft
 		{
 			if (!is_included(position, *this))
 				return ;
-			node_iterator	nit(position);
+			node_iterator	nit(--position);
 			node*	pos_node = nit.getNode()->getNext();
 			node*	cur_node = lst.blank_node->getNext();
 			node*	next_node = cur_node->getNext();
@@ -505,7 +499,7 @@ namespace ft
 		{
 			if (!is_included(position, *this) || !is_included(i, lst))
 				return ;
-			node_iterator	this_nit(position);
+			node_iterator	this_nit(--position);
 			node_iterator	that_nit(i);
 
 			this_nit.AddPrev(that_nit.getNode()->PopGetNode());
@@ -518,12 +512,11 @@ namespace ft
 			list			temp_list(first, last);
 			node_iterator	first_n(temp_list.begin());
 			node_iterator	last_n(temp_list.end());
-			node_iterator	pos_n(position);
-			pos_n++;
+			node_iterator	pos_n(--position);
 			node_iterator	temp;
 			while (first_n != last_n && lst.list_size != 0)
 			{
-				pos_n.AddPrev(first_n++.getNode()->PopGetNode());
+				pos_n.AddPrev((++first_n).getPrev()->PopGetNode());
 				this->list_size++;
 				lst.list_size--;
 			}
@@ -616,7 +609,6 @@ namespace ft
 					that_nit++;
 					this_nit.AddPrev(that_nit.getPrev()->PopGetNode());
 				}
-					std::cout << *this_nit <<std::endl;
 				this_nit++;
 			}
 		};

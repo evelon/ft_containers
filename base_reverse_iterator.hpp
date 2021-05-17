@@ -26,8 +26,13 @@ namespace ft
 			iterator_type(ptr) {};
 		base_reverse_iterator(reverse_iterator_type const& rev_iter):
 			iterator_type(rev_iter) {};
+		base_reverse_iterator(iterator_type iter):
+			iterator_type(--iter) {};
 		base_reverse_iterator&	operator=(reverse_iterator_type const& rev_iter)
-			{ return (static_cast<iterator_type*>(this)->operator=(rev_iter)); }
+		{
+			static_cast<iterator_type*>(this)->operator=(rev_iter);
+			return (*this);
+		}
 		~base_reverse_iterator(void) {};
 		iterator_type	base(void) const
 			{ iterator_type temp(*this); return (++temp); };
@@ -42,9 +47,17 @@ namespace ft
 			return (*this);
 		}
 		reverse_iterator_type	operator++(int)
-			{ return (static_cast<iterator_type*>(this)->operator--(0)); };
+		{
+			reverse_iterator_type	temp(*this);
+			static_cast<iterator_type*>(this)->operator--(0);
+			return (temp);
+		};
 		reverse_iterator_type	operator--(int)
-			{ return (static_cast<iterator_type*>(this)->operator++(0)); };
+		{
+			reverse_iterator_type	temp(*this);
+			static_cast<iterator_type*>(this)->operator++(0);
+			return (temp);
+		};
 	};
 };
 
