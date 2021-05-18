@@ -106,9 +106,9 @@ namespace ft
 		{
 			size_type	node_max = node_alloc.max_size();
 			size_type	type_max = std::numeric_limits<difference_type>::max();
-			if (2 * node_max > type_max)
+			if (node_max > type_max)
 				return (type_max);
-			return (2 * node_max);
+			return (node_max);
 		}
 
 		bool	is_included(iterator& position, list& lst)
@@ -235,7 +235,7 @@ namespace ft
 			}
 			else
 			{
-				const_iterator it;
+				iterator it;
 				for (it = lst.begin(); cur_node != this->blank_node; it++)
 				{
 					cur_node->setContent(*it);
@@ -510,12 +510,13 @@ namespace ft
 		void	splice(iterator position, list& lst, iterator first, iterator last)
 		{
 			list			temp_list(first, last);
+			node_iterator	origin_first = first;
 			node_iterator	first_n(temp_list.begin());
 			node_iterator	last_n(temp_list.end());
 			node_iterator	pos_n(--position);
-			node_iterator	temp;
 			while (first_n != last_n && lst.list_size != 0)
 			{
+				(++origin_first).getPrev()->PopGetNode();
 				pos_n.AddPrev((++first_n).getPrev()->PopGetNode());
 				this->list_size++;
 				lst.list_size--;

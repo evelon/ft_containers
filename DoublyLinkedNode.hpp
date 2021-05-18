@@ -15,7 +15,7 @@ namespace ft
 		typedef DoublyLinkedNode<Tp, Alloc>	node;
 
 	public:
-		typedef Tp										content_type;
+		typedef Tp										value_type;
 		typedef Alloc									allocator_type;
 		typedef typename Alloc::reference				reference;
 		typedef typename Alloc::const_reference			const_reference;
@@ -23,69 +23,64 @@ namespace ft
 		typedef typename Alloc::const_pointer			const_pointer;
 
 	private:
-		allocator_type	allocator;
-		content_type*	content;
-		content_type	null_content;
-		content_type*	null_content_ptr;
-		node*			next;
-		node*			prev;
+		static allocator_type	allocator;
+		value_type*				content;
+		node*					next;
+		node*					prev;
 
 	public:
 		explicit DoublyLinkedNode(const allocator_type& alloc = allocator_type()):
-			allocator(alloc),
 			content(nullptr),
-			null_content(),
-			null_content_ptr(&null_content),
 			next(this),
 			prev(this)
-		{};
+		{
+			allocator = alloc;
+		};
 		DoublyLinkedNode(
-			const content_type& val,
+			const value_type& val,
 			const allocator_type& alloc = allocator_type()):
-			allocator(alloc),
 			content(allocator.allocate(1)),
-			null_content(),
-			null_content_ptr(&null_content),
 			next(this),
 			prev(this)
-			{ allocator.construct(content, val); };
+		{
+			allocator = alloc;
+			allocator.construct(content, val);
+		};
 		DoublyLinkedNode(
 			node const& ori_node,
 			const allocator_type& alloc = allocator_type()):
-			allocator(alloc),
 			content(),
-			null_content(),
-			null_content_ptr(&null_content),
 			next(ori_node.next),
 			prev(ori_node.prev)
+		{
+			allocator = alloc;
+			if (&ori_node == this)
 			{
-				if (&ori_node == this)
-				{
-					this->content = nullptr;
-					this->next = this;
-					this->prev = this;
-					return ;
-				}
-				if (ori_node.content)
-				{
-					this->content = allocator.allocate(1);
-					allocator.construct(this->content, *ori_node.content);
-				}
-				else
-					this->content = nullptr;
-			};
+				this->content = nullptr;
+				this->next = this;
+				this->prev = this;
+				return ;
+			}
+			if (ori_node.content)
+			{
+				this->content = allocator.allocate(1);
+				allocator.construct(this->content, *ori_node.content);
+			}
+			else
+				this->content = nullptr;
+		};
 		DoublyLinkedNode(
-			content_type value,
+			value_type value,
 			node* next_node,
 			node* prev_node,
 			const allocator_type& alloc = allocator_type()):
-			allocator(alloc),
 			content(allocator.allocate(1)),
-			null_content(),
-			null_content_ptr(&null_content),
 			next(next_node),
 			prev(prev_node)
-			{ allocator.construct(this->content, value); };
+		{
+			allocator = alloc;
+			allocator.construct(this->content, value);
+		};
 		node&	operator=(node const& ori_node)
 		{
 			if (ori_node.content)
@@ -106,17 +101,13 @@ namespace ft
 			allocator.destroy(content);
 			allocator.deallocate(content, 1);
 		};
-		content_type*&	getContent(void)
-		{
-			if (!content)
-				return (null_content_ptr);
-			return (content);
-		};
+		value_type*&	getContent(void)
+		{ return (content); };
 		node*&	getNext(void)
 			{ return (next); };
 		node*&	getPrev(void)
 			{ return (prev); };
-		void	setContent(content_type const& val)
+		void	setContent(value_type const& val)
 		{
 			if (content != nullptr)
 				allocator.destroy(content);
@@ -148,12 +139,15 @@ namespace ft
 		}
 		void	ContentExchange(node*& nod)
 		{
-			content_type*	temp;
+			value_type*	temp;
 			temp = nod->content;
 			nod->content = this->content;
 			this->content = temp;
 		}
 	};
+
+	template	<typename Tp, class Alloc>
+	Alloc	DoublyLinkedNode<Tp, Alloc>::allocator = Alloc();
 }
 
 #endif

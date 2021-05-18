@@ -18,6 +18,7 @@ namespace ft
 		typedef list_iterator<Tp, Node>			iterator;
 		typedef Node							node;
 		node*									ptrToNode;
+		Tp										default_value;
 
 	public:
 		typedef std::bidirectional_iterator_tag	iterator_category;
@@ -27,16 +28,17 @@ namespace ft
 		typedef std::ptrdiff_t					difference_type;
 
 		list_iterator(void):
-			ptrToNode(nullptr) {};
+			ptrToNode(nullptr), default_value(){};
 		list_iterator(node* nod):
-			ptrToNode(nod) {};
+			ptrToNode(nod), default_value() {};
 		list_iterator(iterator const& iter):
-			ptrToNode(iter.ptrToNode) {};
+			ptrToNode(iter.ptrToNode), default_value() {};
 		template	<typename _Tp, typename N>
 		list_iterator(
 			list_iterator<_Tp, N> const& iter,
 			typename ft::disable_if<is_const_of<Tp, _Tp>::value>::type* = 0):
-			ptrToNode(((iterator*)(&iter))->ptrToNode)
+			ptrToNode(((iterator*)(&iter))->ptrToNode),
+			default_value()
 		{};
 		template	<typename _Tp, typename N>
 		iterator&	operator=(list_iterator<_Tp, N> const& iter)
@@ -44,6 +46,7 @@ namespace ft
 			typename ft::enable_if<is_const_same<_Tp, Tp>::value>::type*	dummy;
 			(void)dummy;
 			this->ptrToNode = ((iterator*)(&iter))->ptrToNode;
+			default_value = value_type();
 			return (*this);
 		};
 
@@ -63,32 +66,37 @@ namespace ft
 			return (this->ptrToNode != ((iterator*)(&iter))->ptrToNode);
 		};
 		reference	operator*(void)
-		{ return (*this->ptrToNode->getContent()); };
+		{
+			value_type*	value = this->ptrToNode->getContent();
+			if (value)
+				return (*value);
+			return (default_value);
+		};
 		pointer		operator->(void) const
 			{ return (this->ptrToNode->getContent()); };
 		iterator&	operator++(void)
 		{
-			if (ptrToNode->getContent() != nullptr)
+			// if (ptrToNode->getContent() != nullptr)
 				ptrToNode = ptrToNode->getNext();
 			return (*this);
 		};
 		iterator&	operator--(void)
 		{
-			if (ptrToNode->getContent() != nullptr)
+			// if (ptrToNode->getContent() != nullptr)
 				ptrToNode = ptrToNode->getPrev();
 			return (*this);
 		};
 		iterator	operator++(int)
 		{
 			iterator	temp = *this;
-			if (ptrToNode->getContent() != nullptr)
+			// if (ptrToNode->getContent() != nullptr)
 				ptrToNode = ptrToNode->getNext();
 			return (temp);
 		};
 		iterator	operator--(int)
 		{
 			iterator	temp = *this;
-			if (ptrToNode->getContent() != nullptr)
+			// if (ptrToNode->getContent() != nullptr)
 				ptrToNode = ptrToNode->getPrev();
 			return (temp);
 		};
