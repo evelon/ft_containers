@@ -1,10 +1,10 @@
 #ifndef LIST_ITERATOR_HPP
 # define LIST_ITERATOR_HPP
 
+# include <iterator>
 # include "DoublyLinkedNode.hpp"
 # include "enable_if.hpp"
 
-#include <iostream>
 
 namespace	ft
 {
@@ -15,10 +15,10 @@ namespace	ft
 	class	list_iterator
 	{
 	protected:
-		typedef list_iterator<Tp, Node>			iterator;
 		typedef Node							node;
-		node*									ptrToNode;
+		typedef list_iterator<Tp, Node>			iterator;
 		static Tp								default_value;
+		node*									ptrToNode;
 
 	public:
 		typedef std::bidirectional_iterator_tag	iterator_category;
@@ -27,6 +27,16 @@ namespace	ft
 		typedef Tp*								pointer;
 		typedef std::ptrdiff_t					difference_type;
 
+	protected:
+		reference	reverse_reference(void)
+		{
+			value_type*	value = this->ptrToNode->getPrev()->getContent();
+			if (value)
+				return (*value);
+			return (default_value);
+		};
+
+	public:
 		list_iterator(void):
 			ptrToNode(nullptr) {};
 		list_iterator(node* nod):
@@ -34,11 +44,18 @@ namespace	ft
 		list_iterator(iterator const& iter):
 			ptrToNode(iter.ptrToNode) {};
 		template	<typename _Tp, typename N>
-		list_iterator(
-			list_iterator<_Tp, N> const& iter,
-			typename ft::disable_if<is_const_of<Tp, _Tp>::value>::type* = 0):
+		list_iterator(list_iterator<_Tp, N> const& iter):
 			ptrToNode(((iterator*)(&iter))->ptrToNode)
-		{};
+		{
+			typename ft::disable_if<is_const_of<Tp, _Tp>::value>::type* dummy;
+			(void)dummy;
+		};
+		~list_iterator() {};
+		iterator&	operator=(iterator const& iter)
+		{
+			this->ptrToNode = iter.ptrToNode;
+			return (*this);
+		}
 		template	<typename _Tp, typename N>
 		iterator&	operator=(list_iterator<_Tp, N> const& iter)
 		{
@@ -97,13 +114,6 @@ namespace	ft
 			// if (ptrToNode->getContent() != nullptr)
 				ptrToNode = ptrToNode->getPrev();
 			return (temp);
-		};
-		reference	reverse_reference(void)
-		{
-			value_type*	value = this->ptrToNode->getPrev()->getContent();
-			if (value)
-				return (*value);
-			return (default_value);
 		};
 	};
 

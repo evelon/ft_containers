@@ -7,5 +7,10 @@
 
 int	main()
 {
-	std::vector<int>	vt;
+	int	arr[3] = {1,2,3};
+
+	int*	a = arr + 3;
+
+	for (int* i = arr; i < a + 1; i++)
+		std::cout << *i << std::endl;
 }
