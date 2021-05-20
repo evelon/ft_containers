@@ -1,16 +1,13 @@
 #ifndef LIST_HPP
 # define LIST_HPP
 
-# include <memory>
 # include "enable_if.hpp"
 # include "DoublyLinkedNode.hpp"
 # include "list_iterator.hpp"
 # include "base_reverse_iterator.hpp"
 
-# include <unistd.h>
 
-
-namespace ft
+namespace	ft
 {
 	template	<typename Tp, class Alloc = std::allocator<Tp> >
 	class	list;
@@ -34,9 +31,9 @@ namespace ft
 			node_iterator(iterator const& it):
 				iterator(it) {};
 			node_iterator&	operator=(node_iterator const& n_it)
-				{ this->ptrToNode = n_it.ptrToNode; return (*this); }
+				{ iterator::operator=(n_it); return (*this); }
 			node_iterator&	operator=(iterator const& it)
-				{ this->ptrToNode = it.ptrToNode; return (*this); }
+				{ iterator::operator=(it); return (*this); }
 			virtual ~node_iterator() {};
 
 
@@ -71,7 +68,7 @@ namespace ft
 			node*&	getNext(void)
 				{ return (this->ptrToNode->getNext()); }
 			node*&	getPrev(void)
-				{ return (this->ptrToNode->getNext()); }
+				{ return (this->ptrToNode->getPrev()); }
 			void	AddNext(node* nod)
 				{ this->ptrToNode->AddNext(nod); }
 			void	AddNext(node_iterator nit)
@@ -126,27 +123,26 @@ namespace ft
 			{ return (a < b); }
 		};
 		// Sort from "first" node to "last" node.
-		template	<class Predicate>
-		void	quick_sort(iterator left, iterator right, Predicate compare)
-		{
-			iterator	check = left;
-			if (left == right || --check == right)
-				return ;
-			node_iterator	pivot = left;
-			node_iterator	i = left;
-			node_iterator	j = right;
 
-			while (i != j)
+		void	print_list(void)
+		{
+			for (iterator it = begin(); it != end(); it++)
+				std::cout << "[" << *it << "]" << std::endl;
+				std::cout << std::endl;
+		}
+
+		template	<class Predicate>
+		void	insertion_sort(Predicate compare)
+		{
+			node_iterator	i, j, key, pre_begin;
+
+			pre_begin = --begin();
+			for (i = ++begin(); i != end(); i++)
 			{
-				while (compare(*pivot, *j))
-					j--;
-				while (i != j && !compare(*pivot, *i))
-					i++;
-				i.getNode()->ContentExchange(j.getNode());
+				key = i--;
+				for (j = i++; j != pre_begin && compare(*key, *j); j--);
+				j.getNode()->AddNext(key.getNode()->PopGetNode());
 			}
-			pivot.getNode()->ContentExchange((i--).getNode());
-			quick_sort(left, i++, compare);
-			quick_sort(++i, right, compare);
 		}
 
 	public:
@@ -264,17 +260,17 @@ namespace ft
 
 		// Returns a reverse iterator pointing to the last element in the container.
 		reverse_iterator		rbegin(void)
-			{ return (reverse_iterator(blank_node->getPrev())); };
+			{ return (reverse_iterator(blank_node)); };
 		// Returns a const reverse iterator pointing to the last element in the container.
 		const_reverse_iterator	rbegin(void) const
-			{ return (const_reverse_iterator(blank_node->getPrev())); };
+			{ return (const_reverse_iterator(blank_node)); };
 
 		// Returns a reverse iterator pointing to the element preceding the first element in the list container.
 		reverse_iterator		rend(void)
-			{ return (reverse_iterator(blank_node)); };
+			{ return (reverse_iterator(blank_node->getNext())); };
 		// Returns a const reverse iterator pointing to the element preceding the first element in the list container.
 		const_reverse_iterator	rend(void) const
-			{ return (const_reverse_iterator(blank_node)); };
+			{ return (const_reverse_iterator(blank_node->getNext())); };
 
 		// Returns whether the list container is empty.
 		bool			empty(void) const
@@ -481,8 +477,8 @@ namespace ft
 		{
 			if (!is_included(position, *this))
 				return ;
-			node_iterator	nit(--position);
-			node*	pos_node = nit.getNode()->getNext();
+			node_iterator	nit(position);
+			node*	pos_node = nit.getNode();
 			node*	cur_node = lst.blank_node->getNext();
 			node*	next_node = cur_node->getNext();
 			while (next_node != lst.blank_node)
@@ -506,21 +502,25 @@ namespace ft
 			lst.list_size--;
 			this->list_size++;
 		};
-		// Splice a range of elements. Transfers the range [first,last) from x into the container, inserting them at position
+		// Splice a range of elements. Transfers the range [first,last) from "lst" into the container, inserting them at position
 		void	splice(iterator position, list& lst, iterator first, iterator last)
 		{
-			list			temp_list(first, last);
-			node_iterator	origin_first = first;
-			node_iterator	first_n(temp_list.begin());
-			node_iterator	last_n(temp_list.end());
-			node_iterator	pos_n(--position);
-			while (first_n != last_n && lst.list_size != 0)
+			if (!is_included(position, *this) || !is_included(first, lst) || !is_included(last, lst))
+				return ;
+			node_iterator	nit(position);
+			node_iterator	first_n = first;
+			node_iterator	last_n = last;
+			node_iterator	temp = first_n++;
+			while (first_n != last_n)
 			{
-				(++origin_first).getPrev()->PopGetNode();
-				pos_n.AddPrev((++first_n).getPrev()->PopGetNode());
-				this->list_size++;
+				nit.AddPrev(temp.getNode()->PopGetNode());
+				temp = first_n++;
 				lst.list_size--;
+				this->list_size++;
 			}
+			nit.AddPrev(temp.getNode()->PopGetNode());
+			lst.list_size--;
+			this->list_size++;
 		};
 
 		// Removes from the container all the elements that compare equal to "val".
@@ -601,26 +601,35 @@ namespace ft
 		void	merge(list& lst, Compare comp)
 		{
 			node_iterator	this_nit(this->begin());
-			node_iterator	that_nit(lst.begin());
+			node_iterator	lst_nit(lst.begin());
 
 			while (this_nit != this->end())
 			{
-				while (comp(*that_nit, *this_nit) && that_nit != lst.end())
+				while (comp(*lst_nit, *this_nit) && lst_nit != lst.end())
 				{
-					that_nit++;
-					this_nit.AddPrev(that_nit.getPrev()->PopGetNode());
+					lst_nit++;
+					this_nit.AddPrev(lst_nit.getPrev()->PopGetNode());
+					this->list_size++;
+					lst.list_size--;
 				}
 				this_nit++;
+			}
+			while (lst_nit != lst.end())
+			{
+				lst_nit++;
+				this_nit.AddPrev(lst_nit.getPrev()->PopGetNode());
+				this->list_size++;
+				lst.list_size--;
 			}
 		};
 
 		// Sorts the elements in the list by applying an algorithm that uses "operator<", altering their position within the container.
 		void	sort(void)
-		{ quick_sort(begin(), --end(), basic_compare()); };
+		{ insertion_sort(basic_compare()); };
 		// Sorts the elements in the list by applying an algorithm that uses "comp", altering their position within the container.
 		template	<class Compare>
 		void	sort (Compare comp)
-		{ quick_sort(begin(), --end(), comp); };
+		{ insertion_sort(comp); };
 
 		// // Reverses the order of the elements in the list container.
 		void	reverse(void)

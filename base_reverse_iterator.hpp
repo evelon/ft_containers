@@ -6,7 +6,7 @@
 # include <iostream>
 # include <iterator>
 
-namespace ft
+namespace	ft
 {
 	template <typename Iterator>
 	class	base_reverse_iterator;
@@ -15,8 +15,11 @@ namespace ft
 	class	base_reverse_iterator: public Iterator
 	{
 	private:
-		typedef Iterator				iterator_type;
-		typedef base_reverse_iterator	reverse_iterator_type;
+		typedef Iterator							iterator_type;
+		typedef base_reverse_iterator				reverse_iterator_type;
+		typedef typename iterator_type::value_type	value_type;
+		typedef typename iterator_type::reference	reference;
+		typedef typename iterator_type::pointer		pointer;
 
 	public:
 		base_reverse_iterator(void):
@@ -26,16 +29,21 @@ namespace ft
 			iterator_type(ptr) {};
 		base_reverse_iterator(reverse_iterator_type const& rev_iter):
 			iterator_type(rev_iter) {};
-		base_reverse_iterator(iterator_type iter):
-			iterator_type(--iter) {};
+		base_reverse_iterator(iterator_type const& iter):
+			iterator_type(iter) {};
 		base_reverse_iterator&	operator=(reverse_iterator_type const& rev_iter)
 		{
 			static_cast<iterator_type*>(this)->operator=(rev_iter);
 			return (*this);
-		}
+		};
 		~base_reverse_iterator(void) {};
+
+		pointer		operator->(void)
+			{ return (&operator*()); };
+		reference	operator*(void)
+		{ return (static_cast<iterator_type*>(this)->reverse_reference()); };
 		iterator_type	base(void) const
-			{ iterator_type temp(*this); return (++temp); };
+			{ iterator_type temp(*this); return (temp); };
 		reverse_iterator_type&	operator++(void)
 		{
 			static_cast<iterator_type*>(this)->operator--();

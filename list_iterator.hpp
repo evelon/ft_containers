@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-namespace ft
+namespace	ft
 {
 	template	<typename Tp, class Node = DoublyLinkedNode<Tp> >
 	class	list_iterator;
@@ -18,7 +18,7 @@ namespace ft
 		typedef list_iterator<Tp, Node>			iterator;
 		typedef Node							node;
 		node*									ptrToNode;
-		Tp										default_value;
+		static Tp								default_value;
 
 	public:
 		typedef std::bidirectional_iterator_tag	iterator_category;
@@ -28,17 +28,16 @@ namespace ft
 		typedef std::ptrdiff_t					difference_type;
 
 		list_iterator(void):
-			ptrToNode(nullptr), default_value(){};
+			ptrToNode(nullptr) {};
 		list_iterator(node* nod):
-			ptrToNode(nod), default_value() {};
+			ptrToNode(nod) {};
 		list_iterator(iterator const& iter):
-			ptrToNode(iter.ptrToNode), default_value() {};
+			ptrToNode(iter.ptrToNode) {};
 		template	<typename _Tp, typename N>
 		list_iterator(
 			list_iterator<_Tp, N> const& iter,
 			typename ft::disable_if<is_const_of<Tp, _Tp>::value>::type* = 0):
-			ptrToNode(((iterator*)(&iter))->ptrToNode),
-			default_value()
+			ptrToNode(((iterator*)(&iter))->ptrToNode)
 		{};
 		template	<typename _Tp, typename N>
 		iterator&	operator=(list_iterator<_Tp, N> const& iter)
@@ -46,7 +45,6 @@ namespace ft
 			typename ft::enable_if<is_const_same<_Tp, Tp>::value>::type*	dummy;
 			(void)dummy;
 			this->ptrToNode = ((iterator*)(&iter))->ptrToNode;
-			default_value = value_type();
 			return (*this);
 		};
 
@@ -100,7 +98,17 @@ namespace ft
 				ptrToNode = ptrToNode->getPrev();
 			return (temp);
 		};
+		reference	reverse_reference(void)
+		{
+			value_type*	value = this->ptrToNode->getPrev()->getContent();
+			if (value)
+				return (*value);
+			return (default_value);
+		};
 	};
+
+	template	<typename Tp, class Node>
+	Tp	list_iterator<Tp, Node>::default_value = Tp();
 }
 
 #endif

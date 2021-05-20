@@ -1,9 +1,9 @@
 #ifndef DOUBLYLINKEDNODE_HPP
 # define DOUBLYLINKEDNODE_HPP
 
-#include <memory>
+# include <memory>
 
-namespace ft
+namespace	ft
 {
 	template	<typename Tp, class Alloc = std::allocator<Tp> >
 	class	DoublyLinkedNode;
