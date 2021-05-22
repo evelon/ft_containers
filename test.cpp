@@ -3,14 +3,13 @@
 #include <iostream>
 #include <memory>
 #include <type_traits>
-
+#include "list.hpp"
+// #include "vector.hpp"
 
 int	main()
 {
-	int	arr[3] = {1,2,3};
-
-	int*	a = arr + 3;
-
-	for (int* i = arr; i < a + 1; i++)
-		std::cout << *i << std::endl;
+	ft::list<int>	lst(1, 4);
+	ft::list<int>::reverse_iterator rev = lst.rbegin();
+	ft::list<int>::reverse_iterator rev2(rev);
+	std::cout << *rev2 << std::endl;
 }

@@ -36,47 +36,46 @@ namespace	ft
 				{ iterator::operator=(it); return (*this); }
 			virtual ~node_iterator() {};
 
-
 			node_iterator&	operator++(void)
 			{
-				if (this->ptrToNode->getContent() != nullptr)
-					this->ptrToNode = this->ptrToNode->getNext();
+				if (this->getNode()->getContent() != nullptr)
+					this->getNode() = this->getNode()->getNext();
 				return (*this);
 			};
 			node_iterator&	operator--(void)
 			{
-				if (this->ptrToNode->getContent() != nullptr)
-					this->ptrToNode = this->ptrToNode->getPrev();
+				if (this->getNode()->getContent() != nullptr)
+					this->getNode() = this->getNode()->getPrev();
 				return (*this);
 			};
 			node_iterator	operator++(int)
 			{
 				node_iterator	temp = *this;
-				if (this->ptrToNode->getContent() != nullptr)
-					this->ptrToNode = this->ptrToNode->getNext();
+				if (this->getNode()->getContent() != nullptr)
+					this->getNode() = this->getNode()->getNext();
 				return (temp);
 			};
 			node_iterator	operator--(int)
 			{
 				node_iterator	temp = *this;
-				if (this->ptrToNode->getContent() != nullptr)
-					this->ptrToNode = this->ptrToNode->getPrev();
+				if (this->getNode()->getContent() != nullptr)
+					this->getNode() = this->getNode()->getPrev();
 				return (temp);
 			};
 			node*&	getNode(void)
-				{ return (this->ptrToNode); };
+				{ return (this->getNode_()); };
 			node*&	getNext(void)
-				{ return (this->ptrToNode->getNext()); }
+				{ return (this->getNode()->getNext()); }
 			node*&	getPrev(void)
-				{ return (this->ptrToNode->getPrev()); }
+				{ return (this->getNode()->getPrev()); }
 			void	AddNext(node* nod)
-				{ this->ptrToNode->AddNext(nod); }
+				{ this->getNode()->AddNext(nod); }
 			void	AddNext(node_iterator nit)
-				{ this->ptrToNode->AddNext(nit->getNode()); }
+				{ this->getNode()->AddNext(nit->getNode()); }
 			void	AddPrev(node* nod)
-				{ this->ptrToNode->AddPrev(nod); }
+				{ this->getNode()->AddPrev(nod); }
 			void	AddPrev(node_iterator nit)
-				{ this->ptrToNode->AddPrev(nit->getNode()); }
+				{ this->getNode()->AddPrev(nit->getNode()); }
 		};
 
 	public:
@@ -94,14 +93,14 @@ namespace	ft
 		typedef size_t									size_type;
 
 	private:
-		allocator_type	allocator;
-		node_allocator	node_alloc;
-		node*			blank_node;
-		size_type		list_size;
+		allocator_type	alloc_;
+		node_allocator	node_alloc_;
+		node*			blank_node_;
+		size_type		size_;
 
 		size_type	node_alloc_max_size() const
 		{
-			size_type	node_max = node_alloc.max_size();
+			size_type	node_max = node_alloc_.max_size();
 			size_type	type_max = std::numeric_limits<difference_type>::max();
 			if (node_max > type_max)
 				return (type_max);
@@ -112,7 +111,7 @@ namespace	ft
 		{
 			size_type	i = 0;
 			for (iterator it = lst.begin(); it != position; it++)
-				if (i++ > lst.list_size)
+				if (i++ > lst.size_)
 					return (false);
 			return (true);
 		}
@@ -124,12 +123,12 @@ namespace	ft
 		};
 		// Sort from "first" node to "last" node.
 
-		void	print_list(void)
-		{
-			for (iterator it = begin(); it != end(); it++)
-				std::cout << "[" << *it << "]" << std::endl;
-				std::cout << std::endl;
-		}
+		// void	print_list(void)
+		// {
+		// 	for (iterator it = begin(); it != end(); it++)
+		// 		std::cout << "[" << *it << "]" << std::endl;
+		// 		std::cout << std::endl;
+		// }
 
 		template	<class Predicate>
 		void	insertion_sort(Predicate compare)
@@ -146,51 +145,51 @@ namespace	ft
 		}
 
 	public:
-		// Default constructor. Construct list with an allocator instance "alloc"
+		// Default constructor. Construct list with an _alloc instance "alloc"
 		explicit list(const allocator_type& alloc = allocator_type()):
-			allocator(alloc),
-			node_alloc(),
-			blank_node(node_alloc.allocate(1)),
-			list_size(0)
-		{ node_alloc.construct(blank_node, *blank_node, alloc); };
-		// Fill constructor. Construct list with "n" number of values of "val", with an allocator instance "alloc"
+			alloc_(alloc),
+			node_alloc_(),
+			blank_node_(node_alloc_.allocate(1)),
+			size_(0)
+		{ node_alloc_.construct(blank_node_, *blank_node_, alloc); };
+		// Fill constructor. Construct list with "n" number of values of "val", with an _alloc instance "alloc"
 		explicit list(
 			size_type n,
 			const value_type& val = value_type(),
 			const allocator_type& alloc = allocator_type()):
-			allocator(alloc),
-			node_alloc(),
-			blank_node(node_alloc.allocate(1)),
-			list_size(0)
+			alloc_(alloc),
+			node_alloc_(),
+			blank_node_(node_alloc_.allocate(1)),
+			size_(0)
 		{
-			node_alloc.construct(blank_node, *blank_node, alloc);
+			node_alloc_.construct(blank_node_, *blank_node_, alloc);
 			for (size_type i = 0; i < n; i++)
 				push_back(val);
 		};
-		// Range constructor. Construct list in range from "first" to "last", with an allocator instance "alloc"
+		// Range constructor. Construct list in range from "first" to "last", with an _alloc instance "alloc"
 		template	<class InputIterator>
 		list(
 			InputIterator first,
 			InputIterator last,
 			const allocator_type& alloc = allocator_type(),
 			typename ft::disable_if<is_integral<InputIterator>::value>::type* = 0):
-			allocator(alloc),
-			node_alloc(),
-			blank_node(node_alloc.allocate(1)),
-			list_size(0)
+			alloc_(alloc),
+			node_alloc_(),
+			blank_node_(node_alloc_.allocate(1)),
+			size_(0)
 		{
-			node_alloc.construct(blank_node, *blank_node, alloc);
+			node_alloc_.construct(blank_node_, *blank_node_, alloc);
 			for (; first != last; first++)
 				push_back(*first);
 		};
 		// Copy constructor. Construct list by copying the list "lst".
 		list(const list& lst):
-			allocator(lst.allocator),
-			node_alloc(lst.node_alloc),
-			blank_node(node_alloc.allocate(1)),
-			list_size(0)
+			alloc_(lst.alloc_),
+			node_alloc_(lst.node_alloc_),
+			blank_node_(node_alloc_.allocate(1)),
+			size_(0)
 		{
-			node_alloc.construct(blank_node, *blank_node, lst.allocator);
+			node_alloc_.construct(blank_node_, *blank_node_, lst.alloc_);
 			for (const_iterator it = lst.begin(); it != lst.end(); it++)
 				push_back(*it);
 		};
@@ -199,21 +198,21 @@ namespace	ft
 		~list(void)
 		{
 			node*	temp;
-			while (blank_node->getNext() != blank_node)
+			while (blank_node_->getNext() != blank_node_)
 			{
-				temp = blank_node->getPrev();
-				node_alloc.destroy(temp);
-				node_alloc.deallocate(temp, 1);
+				temp = blank_node_->getPrev();
+				node_alloc_.destroy(temp);
+				node_alloc_.deallocate(temp, 1);
 			}
-			node_alloc.destroy(blank_node);
-			node_alloc.deallocate(blank_node, 1);
+			node_alloc_.destroy(blank_node_);
+			node_alloc_.deallocate(blank_node_, 1);
 		};
 
 		// Assign content
 		list&	operator=(const list& lst)
 		{
-			node*	cur_node = this->blank_node->getNext();
-			if (lst.list_size <= this->list_size)
+			node*	cur_node = this->blank_node_->getNext();
+			if (lst.size_ <= this->size_)
 			{
 				for (const_iterator it = lst.begin(); it != lst.end(); it++)
 				{
@@ -221,18 +220,18 @@ namespace	ft
 					cur_node = cur_node->getNext();
 				}
 				node*	temp;
-				while (cur_node != this->blank_node)
+				while (cur_node != this->blank_node_)
 				{
 					temp = cur_node->getNext();
-					this->node_alloc.destroy(cur_node);
-					this->node_alloc.deallocate(cur_node, 1);
+					this->node_alloc_.destroy(cur_node);
+					this->node_alloc_.deallocate(cur_node, 1);
 					cur_node = temp;
 				}
 			}
 			else
 			{
 				iterator it;
-				for (it = lst.begin(); cur_node != this->blank_node; it++)
+				for (it = lst.begin(); cur_node != this->blank_node_; it++)
 				{
 					cur_node->setContent(*it);
 					cur_node = cur_node->getNext();
@@ -240,61 +239,61 @@ namespace	ft
 				for (; it != lst.end(); it++)
 					push_back(*it);
 			}
-			this->list_size = lst.size();
+			this->size_ = lst.size();
 			return (*this);
 		}
 
 		// Returns an iterator pointing to the first element in the list container.
 		iterator		begin(void)
-			{ return (iterator(blank_node->getNext())); };
+			{ return (iterator(blank_node_->getNext())); };
 		// Returns an const iterator pointing to the first element in the list container.
 		const_iterator	begin(void) const
-			{ return (const_iterator(blank_node->getNext())); };
+			{ return (const_iterator(blank_node_->getNext())); };
 
 		// Returns an iterator referring to the past-the-end element in the list container.
 		iterator		end(void)
-			{ return (iterator(blank_node)); };
+			{ return (iterator(blank_node_)); };
 		// Returns an const iterator referring to the past-the-end element in the list container.
 		const_iterator	end(void) const
-			{ return (const_iterator(blank_node)); };
+			{ return (const_iterator(blank_node_)); };
 
 		// Returns a reverse iterator pointing to the last element in the container.
 		reverse_iterator		rbegin(void)
-			{ return (reverse_iterator(blank_node)); };
+			{ return (reverse_iterator(blank_node_)); };
 		// Returns a const reverse iterator pointing to the last element in the container.
 		const_reverse_iterator	rbegin(void) const
-			{ return (const_reverse_iterator(blank_node)); };
+			{ return (const_reverse_iterator(blank_node_)); };
 
 		// Returns a reverse iterator pointing to the element preceding the first element in the list container.
 		reverse_iterator		rend(void)
-			{ return (reverse_iterator(blank_node->getNext())); };
+			{ return (reverse_iterator(blank_node_->getNext())); };
 		// Returns a const reverse iterator pointing to the element preceding the first element in the list container.
 		const_reverse_iterator	rend(void) const
-			{ return (const_reverse_iterator(blank_node->getNext())); };
+			{ return (const_reverse_iterator(blank_node_->getNext())); };
 
 		// Returns whether the list container is empty.
 		bool			empty(void) const
-			{ return (!list_size); };
+			{ return (!size_); };
 		// Returns the number of elements in the list container.
 		size_type		size(void) const
-			{ return (list_size); };
+			{ return (size_); };
 		// Returns the maximum number of elements that the list container can hold.
 		size_type		max_size(void) const
 			{ return (node_alloc_max_size()); };
 
 		// Returns a reference to the first element in the list container.
 		reference		front(void)
-			{ return (*(blank_node->getNext()->getContent())); };
+			{ return (*(blank_node_->getNext()->getContent())); };
 		// Returns a const reference to the first element in the list container.
 		const_reference	front(void) const
-			{ return (*(blank_node->getNext()->getContent())); };
+			{ return (*(blank_node_->getNext()->getContent())); };
 
 		// Returns a reference to the last element in the list container.
 		reference		back(void)
-			{ return (*(blank_node->getPrev()->getContent())); };
+			{ return (*(blank_node_->getPrev()->getContent())); };
 		// Returns a const reference to the last element in the list container.
 		const_reference	back(void) const
-			{ return (*(blank_node->getPrev()->getContent())); };
+			{ return (*(blank_node_->getPrev()->getContent())); };
 
 		// Range assign. Assigns new contents to the list container, replacing its current contents, and modifying its size accordingly. The new contents are elements constructed from each of the elements in the range between "first" and "last", in the same order.
 		template	<class InputIterator>
@@ -303,18 +302,18 @@ namespace	ft
 			InputIterator last,
 			typename ft::disable_if<is_integral<InputIterator>::value>::type* = 0)
 		{
-			while (blank_node->getNext() != blank_node)
+			while (blank_node_->getNext() != blank_node_)
 				pop_front();
-			list_size = 0;
+			size_ = 0;
 			for (; first != last; first++)
 				push_back(*first);
 		};
 		// Fill assign. Assigns new contents to the list container, replacing its current contents, and modifying its size accordingly. The new contents are "n" elements, each initialized to a copy of "val".
 		void	assign(size_type n, const value_type& val)
 		{
-			while (blank_node->getNext() != blank_node)
+			while (blank_node_->getNext() != blank_node_)
 				pop_back();
-			list_size = 0;
+			size_ = 0;
 			for (size_type i = 0; i < n; i++)
 				push_back(val);
 		};
@@ -322,36 +321,36 @@ namespace	ft
 		// Inserts a new element at the beginning of the list, right before its current first element, effectively increasing its size by one.
 		void	push_front(const value_type& val)
 		{
-			node*	new_node = node_alloc.allocate(1, blank_node);
-			node_alloc.construct(new_node, *new_node);
+			node*	new_node = node_alloc_.allocate(1, blank_node_);
+			node_alloc_.construct(new_node, *new_node);
 			new_node->setContent(val);
-			blank_node->AddNext(new_node);
-			list_size++;
+			blank_node_->AddNext(new_node);
+			size_++;
 		};
 		// Removes the first element in the list container, effectively reducing its size by one.
 		void	pop_front(void)
 		{
-			node*	dump = blank_node->getNext();
-			node_alloc.destroy(dump);
-			node_alloc.deallocate(dump, 1);
-			list_size--;
+			node*	dump = blank_node_->getNext();
+			node_alloc_.destroy(dump);
+			node_alloc_.deallocate(dump, 1);
+			size_--;
 		};
 		// Adds a new element at the end of the list container, after its current last element, effectively increasing the container size by one.
 		void	push_back(const value_type& val)
 		{
-			node*	new_node = node_alloc.allocate(1, blank_node->getPrev());
-			node_alloc.construct(new_node, *new_node);
+			node*	new_node = node_alloc_.allocate(1, blank_node_->getPrev());
+			node_alloc_.construct(new_node, *new_node);
 			new_node->setContent(val);
-			blank_node->AddPrev(new_node);
-			list_size++;
+			blank_node_->AddPrev(new_node);
+			size_++;
 		};
 		// Removes the last element in the list container, effectively reducing the container size by one.
 		void	pop_back(void)
 		{
-			node*	dump = blank_node->getPrev();
-			node_alloc.destroy(dump);
-			node_alloc.deallocate(dump, 1);
-			list_size--;
+			node*	dump = blank_node_->getPrev();
+			node_alloc_.destroy(dump);
+			node_alloc_.deallocate(dump, 1);
+			size_--;
 		};
 
 		// Single element insert. The container is extended by inserting a new element "val", before the element at the specified "position".
@@ -359,12 +358,12 @@ namespace	ft
 		{
 			if (!is_included(position, *this))
 				return (position);
-			node*	new_node(node_alloc.allocate(1));
-			node_alloc.construct(new_node, *new_node);
+			node*	new_node(node_alloc_.allocate(1));
+			node_alloc_.construct(new_node, *new_node);
 			new_node->setContent(val);
 			node_iterator	nit = position--;
 			nit.AddPrev(new_node);
-			list_size++;
+			size_++;
 			return (++position);
 		};
 		// Fill insert. The container is extended by inserting new elements containing "val", before the element at the specified "position".
@@ -376,11 +375,11 @@ namespace	ft
 			node*			temp;
 			for (size_type i = 0; i < n; i++)
 			{
-				temp = node_alloc.allocate(1);
-				node_alloc.construct(temp, *temp);
+				temp = node_alloc_.allocate(1);
+				node_alloc_.construct(temp, *temp);
 				temp->setContent(val);
 				nit.AddPrev(temp);
-				list_size++;
+				size_++;
 			}
 		}
 		// Range insert. The container is extended by inserting new elements rangin from "first" to "last", before the element at the specified "position".
@@ -397,10 +396,10 @@ namespace	ft
 			node*			temp;
 			for (; first_n != last_n; first_n++)
 			{
-				temp = node_alloc.allocate(1);
-				node_alloc.construct(temp, *first_n.getNode());
+				temp = node_alloc_.allocate(1);
+				node_alloc_.construct(temp, *first_n.getNode());
 				nit.AddPrev(temp);
-				list_size++;
+				size_++;
 			}
 		};
 
@@ -410,9 +409,9 @@ namespace	ft
 			if (!is_included(position, *this))
 				return (position);
 			node_iterator	nit(position++);
-			node_alloc.destroy(nit.getNode());
-			node_alloc.deallocate(nit.getNode(), 1);
-			list_size--;
+			node_alloc_.destroy(nit.getNode());
+			node_alloc_.deallocate(nit.getNode(), 1);
+			size_--;
 			return (position);
 		};
 		// Removes from the list container either a range of elements [first,last).
@@ -429,10 +428,10 @@ namespace	ft
 					break ;
 				first++;
 				temp = pos_node->getNext();
-				node_alloc.destroy(pos_node);
-				node_alloc.deallocate(pos_node, 1);
+				node_alloc_.destroy(pos_node);
+				node_alloc_.deallocate(pos_node, 1);
 				pos_node = temp;
-				list_size--;
+				size_--;
 			}
 			return (first);
 		};
@@ -441,13 +440,13 @@ namespace	ft
 		void	swap(list& lst)
 		{
 			node*	temp_node;
-			temp_node = lst.blank_node;
-			lst.blank_node = this->blank_node;
-			this->blank_node = temp_node;
+			temp_node = lst.blank_node_;
+			lst.blank_node_ = this->blank_node_;
+			this->blank_node_ = temp_node;
 			size_type	temp_size;
-			temp_size = lst.list_size;
-			lst.list_size = this->list_size;
-			this->list_size = temp_size;
+			temp_size = lst.size_;
+			lst.size_ = this->size_;
+			this->size_ = temp_size;
 		};
 
 		// Resizes the container so that it contains "n" elements.
@@ -461,15 +460,15 @@ namespace	ft
 				else
 					push_back(val);
 			}
-			while (n < list_size)
+			while (n < size_)
 				pop_back();
 		};
 		// Removes all elements from the list container (which are destroyed), and leaving the container with a size of 0.
 		void	clear(void)
 		{
-			while (blank_node->getNext() != blank_node)
+			while (blank_node_->getNext() != blank_node_)
 				pop_back();
-			list_size = 0;
+			size_ = 0;
 		};
 
 		// Splice entire list. Transfers all the elements of x into the container, inserting them at position.
@@ -479,15 +478,15 @@ namespace	ft
 				return ;
 			node_iterator	nit(position);
 			node*	pos_node = nit.getNode();
-			node*	cur_node = lst.blank_node->getNext();
+			node*	cur_node = lst.blank_node_->getNext();
 			node*	next_node = cur_node->getNext();
-			while (next_node != lst.blank_node)
+			while (next_node != lst.blank_node_)
 			{
 				next_node = cur_node->getNext();
 				pos_node->AddPrev(cur_node->PopGetNode());
 				cur_node = next_node;
-				this->list_size++;
-				lst.list_size--;
+				this->size_++;
+				lst.size_--;
 			}
 		};
 		// Splice a single element. Transfers only the element pointed by i from x into the container, inserting them at position.
@@ -499,8 +498,8 @@ namespace	ft
 			node_iterator	that_nit(i);
 
 			this_nit.AddPrev(that_nit.getNode()->PopGetNode());
-			lst.list_size--;
-			this->list_size++;
+			lst.size_--;
+			this->size_++;
 		};
 		// Splice a range of elements. Transfers the range [first,last) from "lst" into the container, inserting them at position
 		void	splice(iterator position, list& lst, iterator first, iterator last)
@@ -515,27 +514,27 @@ namespace	ft
 			{
 				nit.AddPrev(temp.getNode()->PopGetNode());
 				temp = first_n++;
-				lst.list_size--;
-				this->list_size++;
+				lst.size_--;
+				this->size_++;
 			}
 			nit.AddPrev(temp.getNode()->PopGetNode());
-			lst.list_size--;
-			this->list_size++;
+			lst.size_--;
+			this->size_++;
 		};
 
 		// Removes from the container all the elements that compare equal to "val".
 		void	remove(const value_type& val)
 		{
-			node*	cur_node = blank_node->getNext();
+			node*	cur_node = blank_node_->getNext();
 			node*	next_node;
-			while (cur_node != blank_node)
+			while (cur_node != blank_node_)
 			{
 				next_node = cur_node->getNext();
 				if (*cur_node->getContent() == val)
 				{
-					node_alloc.destroy(cur_node);
-					node_alloc.deallocate(cur_node, 1);
-					list_size--;
+					node_alloc_.destroy(cur_node);
+					node_alloc_.deallocate(cur_node, 1);
+					size_--;
 				}
 				cur_node = next_node;
 			}
@@ -544,16 +543,16 @@ namespace	ft
 		template	<class Predicate>
 		void	remove_if(Predicate pred)
 		{
-			node*	cur_node = blank_node->getNext();
+			node*	cur_node = blank_node_->getNext();
 			node*	next_node;
-			while (cur_node != blank_node)
+			while (cur_node != blank_node_)
 			{
 				next_node = cur_node->getNext();
 				if (pred(*cur_node->getContent()))
 				{
-					node_alloc.destroy(cur_node);
-					node_alloc.deallocate(cur_node, 1);
-					list_size--;
+					node_alloc_.destroy(cur_node);
+					node_alloc_.deallocate(cur_node, 1);
+					size_--;
 				}
 				cur_node = next_node;
 			}
@@ -561,16 +560,16 @@ namespace	ft
 		// Removes all but the first element from every consecutive group of equal elements in the container. An element is only removed from the list container if it compares equal to the element immediately preceding it.
 		void	unique(void)
 		{
-			node*	cur_node = blank_node->getNext()->getNext();
+			node*	cur_node = blank_node_->getNext()->getNext();
 			node*	next_node;
-			while (cur_node != blank_node)
+			while (cur_node != blank_node_)
 			{
 				next_node = cur_node->getNext();
 				if (*cur_node->getContent() == *cur_node->getPrev()->getContent())
 				{
-					node_alloc.destroy(cur_node);
-					node_alloc.deallocate(cur_node, 1);
-					list_size--;
+					node_alloc_.destroy(cur_node);
+					node_alloc_.deallocate(cur_node, 1);
+					size_--;
 				}
 				cur_node = next_node;
 			}
@@ -579,16 +578,16 @@ namespace	ft
 		template	<class BinaryPredicate>
 		void	unique(BinaryPredicate binary_pred)
 		{
-			node*	cur_node = blank_node->getNext()->getNext();
+			node*	cur_node = blank_node_->getNext()->getNext();
 			node*	next_node;
-			while (cur_node != blank_node)
+			while (cur_node != blank_node_)
 			{
 				next_node = cur_node->getNext();
 				if (binary_pred(*cur_node->getContent(), *cur_node->getPrev()->getContent()))
 				{
-					node_alloc.destroy(cur_node);
-					node_alloc.deallocate(cur_node, 1);
-					list_size--;
+					node_alloc_.destroy(cur_node);
+					node_alloc_.deallocate(cur_node, 1);
+					size_--;
 				}
 				cur_node = next_node;
 			}
@@ -609,8 +608,8 @@ namespace	ft
 				{
 					lst_nit++;
 					this_nit.AddPrev(lst_nit.getPrev()->PopGetNode());
-					this->list_size++;
-					lst.list_size--;
+					this->size_++;
+					lst.size_--;
 				}
 				this_nit++;
 			}
@@ -618,8 +617,8 @@ namespace	ft
 			{
 				lst_nit++;
 				this_nit.AddPrev(lst_nit.getPrev()->PopGetNode());
-				this->list_size++;
-				lst.list_size--;
+				this->size_++;
+				lst.size_--;
 			}
 		};
 
@@ -702,6 +701,10 @@ namespace	ft
 	template	<class T, class Alloc>
 	bool	operator>=(const list<T,Alloc>& lhs, const list<T,Alloc>& rhs)
 		{ return (!(lhs < rhs)); };
+
+	template	<class T, class Alloc>
+	void	swap(list<T, Alloc>& x, list<T, Alloc>& y)
+		{ list<T, Alloc> temp = x; x = y; y = temp; }
 }
 
 #endif
