@@ -148,6 +148,5 @@ namespace	ft
 	template	<typename T>
 	struct	is_const_same<T, T>
 	{ static const bool	value = true; };
-
 }
 #endif

@@ -4,7 +4,7 @@
 # include "enable_if.hpp"
 # include "DoublyLinkedNode.hpp"
 # include "list_iterator.hpp"
-# include "base_reverse_iterator.hpp"
+# include "reverse_iterator.hpp"
 
 
 namespace	ft
@@ -19,15 +19,17 @@ namespace	ft
 		typedef DoublyLinkedNode<Tp, Alloc>						node;
 		typedef typename Alloc::template rebind<node>::other	node_allocator;
 
-		class	node_iterator: public list_iterator<Tp, node>
+		class	node_iterator: public list_iterator<Tp>
 		{
 		private:
-			typedef list_iterator<Tp, node>	iterator;
+			typedef list_iterator<Tp>	iterator;
 		public:
 			node_iterator():
 				iterator() {};
 			node_iterator(node_iterator const& n_it):
 				iterator(n_it) {};
+			node_iterator(node* nod):
+				iterator(nod) {};
 			node_iterator(iterator const& it):
 				iterator(it) {};
 			node_iterator&	operator=(node_iterator const& n_it)
@@ -85,10 +87,10 @@ namespace	ft
 		typedef typename Alloc::const_reference			const_reference;
 		typedef typename Alloc::pointer					pointer;
 		typedef typename Alloc::const_pointer			const_pointer;
-		typedef list_iterator<Tp, node>					iterator;
-		typedef list_iterator<const Tp, node>			const_iterator;
-		typedef base_reverse_iterator<iterator>			reverse_iterator;
-		typedef base_reverse_iterator<const_iterator>	const_reverse_iterator;
+		typedef list_iterator<const Tp>					const_iterator;
+		typedef list_iterator<Tp>						iterator;
+		typedef reverse_iterator<const_iterator>		const_reverse_iterator;
+		typedef reverse_iterator<iterator>				reverse_iterator;
 		typedef ptrdiff_t								difference_type;
 		typedef size_t									size_type;
 
@@ -245,31 +247,31 @@ namespace	ft
 
 		// Returns an iterator pointing to the first element in the list container.
 		iterator		begin(void)
-			{ return (iterator(blank_node_->getNext())); };
+			{ return (node_iterator(blank_node_->getNext())); };
 		// Returns an const iterator pointing to the first element in the list container.
 		const_iterator	begin(void) const
-			{ return (const_iterator(blank_node_->getNext())); };
+			{ return (const_iterator(node_iterator(blank_node_->getNext()))); };
 
 		// Returns an iterator referring to the past-the-end element in the list container.
 		iterator		end(void)
-			{ return (iterator(blank_node_)); };
+			{ return (node_iterator(blank_node_)); };
 		// Returns an const iterator referring to the past-the-end element in the list container.
 		const_iterator	end(void) const
-			{ return (const_iterator(blank_node_)); };
+			{ return (const_iterator(node_iterator(blank_node_))); };
 
 		// Returns a reverse iterator pointing to the last element in the container.
 		reverse_iterator		rbegin(void)
-			{ return (reverse_iterator(blank_node_)); };
+			{ return (reverse_iterator(node_iterator(blank_node_))); };
 		// Returns a const reverse iterator pointing to the last element in the container.
 		const_reverse_iterator	rbegin(void) const
-			{ return (const_reverse_iterator(blank_node_)); };
+			{ return (const_reverse_iterator(node_iterator(blank_node_))); };
 
 		// Returns a reverse iterator pointing to the element preceding the first element in the list container.
 		reverse_iterator		rend(void)
-			{ return (reverse_iterator(blank_node_->getNext())); };
+			{ return (reverse_iterator(node_iterator(blank_node_))); };
 		// Returns a const reverse iterator pointing to the element preceding the first element in the list container.
 		const_reverse_iterator	rend(void) const
-			{ return (const_reverse_iterator(blank_node_->getNext())); };
+			{ return (const_reverse_iterator(node_iterator(blank_node_))); };
 
 		// Returns whether the list container is empty.
 		bool			empty(void) const
@@ -384,7 +386,11 @@ namespace	ft
 		}
 		// Range insert. The container is extended by inserting new elements rangin from "first" to "last", before the element at the specified "position".
 		template	<class InputIterator>
-		void		insert(iterator position, InputIterator first, InputIterator last, typename ft::disable_if<is_integral<InputIterator>::value>::type* = 0)
+		void		insert(
+			iterator position,
+			InputIterator first,
+			InputIterator last,
+			typename ft::disable_if<is_integral<InputIterator>::value>::type* = 0)
 		{
 			if (!is_included(position, *this))
 				return ;
