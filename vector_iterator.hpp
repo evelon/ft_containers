@@ -5,8 +5,12 @@
 # include "iterator.hpp"
 # include "enable_if.hpp"
 # include "reverse_iterator.hpp"
+<<<<<<< HEAD
 # include "vector.hpp"
 
+=======
+#include<iostream>
+>>>>>>> commit
 namespace	ft
 {
 	template	<typename Tp>

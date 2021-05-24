@@ -81,12 +81,9 @@ namespace	ft
 
 		size_type	determineCapacity(size_type new_size)
 		{
-			size_type	new_capacity = capacity_ ? capacity_ : 1;
-			if (new_size > (max_size() >> 1))
-				return (max_size());
-			while (new_capacity < new_size)
-				new_capacity <<= 1;
-			return (new_capacity);
+			if (new_size > capacity_ * 2)
+				return (new_size);
+			return (capacity_ ? capacity_ * 2 : 1);
 		};
 
 	public:
@@ -346,7 +343,7 @@ namespace	ft
 				capacity_ = capacity_ ? capacity_ * 2 : 1;
 			}
 			if (size_)
-				for (iterator it = end(); it >= position && it > begin(); it--)
+				for (iterator it = end(); it > position && it > begin(); it--)
 					*it = *(it - 1);
 			*position = val;
 			size_++;
@@ -369,7 +366,7 @@ namespace	ft
 					alloc_.deallocate(temp, capacity_);
 				capacity_ = new_capacity;
 			}
-			for (iterator it = end() - 1; it >= position + n; it--)
+			for (iterator it = end() - 1; it >= position; it--)
 				*(it + n) = *it;
 			for (size_type i = 0; i < n; i++)
 				*(position++) = val;
@@ -391,7 +388,7 @@ namespace	ft
 			{
 				pointer	temp;
 				temp = *head_;
-				size_type	new_capacity = size_ + diff;
+				size_type	new_capacity = determineCapacity(size_ + diff);
 				*head_ = alloc_.allocate(new_capacity);
 				for (size_type i = 0; i < size_; i++ )
 					(*head_)[i] = temp[i];
