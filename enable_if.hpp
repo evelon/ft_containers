@@ -30,6 +30,15 @@ namespace	ft
 	struct	_and<true, true>
 	{ static const bool	value = false; };
 
+	// Or operation
+	template	<bool A, bool B>
+	struct	_or
+	{ static const bool	value = true; };
+
+	template	<>
+	struct	_or <false, false>
+	{ static const bool	value = false; };
+
 	// If a typename "N" is interal type, the member variable "value" is true.
 	template	<typename N>
 	struct	is_integral

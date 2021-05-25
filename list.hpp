@@ -40,27 +40,27 @@ namespace	ft
 
 			node_iterator&	operator++(void)
 			{
-				if (this->getNode()->getContent() != nullptr)
+				if (this->getNode()->getContent() != NULL)
 					this->getNode() = this->getNode()->getNext();
 				return (*this);
 			};
 			node_iterator&	operator--(void)
 			{
-				if (this->getNode()->getContent() != nullptr)
+				if (this->getNode()->getContent() != NULL)
 					this->getNode() = this->getNode()->getPrev();
 				return (*this);
 			};
 			node_iterator	operator++(int)
 			{
 				node_iterator	temp = *this;
-				if (this->getNode()->getContent() != nullptr)
+				if (this->getNode()->getContent() != NULL)
 					this->getNode() = this->getNode()->getNext();
 				return (temp);
 			};
 			node_iterator	operator--(int)
 			{
 				node_iterator	temp = *this;
-				if (this->getNode()->getContent() != nullptr)
+				if (this->getNode()->getContent() != NULL)
 					this->getNode() = this->getNode()->getPrev();
 				return (temp);
 			};

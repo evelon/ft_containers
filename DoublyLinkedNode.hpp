@@ -30,7 +30,7 @@ namespace	ft
 
 	public:
 		explicit DoublyLinkedNode(const allocator_type& alloc = allocator_type()):
-			content_(nullptr),
+			content_(NULL),
 			next_(this),
 			prev_(this)
 		{
@@ -56,7 +56,7 @@ namespace	ft
 			allocator_ = alloc;
 			if (&ori_node == this)
 			{
-				this->content_ = nullptr;
+				this->content_ = NULL;
 				this->next_ = this;
 				this->prev_ = this;
 				return ;
@@ -67,7 +67,7 @@ namespace	ft
 				allocator_.construct(this->content_, *ori_node.content_);
 			}
 			else
-				this->content_ = nullptr;
+				this->content_ = NULL;
 		};
 		DoublyLinkedNode(
 			value_type value,
@@ -109,7 +109,7 @@ namespace	ft
 			{ return (prev_); };
 		void	setContent(value_type const& val)
 		{
-			if (content_ != nullptr)
+			if (content_ != NULL)
 				allocator_.destroy(content_);
 			else
 				content_ = allocator_.allocate(1);

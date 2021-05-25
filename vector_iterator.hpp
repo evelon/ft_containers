@@ -5,12 +5,9 @@
 # include "iterator.hpp"
 # include "enable_if.hpp"
 # include "reverse_iterator.hpp"
-<<<<<<< HEAD
 # include "vector.hpp"
+# include "relational_operator_impl.hpp"
 
-=======
-#include<iostream>
->>>>>>> commit
 namespace	ft
 {
 	template	<typename Tp>
@@ -23,19 +20,7 @@ namespace	ft
 	bool	operator==(const vector_iterator<T>& lhs, const vector_iterator<U>& rhs);
 
 	template	<typename T, typename U>
-	bool	operator!=(const vector_iterator<T>& lhs, const vector_iterator<U>& rhs);
-
-	template	<typename T, typename U>
 	bool	operator<(const vector_iterator<T>& lhs, const vector_iterator<U>& rhs);
-
-	template	<typename T, typename U>
-	bool	operator<=(const vector_iterator<T>& lhs, const vector_iterator<U>& rhs);
-
-	template	<typename T, typename U>
-	bool	operator>(const vector_iterator<T>& lhs, const vector_iterator<U>& rhs);
-
-	template	<typename T, typename U>
-	bool	operator>=(const vector_iterator<T>& lhs, const vector_iterator<U>& rhs);
 
 	template	<typename Tp>
 	vector_iterator<Tp>	operator+(int n, vector_iterator<Tp> const& it);
@@ -53,19 +38,7 @@ namespace	ft
 	// bool operator==(const vector_iterator<bool>& lhs, const vector_iterator<bool>& rhs);
 
 	// template <>
-	// bool operator!=(const vector_iterator<bool>& lhs, const vector_iterator<bool>& rhs);
-
-	// template <>
 	// bool operator<(const vector_iterator<bool>& lhs, const vector_iterator<bool>& rhs);
-
-	// template <>
-	// bool operator<=(const vector_iterator<bool>& lhs, const vector_iterator<bool>& rhs);
-
-	// template <>
-	// bool operator>(const vector_iterator<bool>& lhs, const vector_iterator<bool>& rhs);
-
-	// template <>
-	// bool operator>=(const vector_iterator<bool>& lhs, const vector_iterator<bool>& rhs);
 
 	// template	<>
 	// vector_iterator<bool>	operator+(int n, vector_iterator<bool> const& it);
@@ -77,9 +50,11 @@ namespace	ft
 	template	<typename Tp>
 	class	vector_iterator
 	{
-	protected:
+	private:
 		typedef vector_iterator				iterator;
+		void	type_check(void);
 
+	protected:
 		template	<typename _Tp>
 		void	is_compatible(vector_iterator<_Tp> const& iter,
 			typename enable_if<is_const_same<_Tp, Tp>::value>::type* = 0) const
@@ -98,6 +73,8 @@ namespace	ft
 		size_type const*	size_;
 		difference_type		offset_;
 
+		vector_iterator(reverse_iterator<iterator>) {};
+
 	protected:
 		reference	reverse_reference(void)
 		{ return (*(*head_ + offset_ - 1)); };
@@ -110,8 +87,8 @@ namespace	ft
 
 	public:
 		vector_iterator(void):
-			head_(nullptr),
-			size_(nullptr),
+			head_(NULL),
+			size_(NULL),
 			offset_(0)
 		{};
 		vector_iterator(iterator const& iter):
@@ -212,13 +189,13 @@ namespace	ft
 		return (&*lhs < &*rhs);
 	};
 
-	template	<typename T, typename U>
-	bool	operator<=(const vector_iterator<T>& lhs, const vector_iterator<U>& rhs)
-	{
-		typename enable_if<is_const_same<T, U>::value>::type*	dummy;
-		(void)dummy;
-		return (&*lhs <= &*rhs);
-	};
+	// template	<typename T, typename U>
+	// bool	operator<=(const vector_iterator<T>& lhs, const vector_iterator<U>& rhs)
+	// {
+	// 	typename enable_if<is_const_same<T, U>::value>::type*	dummy;
+	// 	(void)dummy;
+	// 	return (&*lhs <= &*rhs);
+	// };
 
 	template	<typename T, typename U>
 	bool	operator>(const vector_iterator<T>& lhs, const vector_iterator<U>& rhs)
@@ -298,8 +275,8 @@ namespace	ft
 
 	public:
 		vector_iterator(void):
-			head_(nullptr),
-			size_(nullptr),
+			head_(NULL),
+			size_(NULL),
 			offset_(0)
 		{};
 		vector_iterator(iterator const& iter):
@@ -375,35 +352,43 @@ namespace	ft
 		reference	operator[](int ind)
 			{ return (internal_reference(head_, offset_ + ind)); };
 
+		friend bool	operator==(const iterator& lhs, const iterator& rhs)
+		{
+			if (lhs.head_ != rhs.head_)
+				return (false);
+			if (lhs.offset_ != rhs.offset_)
+				return (false);
+			return (true);
+		};
+		friend bool operator<(const iterator& lhs, const iterator& rhs)
+		{
+			size_type	l_byte_size = (lhs.offset_ >> 3) - 1;
+			size_type	r_byte_size = (rhs.offset_ >> 3) - 1;
+			size_type	min_offset;
+
+			for (min_offset = 0; min_offset < l_byte_size && min_offset < r_byte_size; min_offset++)
+				if (lhs.head_[min_offset] > rhs.head_[min_offset])
+					return (false);
+
+			min_offset <<= 3;
+			size_type	l_remain = lhs.offset_ - min_offset;
+			size_type	r_remain = rhs.offset_ - min_offset;
+
+			for (size_type i = 0; i < l_remain && i < r_remain; i++)
+				if (internal_reference(rhs.head_, min_offset + i) > internal_reference(lhs.head_, min_offset + 1))
+					return (false);
+			if (lhs.offset_ > rhs.offset_)
+				return (false);
+			return (true);
+		};
+		friend difference_type	operator-(const iterator& lhs, const iterator& rhs)
+		{
+			return (lhs.offset_ - rhs.offset_);
+		};
 	};
 
-	// template	<>
-	// vector_iterator<bool>	operator+(int op, vector_iterator<bool> const& it);
-
-	// template <>
-	// bool operator==(const vector_iterator<bool>& lhs, const vector_iterator<bool>& rhs);
-
-	// template <>
-	// bool operator!=(const vector_iterator<bool>& lhs, const vector_iterator<bool>& rhs);
-
-	// template <>
-	// bool operator<(const vector_iterator<bool>& lhs, const vector_iterator<bool>& rhs);
-
-	// template <>
-	// bool operator<=(const vector_iterator<bool>& lhs, const vector_iterator<bool>& rhs);
-
-	// template <>
-	// bool operator>(const vector_iterator<bool>& lhs, const vector_iterator<bool>& rhs);
-
-	// template <>
-	// bool operator>=(const vector_iterator<bool>& lhs, const vector_iterator<bool>& rhs);
-
-	// template	<>
-	// vector_iterator<bool>	operator+(int n, vector_iterator<bool> const& it);
-
-	// template <>
-	// typename vector_iterator<bool>::difference_type operator-(const vector_iterator<bool>& lhs, const vector_iterator<bool>& rhs);
-
+	vector_iterator<bool>	operator+(int n, vector_iterator<bool> const& it)
+		{ return (it + n); };
 }
 
 #endif

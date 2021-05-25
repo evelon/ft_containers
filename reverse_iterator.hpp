@@ -1,7 +1,7 @@
 #ifndef REVERSE_ITERATOR_HPP
 # define REVERSE_ITERATOR_HPP
 
-# include "list_iterator.hpp"
+# include "relational_operator_impl.hpp"
 
 namespace	ft
 {
@@ -37,6 +37,9 @@ namespace	ft
 	template	<typename Iterator>
 	class	reverse_iterator: public Iterator
 	{
+	private:
+		typedef reverse_iterator							iterator;
+
 	public:
 		typedef Iterator									iterator_type;
 		typedef typename iterator_type::iterator_category	iterator_category;
@@ -107,24 +110,8 @@ namespace	ft
 		{ return (static_cast<Iterator>(lhs) == static_cast<Iterator>(rhs)); };
 
 	template	<class Iterator>
-	bool	operator!=(const reverse_iterator<Iterator>& lhs, const reverse_iterator<Iterator>& rhs)
-		{ return (static_cast<Iterator>(lhs) != static_cast<Iterator>(rhs)); };
-
-	template	<class Iterator>
 	bool	operator<(const reverse_iterator<Iterator>& lhs, const reverse_iterator<Iterator>& rhs)
-		{ return (static_cast<Iterator>(lhs) > static_cast<Iterator>(rhs)); };
-
-	template	<class Iterator>
-	bool	operator<=(const reverse_iterator<Iterator>& lhs, const reverse_iterator<Iterator>& rhs)
-		{ return (static_cast<Iterator>(lhs) >= static_cast<Iterator>(rhs)); };
-
-	template	<class Iterator>
-	bool	operator>(const reverse_iterator<Iterator>& lhs, const reverse_iterator<Iterator>& rhs)
-		{ return (static_cast<Iterator>(lhs) < static_cast<Iterator>(rhs)); };
-
-	template	<class Iterator>
-	bool	operator>=(const reverse_iterator<Iterator>& lhs, const reverse_iterator<Iterator>& rhs)
-		{ return (static_cast<Iterator>(lhs) <= static_cast<Iterator>(rhs)); };
+		{ return (static_cast<Iterator>(rhs) < static_cast<Iterator>(lhs)); };
 
 	template	<class Iterator>
 	reverse_iterator<Iterator>	operator+(int n, reverse_iterator<Iterator> const& rev_it)
@@ -135,8 +122,41 @@ namespace	ft
 		const reverse_iterator<Iterator>& lhs,
 		const reverse_iterator<Iterator>& rhs)
 	{
-		reverse_iterator<Iterator>::difference_type	diff = static_cast<Iterator>(rhs) - static_cast<Iterator>(lhs);
+		typename reverse_iterator<Iterator>::difference_type \
+			diff = static_cast<Iterator>(rhs) - static_cast<Iterator>(lhs);
 		return (diff < 0 ? -diff : diff);
+	};
+
+	template	<class Iterator>
+	bool	operator==(const Iterator& lhs, const reverse_iterator<Iterator>& rhs)
+	{
+		typename enable_if<is_const_same<Iterator, reverse_iterator<Iterator> >::value>::type* dummy;
+		(void)dummy;
+		return (lhs == rhs);
+	};
+
+	template	<class Iterator>
+	bool	operator==(const reverse_iterator<Iterator>& lhs, const Iterator& rhs)
+	{
+		typename enable_if<is_const_same<Iterator, reverse_iterator<Iterator> >::value>::type* dummy;
+		(void)dummy;
+		return (lhs == rhs);
+	};
+
+	template	<class Iterator>
+	bool	operator<(const Iterator& lhs, const reverse_iterator<Iterator>& rhs)
+	{
+		typename enable_if<is_const_same<Iterator, reverse_iterator<Iterator> >::value>::type* dummy;
+		(void)dummy;
+		return (lhs < rhs);
+	};
+
+	template	<class Iterator>
+	bool	operator<(const reverse_iterator<Iterator>& lhs, const Iterator& rhs)
+	{
+		typename enable_if<is_const_same<Iterator, reverse_iterator<Iterator> >::value>::type* dummy;
+		(void)dummy;
+		return (lhs < rhs);
 	};
 };
 

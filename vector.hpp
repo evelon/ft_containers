@@ -117,7 +117,7 @@ namespace	ft
 			InputIterator first,
 			InputIterator last,
 			const allocator_type& alloc = allocator_type(),
-			typename ft::disable_if<is_integral<InputIterator>::value>::type* = 0):
+			typename disable_if<is_integral<InputIterator>::value>::type* = 0):
 			alloc_(alloc),
 			ptrAlloc_(pointer_allocator()),
 			head_(ptrAlloc_.allocate(1))
