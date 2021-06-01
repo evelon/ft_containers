@@ -3,13 +3,13 @@
 
 # include <limits>
 # include <stdexcept>
-# include <memory>
 # include "reverse_iterator.hpp"
+# include "vector_iterator.hpp"
 
 namespace	ft
 {
-	template	<class Tp, class Alloc = std::allocator<Tp> >
-	class	vector;
+	// template	<class Tp, class Alloc = std::allocator<Tp> >
+	// class	vector;
 
 	template	<class Alloc>
 	class	vector<bool, Alloc>;
@@ -17,23 +17,14 @@ namespace	ft
 	template	<typename Tp>
 	class	vector_iterator;
 
+	template	<>
+	class	vector_iterator<bool>;
+
 	template	<class T, class Alloc>
 	bool	operator==(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs);
 
 	template	<class T, class Alloc>
-	bool	operator!=(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs);
-
-	template	<class T, class Alloc>
 	bool	operator<(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs);
-
-	template	<class T, class Alloc>
-	bool	operator<=(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs);
-
-	template	<class T, class Alloc>
-	bool	operator>(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs);
-
-	template	<class T, class Alloc>
-	bool	operator>=(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs);
 
 	template	<class T, class Alloc>
 	void	swap(vector<T,Alloc>& x, vector<T,Alloc>& y);
@@ -66,7 +57,7 @@ namespace	ft
 		pointer*			head_;
 		size_type			size_;
 
-		class	internal_iterator : public vector_iterator<value_type>
+		class	internal_iterator : public iterator
 		{
 		private:
 			internal_iterator(void) {};
@@ -74,7 +65,7 @@ namespace	ft
 			internal_iterator&	operator=(internal_iterator const&) {};
 		public:
 			internal_iterator(pointer* const& head, size_type const& size, difference_type offset):
-				vector_iterator<Tp>(head, size, offset)
+				iterator(head, size, offset)
 			{};
 			virtual ~internal_iterator(void) {};
 		};
@@ -475,18 +466,6 @@ namespace	ft
 	};
 
 	template	<class T, class Alloc>
-	bool	operator<=(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
-		{ return (!(lhs > rhs)); };
-
-	template	<class T, class Alloc>
-	bool	operator>(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
-		{ return (rhs < lhs); };
-
-	template	<class T, class Alloc>
-	bool	operator>=(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
-		{ return (!(lhs < rhs)); };
-
-	template	<class T, class Alloc>
 	void	swap(vector<T,Alloc>& x, vector<T,Alloc>& y)
 	{
 		vector<T, Alloc> temp = x;
@@ -507,10 +486,9 @@ namespace	ft
 	public:
 		typedef bool									value_type;
 		typedef Alloc									allocator_type;
-		// typedef reference								reference;
 		typedef typename Alloc::const_reference			const_reference;
-		typedef vector_iterator<bool>					pointer;
-		typedef vector_iterator<const bool>				const_pointer;
+		typedef bit_iterator<false>						pointer;
+		typedef bit_iterator<true>						const_pointer;
 		typedef const_pointer							const_iterator;
 		typedef pointer									iterator;
 		typedef reverse_iterator<const_iterator>		const_reverse_iterator;
@@ -518,55 +496,47 @@ namespace	ft
 		typedef ptrdiff_t								difference_type;
 		typedef size_t									size_type;
 
-		class	reference
+		class	reference : public bool_vector_reference
 		{
 		private:
-			byte&		byte_;
-			bit_offset	bit_offset_;
-
 			reference(void);
-			friend class	vector;
 
 		protected:
-			reference(byte_array* const& head, size_type offset):
-				byte_(*(*head + (offset >> 3))), bit_offset_(offset & 8) {};
+			reference(unsigned char** const&, size_t);
 
 		public:
-			~reference(void) {};
-			// convert to bool
-			operator bool(void) const
-				{return (byte_ >> bit_offset_ & 1); };
-			// assign from bool
-			reference&	operator=(const bool b)
-			{
-				byte_ &= ~(1 << bit_offset_);
-				byte_ |= b << bit_offset_;
-				return (*this);
-			};
-			// assign from bit
-			reference&	operator=(const reference& b)
-			{
-				bool	bit = b.byte_ >> b.bit_offset_ & 1;
-				byte_ &= ~(1 << bit_offset_);
-				byte_ |= bit << bit_offset_;
-				return (*this);
-			};
-			// flip bit value.
-			void flip(void)
-			{ byte_ ^= 1 << bit_offset_; };
+			~reference(void);
+			operator bool(void);
+			reference&	operator=(const bool b);
+			reference&	operator=(const reference& b);
+			void flip(void);
 		};
 
 	private:
 		allocator_type			alloc_;
 		byte_allocator			byteAlloc_;
 		byte_array_allocator	byteArrayAlloc_;
-		size_type				byte_capacity_;
+		size_type				byteCapacity_;
 		byte_array*				head_;
 		size_type				size_;
 
+		class	internal_iterator : public iterator
+		{
+		private:
+
+			internal_iterator(void) {};
+			internal_iterator(internal_iterator const&) {};
+			internal_iterator&	operator=(internal_iterator const&) {};
+		public:
+			internal_iterator(unsigned char** const& head, size_type const& size, difference_type offset):
+				bit_iterator(head, size, offset)
+			{};
+			virtual ~internal_iterator(void) {};
+		};
+
 		size_type	determineCapacity(size_type new_size)
 		{
-			size_type	new_capacity = byte_capacity_;
+			size_type	new_capacity = byteCapacity_;
 			new_size = (new_size >> 3) + ((new_size & 8) != 0);
 			if (new_size > (max_size() >> 1))
 				return (max_size());
@@ -581,10 +551,10 @@ namespace	ft
 			alloc_(alloc),
 			byteAlloc_(byte_allocator()),
 			byteArrayAlloc_(byte_array_allocator()),
-			byte_capacity_(0),
+			byteCapacity_(0),
 			head_(byteArrayAlloc_.allocate(1)),
 			size_(0)
-		{};
+		{ *head_ = byteAlloc_.allocate(0); };
 		// Constructs a container with "n" elements. Each element is a copy of "val".
 		explicit vector(
 			size_type n,
@@ -593,47 +563,53 @@ namespace	ft
 			alloc_(alloc),
 			byteAlloc_(byte_allocator()),
 			byteArrayAlloc_(byte_array_allocator()),
-			byte_capacity_(n / 8 + (n % 8 != 0)),
+			byteCapacity_((n >> 3) + ((n & 8) != 0)),
 			head_(byteArrayAlloc_.allocate(1)),
 			size_(n)
 		{
+			*head_ = byteAlloc_.allocate(byteCapacity_);
 			if (val == false)
-				memset(*head_, 0, byte_capacity_);
+				memset(*head_, 0, byteCapacity_);
 			else
-				memset(*head_, ~0, byte_capacity_);
+				memset(*head_, ~0, byteCapacity_);
 		};
-	// 	// Constructs a container with as many elements as the range [first,last), with each element constructed from its corresponding element in that range, in the same order.
-	// 	template <class InputIterator>
-	// 	vector(
-	// 		InputIterator first,
-	// 		InputIterator last,
-	// 		const allocator_type& alloc = allocator_type()):
-	// 		alloc_(alloc),
-	// 		byteAlloc_(byte_allocator()),
-	// 		byteArrayAlloc_(byte_array_allocator()),
-	// 		head_(byteArrayAlloc_.allocate(1))
-	// 	{
-	// 		typename ft::disable_if<is_integral<InputIterator>::value>::type*	dummy;
-	// 		(void)dummy;
-	// 		size_type	n = 0;
-	// 		for (InputIterator it = first; it != last; it++)
-	// 			n++;
-	// 		byte_capacity_ = n / 8 + (n % 8 != 0);
-	// 		*head_ = alloc.allocate(capacity_);
-	// 		size_ = n;
-	// 		for (size_type i = 0; first != last; first++ && i++)
-	// 			(*head_)[i] = *first;
-	// 	};
-	// 	// Constructs a container with a copy of each of the elements in "vec", in the same order.
-	// 	vector(const vector& vec):
-	// 		alloc_(vec.alloc_),
-	// 		capacity_(vec.size_),
-	// 		head_(alloc_.allocator(this->capacity_)),
-	// 		size_(vec.size_)
-	// 	{
-	// 		for (size_type i = 0; i < vec.size_; i++)
-	// 			(*this->head_)[i] = (*vec.head_)[i];
-	// 	};
+		// Constructs a container with as many elements as the range [first,last), with each element constructed from its corresponding element in that range, in the same order.
+		template <class InputIterator>
+		vector(
+			InputIterator first,
+			InputIterator last,
+			const allocator_type& alloc = allocator_type()):
+			alloc_(alloc),
+			byteAlloc_(byte_allocator()),
+			byteArrayAlloc_(byte_array_allocator()),
+			head_(byteArrayAlloc_.allocate(1))
+		{
+			typename ft::disable_if<is_integral<InputIterator>::value>::type*	dummy;
+			(void)dummy;
+			size_type	n = 0;
+			for (InputIterator it = first; it != last; it++)
+				n++;
+			byteCapacity_ = n / 8 + (n % 8 != 0);
+			*head_ = byteAlloc_.allocate(byteCapacity_);
+			memset(*head_, 0, byteCapacity_);
+			size_ = n;
+			for (size_type i = 0; first != last; i++)
+				if (*first)
+					(*head_)[i >> 3] |= !!*(first++) << (i & 8);
+		};
+		// Constructs a container with a copy of each of the elements in "vec", in the same order.
+		vector(const vector& vec):
+			alloc_(vec.alloc_),
+			byteAlloc_(vec.byteAlloc_),
+			byteArrayAlloc_(vec.byteArrayAlloc_),
+			byteCapacity_(vec.size_ >> 3),
+			head_(byteArrayAlloc_.allocate(1)),
+			size_(vec.size_)
+		{
+			*head_ = byteAlloc_.allocate(byteCapacity_);
+			for (size_type i = 0; i < byteCapacity_; i++)
+				*head_[i] = (*vec.head_)[i];
+		};
 	// 	// Destroys all container elements, and deallocates all the storage capacity.
 	// 	~vector()
 	// 	{ alloc_.deallocate(*head_, capacity_); };
@@ -648,33 +624,33 @@ namespace	ft
 	// 			(*this->head_)[i] = (*vec.head_)[i];
 	// 		return (*this);
 	// 	};
-	// 	// Returns an iterator pointing to the first element in the vector.
-	// 	iterator	begin(void)
-	// 		{ return (iterator(head_, size_, 0)); };
-	// 	// Returns an const iterator pointing to the first element in the vector.
-	// 	const_iterator	begin(void) const
-	// 		{ return (const_iterator(head_, size_, 0)); };
-	// 	// Returns an iterator referring to the past-the-end element in the vector container.
-	// 	iterator	end(void)
-	// 		{ return (iterator(head_, size_, size_)); };
-	// 	// Returns an const iterator referring to the past-the-end element in the vector container.
-	// 	const_iterator	end(void) const
-	// 		{ return (const_iterator(head_, size_, size_)); };
-	// 	// Returns a reverse iterator pointing to the last element in the vector, which iterates backwords.
-	// 	reverse_iterator	rbegin(void)
-	// 		{ return (reverse_iterator(head_, size_, size_)); };
-	// 	// Returns a const reverse iterator pointing to the last element in the vector, which iterates backwords.
-	// 	const_reverse_iterator	rbegin(void) const
-	// 		{ return (const_reverse_iterator(head_, size_, size_)); };
-	// 	// Returns a reverse iterator pointing to the theoretical element preceding the first element in the vector.
-	// 	reverse_iterator	rend(void)
-	// 		{ return (reverse_iterator(head_, size_, 0)); };
-	// 	// Returns a const reverse iterator pointing to the theoretical element preceding the first element in the vector.
-	// 	const_reverse_iterator	rend(void) const
-	// 		{ return (const_reverse_iterator(head_, size_, 0)); };
-	// 	// Returns the number of elements.
-	// 	size_type	size(void) const
-	// 		{ return (size_); };
+		// Returns an iterator pointing to the first element in the vector.
+		iterator	begin(void)
+			{ return (iterator(internal_iterator(head_, size_, 0))); };
+		// Returns an const iterator pointing to the first element in the vector.
+		const_iterator	begin(void) const
+			{ return (const_iterator(internal_iterator(head_, size_, 0))); };
+		// Returns an iterator referring to the past-the-end element in the vector container.
+		iterator	end(void)
+			{ return (iterator(internal_iterator(head_, size_, size_))); };
+		// Returns an const iterator referring to the past-the-end element in the vector container.
+		const_iterator	end(void) const
+			{ return (const_iterator(internal_iterator(head_, size_, size_))); };
+		// // Returns a reverse iterator pointing to the last element in the vector, which iterates backwords.
+		// reverse_iterator	rbegin(void)
+		// 	{ return (reverse_iterator(head_, size_, size_)); };
+		// // Returns a const reverse iterator pointing to the last element in the vector, which iterates backwords.
+		// const_reverse_iterator	rbegin(void) const
+		// 	{ return (const_reverse_iterator(head_, size_, size_)); };
+		// // Returns a reverse iterator pointing to the theoretical element preceding the first element in the vector.
+		// reverse_iterator	rend(void)
+		// 	{ return (reverse_iterator(head_, size_, 0)); };
+		// // Returns a const reverse iterator pointing to the theoretical element preceding the first element in the vector.
+		// const_reverse_iterator	rend(void) const
+		// 	{ return (const_reverse_iterator(head_, size_, 0)); };
+		// Returns the number of elements.
+		size_type	size(void) const
+			{ return (size_); };
 		// Returns the maximum number of elements that a vector can hold.
 		size_type	max_size(void) const
 		{
@@ -904,7 +880,5 @@ namespace	ft
 	// 		{ return (allocator_type()); };
 	};
 }
-
-# include "vector_iterator.hpp"
 
 #endif

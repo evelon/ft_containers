@@ -3,17 +3,25 @@
 #include <iostream>
 #include <memory>
 #include <type_traits>
-#include "list.hpp"
+// #include "list.hpp"
 #include "vector.hpp"
+#include <random>
 
 int	main()
 {
+	std::vector<bool>	boolvec;
 
-	ft::vector<bool>	vec(true, 1);
-	ft::vector<bool>::reverse_iterator(vec.begin());
+	ft::vector<int>		lst;
 
+	lst.push_back(rand() % 2);
+	lst.push_back(rand() % 2);
+	lst.push_back(rand() % 2);
+	lst.push_back(rand() % 2);
+	lst.push_back(rand() % 2);
+	lst.push_back(rand() % 2);
+	ft::vector<int>	vec(lst.begin(), lst.end());
 
-	std::cout << (vec.begin() != vec.rbegin()) << std::endl;;
-	std::cout << *vec.begin() << std::endl;
+	for (ft::vector<int>::iterator it = vec.begin(); it < vec.end(); it++)
+		std::cout << *it << std::endl;
 
 }

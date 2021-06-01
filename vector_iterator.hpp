@@ -2,10 +2,10 @@
 # define VECTOR_ITERATOR_HPP
 
 // # include <__config>
+# include <memory>
 # include "iterator.hpp"
 # include "enable_if.hpp"
 # include "reverse_iterator.hpp"
-# include "vector.hpp"
 # include "relational_operator_impl.hpp"
 
 namespace	ft
@@ -30,6 +30,12 @@ namespace	ft
 
 	template	<>
 	class	vector_iterator<bool>;
+
+	template	<typename Tp, class Alloc = std::allocator<Tp> >
+	class	vector;
+
+	template	<class Alloc>
+	class	vector<bool, Alloc>;
 
 	// template	<>
 	// vector_iterator<bool>	operator+(int op, vector_iterator<bool> const& it);
@@ -174,43 +180,11 @@ namespace	ft
 	};
 
 	template	<typename T, typename U>
-	bool	operator!=(const vector_iterator<T>& lhs, const vector_iterator<U>& rhs)
-	{
-		typename enable_if<is_const_same<T, U>::value>::type*	dummy;
-		(void)dummy;
-		return (&*lhs != &*rhs);
-	};
-
-	template	<typename T, typename U>
 	bool	operator<(const vector_iterator<T>& lhs, const vector_iterator<U>& rhs)
 	{
 		typename enable_if<is_const_same<T, U>::value>::type*	dummy;
 		(void)dummy;
 		return (&*lhs < &*rhs);
-	};
-
-	// template	<typename T, typename U>
-	// bool	operator<=(const vector_iterator<T>& lhs, const vector_iterator<U>& rhs)
-	// {
-	// 	typename enable_if<is_const_same<T, U>::value>::type*	dummy;
-	// 	(void)dummy;
-	// 	return (&*lhs <= &*rhs);
-	// };
-
-	template	<typename T, typename U>
-	bool	operator>(const vector_iterator<T>& lhs, const vector_iterator<U>& rhs)
-	{
-		typename enable_if<is_const_same<T, U>::value>::type*	dummy;
-		(void)dummy;
-		return (&*lhs > &*rhs);
-	};
-
-	template	<typename T, typename U>
-	bool	operator>=(const vector_iterator<T>& lhs, const vector_iterator<U>& rhs)
-	{
-		typename enable_if<is_const_same<T, U>::value>::type*	dummy;
-		(void)dummy;
-		return (&*lhs >= &*rhs);
 	};
 
 	template	<typename Tp>
@@ -227,12 +201,52 @@ namespace	ft
 		return (&*lhs - &*rhs);
 	};
 
-	template	<>
-	class	vector_iterator<bool>
+	class	bool_vector_reference
 	{
 	private:
-		typedef vector_iterator						iterator;
-		typedef unsigned char						byte;
+		unsigned char&	byte_;
+		unsigned char	bit_offset_;
+
+		bool_vector_reference(void);
+
+	protected:
+		bool_vector_reference(unsigned char** const& head, size_t offset):
+			byte_(*(*head + (offset >> 3))), bit_offset_(offset & 8) {};
+
+	public:
+		~bool_vector_reference(void) {};
+		// convert to bool
+		operator bool(void) const
+			{return (byte_ >> bit_offset_ & 1); };
+		// assign from bool
+		bool_vector_reference&	operator=(const bool b)
+		{
+			byte_ &= ~(1 << bit_offset_);
+			byte_ |= b << bit_offset_;
+			return (*this);
+		};
+		// assign from bit
+		bool_vector_reference&	operator=(const bool_vector_reference& b)
+		{
+			bool	bit = b.byte_ >> b.bit_offset_ & 1;
+			byte_ &= ~(1 << bit_offset_);
+			byte_ |= bit << bit_offset_;
+			return (*this);
+		};
+		// flip bit value.
+		void flip(void)
+		{ byte_ ^= 1 << bit_offset_; };
+	};
+
+	template	<bool is_const>
+	class	bit_iterator
+	{
+	private:
+		typedef bit_iterator						iterator;
+		typedef bool_vector_reference				bool_reference;
+		typedef
+			typename conditional<is_const, const unsigned char, unsigned char>::type
+													byte;
 		typedef byte*								byte_array;
 		typedef unsigned char						bit_offset;
 		template	<typename B>
@@ -241,10 +255,10 @@ namespace	ft
 			{ (void)iter; };
 
 	protected:
-		class	internal_reference : public vector<bool>::reference
+		class	internal_reference : public bool_reference
 		{
 		private:
-			typedef vector<bool>::reference	base_reference;
+			typedef bool_reference	base_reference;
 		public:
 			internal_reference(byte_array* const& head, size_t offset):
 				base_reference(head, offset) {};
@@ -253,7 +267,7 @@ namespace	ft
 	public:
 		typedef random_access_iterator_tag			iterator_category;
 		typedef bool								value_type;
-		typedef vector<bool>::reference				reference;
+		typedef bool_reference						reference;
 		typedef iterator							pointer;
 		typedef std::ptrdiff_t						difference_type;
 		typedef size_t								size_type;
@@ -264,35 +278,35 @@ namespace	ft
 		difference_type		offset_;
 
 	protected:
-		// reference	reverse_reference(void)
-		// { return (*(*head_ + offset_ - 1)); };
+		reference	reverse_reference(void)
+			{ return (internal_reference(head_, offset_ - 1)); };
 
-		vector_iterator(byte_array* const& head, size_type const& size, difference_type offset):
+		bit_iterator(byte_array* const& head, size_type const& size, difference_type offset):
 			head_(head),
 			size_(&size),
 			offset_(offset)
 		{};
 
 	public:
-		vector_iterator(void):
+		bit_iterator(void):
 			head_(NULL),
 			size_(NULL),
 			offset_(0)
 		{};
-		vector_iterator(iterator const& iter):
+		bit_iterator(iterator const& iter):
 			head_(iter.head_),
 			size_(iter.size_),
 			offset_(iter.offset_)
 		{}
-		template	<typename B>
-		vector_iterator(
-			vector_iterator<B> const& iter,
-			typename ft::disable_if<is_const_of<bool, B>::value>::type* = 0):
+		template	<bool _is_const>
+		bit_iterator(
+			bit_iterator<_is_const> const& iter,
+			typename disable_if<_and<_is_const, _not<is_const>::value>::value>::type* = 0):
 			head_(((iterator*)(&iter))->head_),
 			size_(((iterator*)(&iter))->size_),
 			offset_(((iterator*)(&iter))->offset_)
 		{};
-		virtual ~vector_iterator(void) {};
+		virtual ~bit_iterator(void) {};
 
 		iterator&	operator=(iterator const& iter)
 		{
@@ -301,11 +315,9 @@ namespace	ft
 			this->offset_ = iter.offset_;
 			return (*this);
 		};
-		template	<typename B>
-		iterator&	operator=(vector_iterator<B> const& iter)
+		template	<bool _is_const>
+		iterator&	operator=(bit_iterator<_is_const> const& iter)
 		{
-			typename ft::enable_if<is_const_same<bool, B>::value>::type*	dummy;
-			(void)dummy;
 			iterator	temp(iter);
 			this->head_ = temp.head_;
 			this->size_ = temp.size_;
@@ -387,7 +399,8 @@ namespace	ft
 		};
 	};
 
-	vector_iterator<bool>	operator+(int n, vector_iterator<bool> const& it)
+	template	<bool is_const>
+	bit_iterator<is_const>	operator+(int n, bit_iterator<is_const> const& it)
 		{ return (it + n); };
 }
 

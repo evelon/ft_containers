@@ -36,8 +36,16 @@ namespace	ft
 	{ static const bool	value = true; };
 
 	template	<>
-	struct	_or <false, false>
+	struct	_or<false, false>
 	{ static const bool	value = false; };
+
+	template	<bool B>
+	struct	_not
+	{ static const bool value = true; };
+
+	template	<>
+	struct	_not<true>
+	{ static const bool value = false; };
 
 	// If a typename "N" is interal type, the member variable "value" is true.
 	template	<typename N>
@@ -157,5 +165,14 @@ namespace	ft
 	template	<typename T>
 	struct	is_const_same<T, T>
 	{ static const bool	value = true; };
+
+	// "type" will be "Then" if the "If" is true, else then "Else"
+	template	<bool If, typename Then, typename Else>
+	struct	conditional
+	{ typedef Then	type; };
+
+	template	<typename Then, typename Else>
+	struct	conditional<false, Then, Else>
+	{ typedef Else	type; };
 }
 #endif

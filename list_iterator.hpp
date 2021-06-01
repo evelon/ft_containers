@@ -95,13 +95,6 @@ namespace	ft
 			(void)dummy;
 			return (this->ptrToNode_ == ((iterator*)(&iter))->ptrToNode_);
 		};
-		template	<typename _Tp>
-		bool		operator!=(list_iterator<_Tp> const& iter) const
-		{
-			typename enable_if<is_const_same<_Tp, Tp>::value>::type*	dummy;
-			(void)dummy;
-			return (this->ptrToNode_ != ((iterator*)(&iter))->ptrToNode_);
-		};
 		iterator&	operator++(void)
 		{
 			// if (ptrToNode->getContent() != NULL)
