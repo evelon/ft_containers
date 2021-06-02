@@ -1,7 +1,7 @@
 #ifndef LIST_HPP
 # define LIST_HPP
 
-# include "enable_if.hpp"
+# include "template_utils.hpp"
 # include "DoublyLinkedNode.hpp"
 # include "list_iterator.hpp"
 # include "reverse_iterator.hpp"
@@ -16,8 +16,8 @@ namespace	ft
 	class	list
 	{
 	private:
-		typedef DoublyLinkedNode<Tp, Alloc>						node;
-		typedef typename Alloc::template rebind<node>::other	node_allocator;
+		typedef DoublyLinkedNode<Tp, Alloc>						node_;
+		typedef typename Alloc::template rebind<node_>::other	node_allocator_;
 
 		class	node_iterator: public list_iterator<Tp>
 		{
@@ -28,7 +28,7 @@ namespace	ft
 				iterator() {};
 			node_iterator(node_iterator const& n_it):
 				iterator(n_it) {};
-			node_iterator(node* nod):
+			node_iterator(node_* nod):
 				iterator(nod) {};
 			node_iterator(iterator const& it):
 				iterator(it) {};
@@ -64,17 +64,17 @@ namespace	ft
 					this->getNode() = this->getNode()->getPrev();
 				return (temp);
 			};
-			node*&	getNode(void)
+			node_*&	getNode(void)
 				{ return (this->getNode_()); };
-			node*&	getNext(void)
+			node_*&	getNext(void)
 				{ return (this->getNode()->getNext()); }
-			node*&	getPrev(void)
+			node_*&	getPrev(void)
 				{ return (this->getNode()->getPrev()); }
-			void	AddNext(node* nod)
+			void	AddNext(node_* nod)
 				{ this->getNode()->AddNext(nod); }
 			void	AddNext(node_iterator nit)
 				{ this->getNode()->AddNext(nit->getNode()); }
-			void	AddPrev(node* nod)
+			void	AddPrev(node_* nod)
 				{ this->getNode()->AddPrev(nod); }
 			void	AddPrev(node_iterator nit)
 				{ this->getNode()->AddPrev(nit->getNode()); }
@@ -96,8 +96,8 @@ namespace	ft
 
 	private:
 		allocator_type	alloc_;
-		node_allocator	node_alloc_;
-		node*			blank_node_;
+		node_allocator_	node_alloc_;
+		node_*			blank_node_;
 		size_type		size_;
 
 		size_type	node_alloc_max_size() const
@@ -199,7 +199,7 @@ namespace	ft
 		// List destructor
 		~list(void)
 		{
-			node*	temp;
+			node_*	temp;
 			while (blank_node_->getNext() != blank_node_)
 			{
 				temp = blank_node_->getPrev();
@@ -213,7 +213,7 @@ namespace	ft
 		// Assign content
 		list&	operator=(const list& lst)
 		{
-			node*	cur_node = this->blank_node_->getNext();
+			node_*	cur_node = this->blank_node_->getNext();
 			if (lst.size_ <= this->size_)
 			{
 				for (const_iterator it = lst.begin(); it != lst.end(); it++)
@@ -221,7 +221,7 @@ namespace	ft
 					cur_node->setContent(*it);
 					cur_node = cur_node->getNext();
 				}
-				node*	temp;
+				node_*	temp;
 				while (cur_node != this->blank_node_)
 				{
 					temp = cur_node->getNext();
@@ -323,7 +323,7 @@ namespace	ft
 		// Inserts a new element at the beginning of the list, right before its current first element, effectively increasing its size by one.
 		void	push_front(const value_type& val)
 		{
-			node*	new_node = node_alloc_.allocate(1, blank_node_);
+			node_*	new_node = node_alloc_.allocate(1, blank_node_);
 			node_alloc_.construct(new_node, *new_node);
 			new_node->setContent(val);
 			blank_node_->AddNext(new_node);
@@ -332,7 +332,7 @@ namespace	ft
 		// Removes the first element in the list container, effectively reducing its size by one.
 		void	pop_front(void)
 		{
-			node*	dump = blank_node_->getNext();
+			node_*	dump = blank_node_->getNext();
 			node_alloc_.destroy(dump);
 			node_alloc_.deallocate(dump, 1);
 			size_--;
@@ -340,7 +340,7 @@ namespace	ft
 		// Adds a new element at the end of the list container, after its current last element, effectively increasing the container size by one.
 		void	push_back(const value_type& val)
 		{
-			node*	new_node = node_alloc_.allocate(1, blank_node_->getPrev());
+			node_*	new_node = node_alloc_.allocate(1, blank_node_->getPrev());
 			node_alloc_.construct(new_node, *new_node);
 			new_node->setContent(val);
 			blank_node_->AddPrev(new_node);
@@ -349,7 +349,7 @@ namespace	ft
 		// Removes the last element in the list container, effectively reducing the container size by one.
 		void	pop_back(void)
 		{
-			node*	dump = blank_node_->getPrev();
+			node_*	dump = blank_node_->getPrev();
 			node_alloc_.destroy(dump);
 			node_alloc_.deallocate(dump, 1);
 			size_--;
@@ -360,7 +360,7 @@ namespace	ft
 		{
 			if (!is_included(position, *this))
 				return (position);
-			node*	new_node(node_alloc_.allocate(1));
+			node_*	new_node(node_alloc_.allocate(1));
 			node_alloc_.construct(new_node, *new_node);
 			new_node->setContent(val);
 			node_iterator	nit = position--;
@@ -374,7 +374,7 @@ namespace	ft
 			if (!is_included(position, *this))
 				return ;
 			node_iterator	nit(position);
-			node*			temp;
+			node_*			temp;
 			for (size_type i = 0; i < n; i++)
 			{
 				temp = node_alloc_.allocate(1);
@@ -399,7 +399,7 @@ namespace	ft
 			list	temp_list(first, last);
 			node_iterator	first_n(temp_list.begin());
 			node_iterator	last_n(temp_list.end());
-			node*			temp;
+			node_*			temp;
 			for (; first_n != last_n; first_n++)
 			{
 				temp = node_alloc_.allocate(1);
@@ -426,8 +426,8 @@ namespace	ft
 			if (!is_included(first, *this) || !is_included(last, *this))
 				return (last);
 			node_iterator	nit(first);
-			node*			pos_node(nit.getNode());
-			node*			temp;
+			node_*			pos_node(nit.getNode());
+			node_*			temp;
 			while (first != last)
 			{
 				if (first == this->end())
@@ -445,7 +445,7 @@ namespace	ft
 		// Exchanges the content of the container by the content of "lst", which is another list of the same type. Sizes may differ.
 		void	swap(list& lst)
 		{
-			node*	temp_node;
+			node_*	temp_node;
 			temp_node = lst.blank_node_;
 			lst.blank_node_ = this->blank_node_;
 			this->blank_node_ = temp_node;
@@ -483,9 +483,9 @@ namespace	ft
 			if (!is_included(position, *this))
 				return ;
 			node_iterator	nit(position);
-			node*	pos_node = nit.getNode();
-			node*	cur_node = lst.blank_node_->getNext();
-			node*	next_node = cur_node->getNext();
+			node_*	pos_node = nit.getNode();
+			node_*	cur_node = lst.blank_node_->getNext();
+			node_*	next_node = cur_node->getNext();
 			while (next_node != lst.blank_node_)
 			{
 				next_node = cur_node->getNext();
@@ -531,8 +531,8 @@ namespace	ft
 		// Removes from the container all the elements that compare equal to "val".
 		void	remove(const value_type& val)
 		{
-			node*	cur_node = blank_node_->getNext();
-			node*	next_node;
+			node_*	cur_node = blank_node_->getNext();
+			node_*	next_node;
 			while (cur_node != blank_node_)
 			{
 				next_node = cur_node->getNext();
@@ -549,8 +549,8 @@ namespace	ft
 		template	<class Predicate>
 		void	remove_if(Predicate pred)
 		{
-			node*	cur_node = blank_node_->getNext();
-			node*	next_node;
+			node_*	cur_node = blank_node_->getNext();
+			node_*	next_node;
 			while (cur_node != blank_node_)
 			{
 				next_node = cur_node->getNext();
@@ -566,8 +566,8 @@ namespace	ft
 		// Removes all but the first element from every consecutive group of equal elements in the container. An element is only removed from the list container if it compares equal to the element immediately preceding it.
 		void	unique(void)
 		{
-			node*	cur_node = blank_node_->getNext()->getNext();
-			node*	next_node;
+			node_*	cur_node = blank_node_->getNext()->getNext();
+			node_*	next_node;
 			while (cur_node != blank_node_)
 			{
 				next_node = cur_node->getNext();
@@ -584,8 +584,8 @@ namespace	ft
 		template	<class BinaryPredicate>
 		void	unique(BinaryPredicate binary_pred)
 		{
-			node*	cur_node = blank_node_->getNext()->getNext();
-			node*	next_node;
+			node_*	cur_node = blank_node_->getNext()->getNext();
+			node_*	next_node;
 			while (cur_node != blank_node_)
 			{
 				next_node = cur_node->getNext();

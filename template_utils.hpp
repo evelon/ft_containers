@@ -1,6 +1,8 @@
 #ifndef ENABLE_IF_HPP
 # define ENABLE_IF_HPP
 
+# include <stddef.h>
+
 namespace	ft
 {
 	// enable_if has a type "type" if bool "B" is true.
@@ -174,5 +176,21 @@ namespace	ft
 	template	<typename Then, typename Else>
 	struct	conditional<false, Then, Else>
 	{ typedef Else	type; };
+
+	template	<size_t Num , size_t Base>
+	struct	logarithm
+	{ static const size_t	value = 1 + logarithm<Num / Base, Base>::value; };
+
+	template	<size_t Base>
+	struct	logarithm<Base, Base>
+	{ static const size_t	value = 1; };
+
+	template	<size_t Base>
+	struct	logarithm<1, Base>
+	{ static const size_t	value = 0; };
+
+	template	<size_t Base>
+	struct	logarithm<0, Base>
+	{ static const size_t	value = 0; };
 }
 #endif

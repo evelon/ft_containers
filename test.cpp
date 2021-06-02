@@ -6,27 +6,26 @@
 #include "list.hpp"
 #include "vector.hpp"
 #include <random>
+#define NS ft
 
 int	main()
 {
-	ft::list<int>		lst;
 
 	srand(time(NULL));
-	lst.push_back(rand() % 2);
-	lst.push_back(rand() % 2);
-	lst.push_back(rand() % 2);
-	lst.push_back(rand() % 2);
-	lst.push_back(rand() % 2);
-	lst.push_back(rand() % 2);
-	ft::vector<bool>	vec;
 
-	vec.assign(lst.begin(), lst.end());
+	NS::list<int>		lst;
 
-	for (ft::list<int>::iterator it = lst.begin(); it != lst.end(); it++)
-		std::cout << *it << std::endl;
+	for (int i = 0; i < 200; i++)
+		lst.push_back(rand()%2);
+	NS::vector<bool>	boolvec(lst.begin(), lst.end());
+
+
+	NS::list<int>::iterator		lit = lst.end();
+	boolvec.insert(--boolvec.end(), 1);
+	NS::vector<bool>::iterator	vit = boolvec.end();
+	while (vit != boolvec.begin())
+		std::cout << !!(*(--vit));
 	std::cout << std::endl;
-	// vec.resize(12, true);
-	for (ft::vector<bool>::iterator it = vec.begin(); it < vec.end(); it++)
-		std::cout << *it << std::endl;
-
+	while (lit != lst.begin())
+		std::cout << (*(--lit));
 }

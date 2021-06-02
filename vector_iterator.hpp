@@ -5,7 +5,7 @@
 # include <memory>
 # include <iostream>
 # include "iterator.hpp"
-# include "enable_if.hpp"
+# include "template_utils.hpp"
 # include "reverse_iterator.hpp"
 # include "relational_operator_impl.hpp"
 
@@ -38,11 +38,16 @@ namespace	ft
 	template	<class Alloc>
 	class	vector<bool, Alloc>;
 
-	class	byte;
+	class	storage_type_;
 
+	template	<class Alloc = std::allocator<bool> >
 	class	bool_vector_reference;
 
-	std::ostream&	operator<<(std::ostream& os, bool_vector_reference const& ref);
+	template	<bool is_const, class Alloc = std::allocator<bool> >
+	class	bit_iterator;
+
+	template	<class Alloc>
+	std::ostream&	operator<<(std::ostream& os, bool_vector_reference<Alloc> const& ref);
 
 	// template	<>
 	// vector_iterator<bool>	operator+(int op, vector_iterator<bool> const& it);
@@ -208,177 +213,185 @@ namespace	ft
 		return (&*lhs - &*rhs);
 	};
 
-	class	byte
-	{
-	private:
-		union	u_bitset
-		{
-			unsigned char	field;
-			struct	s_bits
-			{
-				friend class	byte;
-				unsigned char	_7 : 1;
-				unsigned char	_6 : 1;
-				unsigned char	_5 : 1;
-				unsigned char	_4 : 1;
-				unsigned char	_3 : 1;
-				unsigned char	_2 : 1;
-				unsigned char	_1 : 1;
-				unsigned char	_0 : 1;
-			}				bits;
-		};
+	// class	storage_type_
+	// {
+	// private:
+	// 	union	u_bitset
+	// 	{
+	// 		unsigned char	field;
+	// 		struct	s_bits
+	// 		{
+	// 			friend class	storage_type_;
+	// 			unsigned char	_7 : 1;
+	// 			unsigned char	_6 : 1;
+	// 			unsigned char	_5 : 1;
+	// 			unsigned char	_4 : 1;
+	// 			unsigned char	_3 : 1;
+	// 			unsigned char	_2 : 1;
+	// 			unsigned char	_1 : 1;
+	// 			unsigned char	_0 : 1;
+	// 		}				bits;
+	// 	};
 
-		union u_bitset	bitset;
+	// 	union u_bitset	bitset;
 
-	public:
-		byte(void)
-		{ bitset.field = 0; };
-		byte(byte const& b)
-		{ this->bitset.field = b.bitset.field; }
-		~byte(void) {};
-		byte&	operator=(unsigned char value)
-		{
-			bitset.field = value;
-			return (*this);
-		};
-		unsigned char	operator>>(int const shift)
-			{ return (bitset.field >> shift); };
-		unsigned char	operator<<(int const shift)
-			{ return (bitset.field << shift); };
-		template	<typename T>
-		unsigned char	operator|(T const& t)
-			{ return (bitset.field | t); };
-		template	<typename T>
-		unsigned char	operator&(T const& t)
-			{ return (bitset.field & t); };
-		template	<typename T>
-		unsigned char	operator^(T const& t)
-			{ return (bitset.field ^ t); };
-		byte&	operator>>=(int const shift)
-			{ bitset.field >>= shift; return (*this); }
-		byte&	operator<<=(int const shift)
-			{ bitset.field <<= shift; return (*this); }
-		template	<typename T>
-		byte&	operator|=(T const& t)
-			{ bitset.field |= t; return (*this); };
-		template	<typename T>
-		byte&	operator&=(T const& t)
-			{ bitset.field &= t; return (*this); };
-		template	<typename T>
-		byte&	operator^=(T const& t)
-			{ bitset.field ^= t; return (*this); };
-		unsigned char	get_bitset(void)
-			{ return (bitset.field); };
-		void	set_bitset(unsigned char value)
-			{ bitset.field = value; };
-		void	set_bits(int bit, bool value)
-		{
-			switch(bit)
-			{
-				case 0:
-					bitset.bits._0 = value;
-					break ;
-				case 1:
-					bitset.bits._1 = value;
-					break ;
-				case 2:
-					bitset.bits._2 = value;
-					break ;
-				case 3:
-					bitset.bits._3 = value;
-					break ;
-				case 4:
-					bitset.bits._4 = value;
-					break ;
-				case 5:
-					bitset.bits._5 = value;
-					break ;
-				case 6:
-					bitset.bits._6 = value;
-					break ;
-				case 7:
-					bitset.bits._7 = value;
-					break ;
-			}
-		}
-		bool	get_bits(int bit)
-		{
-			switch(bit)
-			{
-				case 0:
-					return (bitset.bits._0);
-				case 1:
-					return (bitset.bits._1);
-				case 2:
-					return (bitset.bits._2);
-				case 3:
-					return (bitset.bits._3);
-				case 4:
-					return (bitset.bits._4);
-				case 5:
-					return (bitset.bits._5);
-				case 6:
-					return (bitset.bits._6);
-				case 7:
-					return (bitset.bits._7);
-			}
-			return (false);
-		}
-	};
+	// public:
+	// 	storage_type_(void)
+	// 	{ bitset.field = 0; };
+	// 	storage_type_(storage_type_ const& b)
+	// 	{ this->bitset.field = b.bitset.field; }
+	// 	~storage_type_(void) {};
+	// 	storage_type_&	operator=(unsigned char value)
+	// 	{
+	// 		bitset.field = value;
+	// 		return (*this);
+	// 	};
+	// 	unsigned char	operator>>(int const shift)
+	// 		{ return (bitset.field >> shift); };
+	// 	unsigned char	operator<<(int const shift)
+	// 		{ return (bitset.field << shift); };
+	// 	template	<typename T>
+	// 	unsigned char	operator|(T const& t)
+	// 		{ return (bitset.field | t); };
+	// 	template	<typename T>
+	// 	unsigned char	operator&(T const& t)
+	// 		{ return (bitset.field & t); };
+	// 	template	<typename T>
+	// 	unsigned char	operator^(T const& t)
+	// 		{ return (bitset.field ^ t); };
+	// 	storage_type_&	operator>>=(int const shift)
+	// 		{ bitset.field >>= shift; return (*this); }
+	// 	storage_type_&	operator<<=(int const shift)
+	// 		{ bitset.field <<= shift; return (*this); }
+	// 	template	<typename T>
+	// 	storage_type_&	operator|=(T const& t)
+	// 		{ bitset.field |= t; return (*this); };
+	// 	template	<typename T>
+	// 	storage_type_&	operator&=(T const& t)
+	// 		{ bitset.field &= t; return (*this); };
+	// 	template	<typename T>
+	// 	storage_type_&	operator^=(T const& t)
+	// 		{ bitset.field ^= t; return (*this); };
+	// 	unsigned char	get_bitset(void)
+	// 		{ return (bitset.field); };
+	// 	void	set_bitset(unsigned char value)
+	// 		{ bitset.field = value; };
+	// 	void	set_bits(int bit, bool value)
+	// 	{
+	// 		switch(bit)
+	// 		{
+	// 			case 0:
+	// 				bitset.bits._0 = value;
+	// 				break ;
+	// 			case 1:
+	// 				bitset.bits._1 = value;
+	// 				break ;
+	// 			case 2:
+	// 				bitset.bits._2 = value;
+	// 				break ;
+	// 			case 3:
+	// 				bitset.bits._3 = value;
+	// 				break ;
+	// 			case 4:
+	// 				bitset.bits._4 = value;
+	// 				break ;
+	// 			case 5:
+	// 				bitset.bits._5 = value;
+	// 				break ;
+	// 			case 6:
+	// 				bitset.bits._6 = value;
+	// 				break ;
+	// 			case 7:
+	// 				bitset.bits._7 = value;
+	// 				break ;
+	// 		}
+	// 	}
+	// 	bool	get_bits(int bit)
+	// 	{
+	// 		switch(bit)
+	// 		{
+	// 			case 0:
+	// 				return (bitset.bits._0);
+	// 			case 1:
+	// 				return (bitset.bits._1);
+	// 			case 2:
+	// 				return (bitset.bits._2);
+	// 			case 3:
+	// 				return (bitset.bits._3);
+	// 			case 4:
+	// 				return (bitset.bits._4);
+	// 			case 5:
+	// 				return (bitset.bits._5);
+	// 			case 6:
+	// 				return (bitset.bits._6);
+	// 			case 7:
+	// 				return (bitset.bits._7);
+	// 		}
+	// 		return (false);
+	// 	}
+	// };
 
+	template	<class Alloc>
 	class	bool_vector_reference
 	{
 	private:
-		byte&			byte_;
-		unsigned char	bit_offset_;
+		typedef typename Alloc::size_type	size_type;
+		typedef size_type					storage_type_;
+
+		static const size_type				storage_unit__ = 8 * sizeof(storage_type_);
+		static const size_type				full_bits__ = storage_unit__ - 1;
+		static const size_type				storage_bits__ = logarithm<storage_unit__, 2>::value;
+		storage_type_&						storage_;
+		unsigned char						bit_offset_;
 
 		bool_vector_reference(void);
 
 	protected:
-		bool_vector_reference(byte** const& head, size_t offset):
-			byte_(*(*head + (offset >> 3))), bit_offset_(offset & 7) {};
+		bool_vector_reference(storage_type_** const& head, size_type offset):
+			storage_(*(*head + (offset / storage_unit__))), bit_offset_(offset & full_bits__) {};
 
 	public:
 		~bool_vector_reference(void) {};
 		// convert to bool
 		operator bool(void) const
-			{return (byte_ >> bit_offset_ & 1); };
+			{return (storage_ >> bit_offset_ & 1); };
 		// assign from bool
 		bool_vector_reference&	operator=(const bool b)
 		{
-			byte_ &= ~(1 << bit_offset_);
-			byte_ |= b << bit_offset_;
+			storage_ &= ~(1 << bit_offset_);
+			storage_ |= b << bit_offset_;
 			return (*this);
 		};
 		// assign from bit
 		bool_vector_reference&	operator=(const bool_vector_reference& b)
 		{
-			bool	bit = b.byte_ >> b.bit_offset_ & 1;
-			byte_ &= ~(1 << bit_offset_);
-			byte_ |= bit << bit_offset_;
+			bool	bit = b.storage_ >> b.bit_offset_ & 1;
+			storage_ &= ~(1 << bit_offset_);
+			storage_ |= bit << bit_offset_;
 			return (*this);
 		};
 
 		friend std::ostream&	operator<<(std::ostream& os, bool_vector_reference const& ref)
 		{
-			os << ((ref.byte_ >> ref.bit_offset_) & 1);
+			os << ((ref.storage_ >> ref.bit_offset_) & 1);
 			return (os);
 		};
 		// flip bit value.
 		void flip(void)
-		{ byte_ ^= 1 << bit_offset_; };
+		{ storage_ ^= 1 << bit_offset_; };
 	};
 
-	template	<bool is_const>
+	template	<bool is_const, class Alloc>
 	class	bit_iterator
 	{
 	private:
 		typedef bit_iterator						iterator;
-		typedef bool_vector_reference				bool_reference;
+		typedef bool_vector_reference<Alloc>		bool_reference;
+		typedef typename Alloc::size_type			storage_type_;
 		typedef
-			typename conditional<is_const, const byte, byte>::type
-													byte_;
-		typedef byte_*								byte_array_;
+			typename conditional<is_const, const storage_type_, storage_type_>::type
+													storage_;
+		typedef storage_*							storage_ptr_;
 
 		template	<bool _is_const>
 		void	is_compatible(bit_iterator<_is_const> const& iter) const
@@ -395,7 +408,7 @@ namespace	ft
 		public:
 			internal_reference(internal_reference const& ref):
 				base_reference(ref) {};
-			internal_reference(byte_array_* const& head, size_t offset):
+			internal_reference(storage_ptr_* const& head, size_t offset):
 				base_reference(head, offset) {};
 
 		};
@@ -409,7 +422,7 @@ namespace	ft
 		typedef size_t								size_type;
 
 	private:
-		byte_array_*			head_;
+		storage_ptr_*		head_;
 		size_type const*	size_;
 		difference_type		offset_;
 
@@ -417,7 +430,7 @@ namespace	ft
 		reference	reverse_reference(void)
 			{ return (internal_reference(head_, offset_ - 1)); };
 
-		bit_iterator(byte_array_* const& head, size_type const& size, difference_type offset):
+		bit_iterator(storage_ptr_* const& head, size_type const& size, difference_type offset):
 			head_(head),
 			size_(&size),
 			offset_(offset)

@@ -475,17 +475,15 @@ namespace	ft
 		y = temp;
 	};
 
-	// class	byte;
-
 	template	<class Alloc>
 	class	vector<bool, Alloc>
 	{
 	private:
-		typedef byte												byte;
-		typedef byte*												byte_array;
-		typedef typename Alloc::template rebind<byte>::other		byte_allocator;
-		typedef typename Alloc::template rebind<byte_array>::other	byte_array_allocator;
-		typedef unsigned char										bit_offset;
+		typedef typename Alloc::size_type								storage_type_;
+		typedef storage_type_*											storage_ptr_;
+		typedef typename Alloc::template rebind<storage_type_>::other	storage_allocator_;
+		typedef typename Alloc::template rebind<storage_ptr_>::other	storage_ptr_allocator_;
+		typedef unsigned char											bit_offset_;
 
 	public:
 		typedef bool									value_type;
@@ -500,13 +498,13 @@ namespace	ft
 		typedef ptrdiff_t								difference_type;
 		typedef size_t									size_type;
 
-		class	reference : public bool_vector_reference
+		class	reference : public bool_vector_reference<Alloc>
 		{
 		private:
 			reference(void);
 
 		protected:
-			reference(byte_array* const&, size_t);
+			reference(storage_ptr_* const&, size_t);
 
 		public:
 			~reference(void);
@@ -517,12 +515,13 @@ namespace	ft
 		};
 
 	private:
-		allocator_type			alloc_;
-		byte_allocator			byteAlloc_;
-		byte_array_allocator	byteArrayAlloc_;
-		size_type				byteCapacity_;
-		byte_array*				head_;
-		size_type				size_;
+		static const size_type		storage_unit__ = 8 * sizeof(storage_type_);
+		allocator_type				alloc_;
+		storage_allocator_			storageAlloc_;
+		storage_ptr_allocator_		storagePtrAlloc_;
+		size_type					storageCapacity_;
+		storage_ptr_*				storageHead_;
+		size_type					size_;
 
 		class	internal_iterator : public iterator
 		{
@@ -532,7 +531,7 @@ namespace	ft
 			internal_iterator(internal_iterator const&) {};
 			internal_iterator&	operator=(internal_iterator const&) {};
 		public:
-			internal_iterator(byte_array* const& head, size_type const& size, difference_type offset):
+			internal_iterator(vector::storage_ptr_* const& head, size_type const& size, difference_type offset):
 				bit_iterator(head, size, offset)
 			{};
 			virtual ~internal_iterator(void) {};
@@ -540,42 +539,53 @@ namespace	ft
 
 		size_type	determineCapacity(size_type new_size)
 		{
-			size_type	new_capacity = byteCapacity_;
-			new_size = (new_size >> 3) + ((new_size & 7) != 0);
+			size_type	new_capacity = storageCapacity_;
+			new_size = (new_size / storage_unit__) + ((new_size % storage_unit__) != 0);
 			if (new_size > (max_size() >> 1))
 				return (max_size());
 			while (new_capacity < new_size)
 				new_capacity <<= 1;
-			return (new_capacity);
+			if (new_capacity > storage_unit__)
+				return (new_capacity);
+			return (storage_unit__);
+		}
+
+		storage_type_	nth_bit(size_type nth, value_type bit)
+		{
+			storage_type_	bit_point = !!bit;
+			size_type		t = nth;
+			for (; t > 31; t -= 31)
+				bit_point = bit_point << 31;
+			return (bit_point << t);
 		}
 
 	public:
 		// Constructs an empty container, with no elements.
 		explicit vector(const allocator_type& alloc = allocator_type()):
 			alloc_(alloc),
-			byteAlloc_(byte_allocator()),
-			byteArrayAlloc_(byte_array_allocator()),
-			byteCapacity_(0),
-			head_(byteArrayAlloc_.allocate(1)),
+			storageAlloc_(storage_allocator_()),
+			storagePtrAlloc_(storage_ptr_allocator_()),
+			storageCapacity_(0),
+			storageHead_(storagePtrAlloc_.allocate(1)),
 			size_(0)
-		{ *head_ = byteAlloc_.allocate(0); };
+		{ *storageHead_ = storageAlloc_.allocate(0); };
 		// Constructs a container with "n" elements. Each element is a copy of "val".
 		explicit vector(
 			size_type n,
 			const value_type& val = value_type(),
 			const allocator_type& alloc = allocator_type()):
 			alloc_(alloc),
-			byteAlloc_(byte_allocator()),
-			byteArrayAlloc_(byte_array_allocator()),
-			byteCapacity_((n >> 3) + ((n & 7) != 0)),
-			head_(byteArrayAlloc_.allocate(1)),
+			storageAlloc_(storage_allocator_()),
+			storagePtrAlloc_(storage_ptr_allocator_()),
+			storageCapacity_((n / storage_unit__)+ (((n % storage_unit__) != 0))),
+			storageHead_(storagePtrAlloc_.allocate(1)),
 			size_(n)
 		{
-			*head_ = byteAlloc_.allocate(byteCapacity_);
+			*storageHead_ = storageAlloc_.allocate(storageCapacity_);
 			if (val == false)
-				memset(*head_, 0, byteCapacity_);
+				memset(*storageHead_, 0, storageCapacity_ * sizeof(storage_type_));
 			else
-				memset(*head_, ~0, byteCapacity_);
+				memset(*storageHead_, ~0, storageCapacity_ * sizeof(storage_type_));
 		};
 		// Constructs a container with as many elements as the range [first,last), with each element constructed from its corresponding element in that range, in the same order.
 		template <class InputIterator>
@@ -584,88 +594,88 @@ namespace	ft
 			InputIterator last,
 			const allocator_type& alloc = allocator_type()):
 			alloc_(alloc),
-			byteAlloc_(byte_allocator()),
-			byteArrayAlloc_(byte_array_allocator()),
-			head_(byteArrayAlloc_.allocate(1))
+			storageAlloc_(storage_allocator_()),
+			storagePtrAlloc_(storage_ptr_allocator_()),
+			storageHead_(storagePtrAlloc_.allocate(1))
 		{
 			typename ft::disable_if<is_integral<InputIterator>::value>::type*	dummy;
 			(void)dummy;
 			size_type	n = 0;
 			for (InputIterator it = first; it != last; it++)
 				n++;
-			byteCapacity_ = (n >> 3) + (n & 7) != 0;
-			*head_ = byteAlloc_.allocate(byteCapacity_);
-			memset(*head_, 0, byteCapacity_);
+			storageCapacity_ = (n / storage_unit__) + ((n % storage_unit__) != 0);
+			*storageHead_ = storageAlloc_.allocate(storageCapacity_);
+			memset(*storageHead_, 0, storageCapacity_ * sizeof(storage_type_));
 			size_ = n;
 			for (size_type i = 0; first != last; i++)
 			{
 				if (*first)
-					(*head_)[i >> 3] |= !!(*first) << (i & 7);
+					(*storageHead_)[i / storage_unit__] |= nth_bit(i % storage_unit__, !!*first);
 				first++;
 			}
 		};
 		// Constructs a container with a copy of each of the elements in "vec", in the same order.
 		vector(const vector& vec):
 			alloc_(vec.alloc_),
-			byteAlloc_(vec.byteAlloc_),
-			byteArrayAlloc_(vec.byteArrayAlloc_),
-			byteCapacity_((vec.size_ >> 3) + (vec.size & 7) != 0),
-			head_(byteArrayAlloc_.allocate(1)),
+			storageAlloc_(vec.storageAlloc_),
+			storagePtrAlloc_(vec.storagePtrAlloc_),
+			storageCapacity_((vec.size_ / storage_unit__) + ((vec.size % storage_unit__) != 0)),
+			storageHead_(storagePtrAlloc_.allocate(1)),
 			size_(vec.size_)
 		{
-			*head_ = byteAlloc_.allocate(byteCapacity_);
-			for (size_type i = 0; i < byteCapacity_; i++)
-				*head_[i] = (*vec.head_)[i];
+			*storageHead_ = storageAlloc_.allocate(storageCapacity_);
+			for (size_type i = 0; i < storageCapacity_; i++)
+				*storageHead_[i] = (*vec.storageHead_)[i];
 		};
 		// Destroys all container elements, and deallocates all the storage capacity.
 		~vector()
 		{
-			byteAlloc_.deallocate(*head_, byteCapacity_);
-			byteArrayAlloc_.deallocate(head_, 1);
+			storageAlloc_.deallocate(*storageHead_, storageCapacity_);
+			storagePtrAlloc_.deallocate(storageHead_, 1);
 		};
 		vector&	operator=(const vector& vec)
 		{
-			this->byteAlloc_.deallocate(this->head_, this->byteCapacity_);
-			this->byteCapacity_ = (vec.size_ >> 3) + (vec.size_ & 7) != 0;
+			this->storageAlloc_.deallocate(this->storageHead_, this->storageCapacity_);
+			this->storageCapacity_ = (vec.size_ / storage_unit__) + ((vec.size_ % storage_unit__) != 0);
 			this->capacity_ = vec.capacity_;
-			*this->head_ = this->byteAlloc_.allocate(byteCapacity_);
+			*this->storageHead_ = this->storageAlloc_.allocate(storageCapacity_);
 			this->size_ = vec.size_;
-			for (size_type i = 0; i < (vec.size_ >> 3 + (vec.size_ & 7) != 0); i++)
-				(*this->head_)[i] = (*vec.head_)[i];
+			for (size_type i = 0; i < (vec.size_ / storage_unit__ + ((vec.size_ % storage_unit__) != 0)); i++)
+				(*this->storageHead_)[i] = (*vec.storageHead_)[i];
 			return (*this);
 		};
 		// Returns an iterator pointing to the first element in the vector.
 		iterator	begin(void)
-			{ return (iterator(internal_iterator(head_, size_, 0))); };
+			{ return (iterator(internal_iterator(storageHead_, size_, 0))); };
 		// Returns an const iterator pointing to the first element in the vector.
 		const_iterator	begin(void) const
-			{ return (const_iterator(internal_iterator(head_, size_, 0))); };
+			{ return (const_iterator(internal_iterator(storageHead_, size_, 0))); };
 		// Returns an iterator referring to the past-the-end element in the vector container.
 		iterator	end(void)
-			{ return (iterator(internal_iterator(head_, size_, size_))); };
+			{ return (iterator(internal_iterator(storageHead_, size_, size_))); };
 		// Returns an const iterator referring to the past-the-end element in the vector container.
 		const_iterator	end(void) const
-			{ return (const_iterator(internal_iterator(head_, size_, size_))); };
+			{ return (const_iterator(internal_iterator(storageHead_, size_, size_))); };
 		// Returns a reverse iterator pointing to the last element in the vector, which iterates backwords.
 		reverse_iterator	rbegin(void)
-			{ return (reverse_iterator(internal_iterator(head_, size_, size_))); };
+			{ return (reverse_iterator(internal_iterator(storageHead_, size_, size_))); };
 		// Returns a const reverse iterator pointing to the last element in the vector, which iterates backwords.
 		const_reverse_iterator	rbegin(void) const
-			{ return (const_reverse_iterator(internal_iterator(head_, size_, size_))); };
+			{ return (const_reverse_iterator(internal_iterator(storageHead_, size_, size_))); };
 		// Returns a reverse iterator pointing to the theoretical element preceding the first element in the vector.
 		reverse_iterator	rend(void)
-			{ return (reverse_iterator(internal_iterator(head_, size_, 0))); };
+			{ return (reverse_iterator(internal_iterator(storageHead_, size_, 0))); };
 		// Returns a const reverse iterator pointing to the theoretical element preceding the first element in the vector.
 		const_reverse_iterator	rend(void) const
-			{ return (const_reverse_iterator(internal_iterator(head_, size_, 0))); };
+			{ return (const_reverse_iterator(internal_iterator(storageHead_, size_, 0))); };
 		// Returns the number of elements.
 		size_type	size(void) const
 			{ return (size_); };
 		// Returns the maximum number of elements that a vector can hold.
 		size_type	max_size(void) const
 		{
-			if (byteAlloc_.max_size() > std::numeric_limits<difference_type>::max())
-				return (byteAlloc_.max_size());
+			if (storageAlloc_.max_size() > std::numeric_limits<difference_type>::max())
+				return (storageAlloc_.max_size());
 			return (std::numeric_limits<difference_type>::max());
 		};
 		// Resizes the container so that it contains "n" elements.
@@ -674,78 +684,78 @@ namespace	ft
 			if (size_ < n)
 			{
 				val = !!val;
-				if (byteCapacity_ << 3 < n)
+				if (storageCapacity_ << 3 < n)
 				{
-					byte_array	temp = *head_;
-					size_type	old_capacity = byteCapacity_;
-					byteCapacity_ = (n >> 3) + (n & 7) != 0;
-					*head_ = byteAlloc_.allocate(byteCapacity_);
+					storage_ptr_	temp = *storageHead_;
+					size_type	old_capacity = storageCapacity_;
+					storageCapacity_ = (n / storage_unit__) + ((n % storage_unit__) != 0);
+					*storageHead_ = storageAlloc_.allocate(storageCapacity_);
 					for (size_type i = 0; i < old_capacity; i++)
-						(*head_)[i] = temp[i];
-					byteAlloc_.deallocate(temp, old_capacity);
+						(*storageHead_)[i] = temp[i];
+					storageAlloc_.deallocate(temp, old_capacity);
 				}
-				if ((size_ & 7) != 0)
+				if (((size_ % storage_unit__) != 0))
 				{
-					while ((size_ & 7) != 0 && size_ < n)
+					while (((size_ % storage_unit__) != 0) && size_ < n)
 					{
-						(*head_)[size_ >> 3].set_bits(size_ & 7, val);
+						(*storageHead_)[size_ / storage_unit__].set_bits(size_ % storage_unit__, val);
 						size_++;
 					}
 				}
-				for (size_type i = size_ >> 3; i < byteCapacity_; i++)
-					memset(*head_, val ? ~0 : 0 , byteCapacity_);
+				for (size_type i = size_ / storage_unit__; i < storageCapacity_; i++)
+					memset(*storageHead_, val ? ~0 : 0 , storageCapacity_ * sizeof(storage_type_));
 			}
 			size_ = n;
 		};
 		// Returns the size of the storage space currently allocated for the vector, expressed in terms of elements.
 		size_type	capacity(void) const
-			{ return (byteCapacity_ * 8); };
+			{ return (storageCapacity_ * 8); };
 		// Returns whether the vector is empty.
 		bool	empty(void) const
 			{ return (size_ == 0); };
 		// Requests that the vector capacity be at least enough to contain n elements.
 		void	reserve(size_type n)
 		{
-			if (byteCapacity_ >= (n << 3))
+			if (storageCapacity_ >= (n << 3))
 				return ;
-			byte*	temp = *head_;
-			size_type	old_capacity = byteCapacity_;
-			byteCapacity_ = (n >> 3) + (n & 7) != 0
-			*head_ = byteAlloc_.allocate(byteCapacity_);
+			storage_ptr_	temp = *storageHead_;
+			size_type		old_capacity = storageCapacity_;
+			storageCapacity_ = (n / storage_unit__) + ((n % storage_unit__) != 0)
+			*storageHead_ = storageAlloc_.allocate(storageCapacity_);
 			for (int i = 0; i < size_; i++ )
-				(*head_)[i] = temp[i];
-			byteAlloc_.deallocate(temp, old_capacity);
+				(*storageHead_)[i] = temp[i];
+			storageAlloc_.deallocate(temp, old_capacity);
 		};
 		reference	operator[](size_type n)
-			{ return (reference(head_, n)); };
+			{ return (reference(storageHead_, n)); };
 		const_reference	operator[](size_type n) const
-			{ return (const_reference(head_, n)); };
+			{ return (const_reference(storageHead_, n)); };
 		// Returns a reference to the element at position n in the vector. Checks boundary.
 		reference	at(size_type n)
 		{
 			if (size_ <= n)
 				throw (std::out_of_range("vector"));
-			return (reference(head_, n));
+			return (reference(storageHead_, n));
 		};
 		// Returns a reference to the element at position n in the vector. Checks boundary.
 		const_reference	at(size_type n) const
 		{
 			if (size_ <= n)
 				throw (std::out_of_range("vector"));
-			return (const_reference(head_, n));
+			return (const_reference(storageHead_, n));
 		};
 		// Returns a reference to the first element in the vector.
 		reference		front(void)
-			{ return (reference(head_, 0)); };
+			{ return (reference(storageHead_, 0)); };
 		// Returns a reference to the first element in the vector.
 		const_reference	front(void) const
-			{ return (const_reference(head_, 0)); };
+			{ return (const_reference(storageHead_, 0)); };
 		// Returns a reference to the last element in the vector.
 		reference		back(void)
-			{ return (reference(head_, size_)); };
+			{ return (reference(storageHead_, size_)); };
 		// Returns a reference to the last element in the vector.
 		const_reference	back(void) const
-			{ return (const_reference(head_, size_)); };
+			{ return (const_reference(storageHead_, size_)); };
 		// Assigns new contents ranging from "first" to "last" to the vector, replacing its current contents, and modifying its size accordingly.
 		template	<class InputIterator>
 		void	assign(InputIterator first, InputIterator last)
@@ -756,202 +766,214 @@ namespace	ft
 			size_type	diff = 0;
 			for (InputIterator it = first; it != last; it++)
 				diff++;
-			if ((diff >> 3) + (diff & 7) != 0 > byteCapacity_)
+			std::cout << ((diff / storage_unit__) + ((diff % storage_unit__) != 0)) << " " << std::endl;
+			if ((diff / storage_unit__) + ((diff % storage_unit__) != 0) > storageCapacity_)
 			{
-				byteAlloc_.deallocate(*head_, byteCapacity_);
-				byteCapacity_ = (diff >> 3) + (diff & 7) != 0;
-				*head_ = byteAlloc_.allocate(byteCapacity_);
-				memset(*head_, 0, byteCapacity_);
+				storageAlloc_.deallocate(*storageHead_, storageCapacity_);
+				storageCapacity_ = (diff / storage_unit__) + ((diff % storage_unit__) != 0);
+				*storageHead_ = storageAlloc_.allocate(storageCapacity_);
+				memset(*storageHead_, 0, storageCapacity_ * sizeof(storage_type_));
 			}
 			for (size_type i = 0; first != last; first++)
 			{
+				std::cout << (i % storage_unit__) << std::endl;;
 				if (*first)
-					(*head_)[i >> 3] |= !!*first << (i & 7);
+					(*storageHead_)[i / storage_unit__] |= nth_bit(i % storage_unit__, !!*first);
 				i++;
 			}
+			std::cout << std::endl;
 			size_ = diff;
 		};
-	// 	// Assigns new contents to the vector, replacing its current contents, filling to "val" and modifying its size to "n" accordingly.
-	// 	void	assign(size_type n, const value_type& val)
-	// 	{
-	// 		if (n > capacity_)
-	// 		{
-	// 			alloc_.deallocate(*head_, capacity_);
-	// 			*head_ = alloc_.allocate(n);
-	// 			capacity_ = n;
-	// 		}
-	// 		for (size_type i = 0; i < n; i++)
-	// 			(*head_)[i] = val;
-	// 		size_ = n;
-	// 	};
-	// 	// Adds a new element at the end of the vector, after its current last element.
-	// 	void	push_back(const value_type& val)
-	// 	{
-	// 		if (size_ == capacity_)
-	// 		{
-	// 			pointer	temp;
-	// 			temp = *head_;
-	// 			*head_ = alloc_.allocate(capacity_ * 2);
-	// 			for (int i = 0; i < size_; i++ )
-	// 				(*head_)[i] = temp[i];
-	// 			alloc_.deallocate(temp, capacity_);
-	// 			capacity_ *= 2;
-	// 		}
-	// 		(*head_)[size_++] = val;
-	// 	};
-	// 	// Removes the last element in the vector, effectively reducing the container size by one.
-	// 	void	pop_back()
-	// 		{ size_--; };
-	// 	// The vector is extended by inserting a new element before the element at the specified position, effectively increasing the container size..
-	// 	iterator	insert(iterator position, const value_type& val)
-	// 	{
-	// 		if (position < begin() || position > end())
-	// 			return (position);
-	// 		if (size_ == capacity_)
-	// 		{
-	// 			pointer	temp;
-	// 			temp = *head_;
-	// 			*head_ = alloc_.allocate(capacity_ * 2);
-	// 			for (int i = 0; i < size_; i++ )
-	// 				(*head_)[i] = temp[i];
-	// 			alloc_.deallocate(temp, capacity_);
-	// 			capacity_ *= 2;
-	// 		}
-	// 		for (iterator it = end(); it >= position; it--)
-	// 			*it = *(it - 1);
-	// 		*position = val;
-	// 		size_++;
-	// 		return (position);
-	// 	};
-	// 	// The vector is extended by inserting new elements, which of values are "val", before the element at the specified position, effectively increasing the container size by "n".
-	// 	void	insert(iterator position, size_type n, const value_type& val)
-	// 	{
-	// 		if (position < begin() || position > end())
-	// 			return ;
-	// 		if (size_ + n > capacity_)
-	// 		{
-	// 			pointer	temp;
-	// 			temp = *head_;
-	// 			size_type	new_capacity = determineCapacity(new_size);
-	// 			*head_ = alloc_.allocate(new_capacity);
-	// 			for (int i = 0; i < size_; i++ )
-	// 				(*head_)[i] = temp[i];
-	// 			alloc_.deallocate(temp, capacity_);
-	// 			capacity_ = new_capacity;
-	// 		}
-	// 		for (iterator it = end() + n; it >= position + n; it--)
-	// 			*it = *(it - n);
-	// 		for (iterator it = position; it != position + n; it++)
-	// 			*it = val;
-	// 		size_ += n;
-	// 	};
-	// 	template <class InputIterator>
-	// 	void	insert(iterator position, InputIterator first, InputIterator last)
-	// 	{
-	// 		typename ft::disable_if<is_integral<InputIterator>::value>::type*	dummy;
-	// 		(void)dummy;
-	// 		if (position < begin() || position > end())
-	// 			return ;
+		// Assigns new contents to the vector, replacing its current contents, filling to "val" and modifying its size to "n" accordingly.
+		void	assign(size_type n, const value_type& val)
+		{
+			if ((n / storage_unit__) + ((n % storage_unit__) != 0) > storageCapacity_)
+			{
+				storageAlloc_.deallocate(*storageHead_, storageCapacity_);
+				storageCapacity_ = (n / storage_unit__) + ((n % storage_unit__) != 0);
+				*storageHead_ = storageAlloc_.allocate(storageCapacity_);
+			}
+			if (val)
+				memset(*storageHead_, ~0, storageCapacity_ * sizeof(storage_type_));
+			else
+				memset(*storageHead_, 0, storageCapacity_ * sizeof(storage_type_));
+			size_ = n;
+		};
+		// Adds a new element at the end of the vector, after its current last element.
+		void	push_back(const value_type& val)
+		{
+			if (size_ == storageCapacity_ * storage_unit__)
+			{
+				storage_ptr_	temp = *storageHead_;
+				*storageHead_ = storageAlloc_.allocate(storageCapacity_ * 2);
+				for (size_type i = 0; i < storageCapacity_; i++ )
+					(*storageHead_)[i] = temp[i];
+				storageAlloc_.deallocate(temp, storageCapacity_);
+				storageCapacity_ *= 2;
+			}
+			size_type	storage_size = 0;
+			size_type	bit_position = size_;
+			while (bit_position > storage_unit__)
+			{
+				storage_size++;
+				bit_position -= storage_unit__;
+			}
+			if (val)
+				(*storageHead_)[storage_size] |= nth_bit(bit_position, true);
+			else
+				(*storageHead_)[storage_size] &= ~nth_bit(bit_position, true);
+			size_++;
+		};
+		// Removes the last element in the vector, effectively reducing the container size by one.
+		void	pop_back()
+			{ size_--; };
+		// The vector is extended by inserting a new element before the element at the specified position, effectively increasing the container size..
+		iterator	insert(iterator position, const value_type& val)
+		{
+			if (position < begin() || position > end())
+				return (position);
+			if (size_ == storageCapacity_ * storage_unit__)
+			{
+				storage_ptr_	temp = *storageHead_;
+				*storageHead_ = storageAlloc_.allocate(storageCapacity_ * 2);
+				for (size_type i = 0; i < storageCapacity_; i++ )
+					(*storageHead_)[i] = temp[i];
+				storageAlloc_.deallocate(temp, storageCapacity_);
+				storageCapacity_ *= 2;
+			}
+			for (iterator it = end(); it >= position; it--)
+				*it = *(it - 1);
+			*position = !!val;
+			size_++;
+			return (position);
+		};
+		// The vector is extended by inserting new elements, which of values are "val", before the element at the specified position, effectively increasing the container size by "n".
+		void	insert(iterator position, size_type n, const value_type& val)
+		{
+			if (position < begin() || position > end())
+				return ;
+			if (size_ + n >= storageCapacity_ * storage_unit__)
+			{
+				storage_ptr_	temp = *storageHead_;
+				size_type		old_capacity = storageCapacity_;
+				storageCapacity_ = determineCapacity(size_ + n);
+				*storageHead_ = storageAlloc_.allocate(storageCapacity_);
+				for (size_type i = 0; i < old_capacity; i++ )
+					(*storageHead_)[i] = temp[i];
+				storageAlloc_.deallocate(temp, old_capacity);
+			}
+			for (iterator it = end() + n; it >= position + n; it--)
+				*it = *(it - n);
+			for (iterator it = position; it != position + n; it++)
+				*it = val;
+			size_ += n;
+		};
+		template <class InputIterator>
+		void	insert(iterator position, InputIterator first, InputIterator last)
+		{
+			typename ft::disable_if<is_integral<InputIterator>::value>::type*	dummy;
+			(void)dummy;
+			if (position < begin() || position > end())
+				return ;
 
-	// 		size_type	diff = 0;
-	// 		for (iterator it = first; it != last; it++)
-	// 			diff++;
-	// 		if (size_ + diff > capacity_)
-	// 		{
-	// 			pointer	temp;
-	// 			temp = *head_;
-	// 			size_type	new_capacity = determineCapacity(new_size);
-	// 			*head_ = alloc_.allocate(new_capacity);
-	// 			for (int i = 0; i < size_; i++ )
-	// 				(*head_)[i] = temp[i];
-	// 			alloc_.deallocate(temp, capacity_);
-	// 			capacity_ = new_capacity;
-	// 		}
-	// 		for (iterator it = end() + diff; it >= position + diff; it--)
-	// 			*it = *(it - diff);
-	// 		for (iterator it = position; it != position + diff; it++)
-	// 			*it = *(first++);
-	// 		size_ += diff;
-	// 	};
-	// 	// Removes from the vector a single element at "position"
-	// 	iterator	erase(iterator position)
-	// 	{
-	// 		if (position < begin() || position > end())
-	// 			return ;
-	// 		for (iterator it = position; it != end(); it++)
-	// 			*it = *(it + 1);
-	// 		size_--;
-	// 	};
-	// 	// Removes from the vector a range of elements [first,last).
-	// 	iterator	erase(iterator first, iterator last)
-	// 	{
-	// 		size_type diff = last - first;
-	// 		for (iterator it = first; it != last || it + diff != end(); it++)
-	// 			*it = *(it + diff);
-	// 		size_ -= diff;
-	// 	};
-	// 	// Exchanges the content of the container by the content of x, which is another vector object of the same type.
-	// 	void	swap(vector& vec)
-	// 	{
-	// 		vector	temp = *this;
-	// 		*this = vec;
-	// 		vec = temp;
-	// 	};
-	// 	// Removes all elements from the vector (which are destroyed), leaving the container with a size of 0.
-	// 	void	clear(void)
-	// 		{ size_ = 0; };
-	// 	allocator_type	get_allocator(void) const
-	// 		{ return (allocator_type()); };
+			size_type	diff = 0;
+			for (iterator it = first; it != last; it++)
+				diff++;
+			if (size_ + diff >= storageCapacity_ * storage_unit__)
+			{
+				storage_ptr_	temp = *storageHead_;
+				size_type		old_capacity = storageCapacity_;
+				storageCapacity_ = determineCapacity(size_ + diff);
+				*storageHead_ = storageAlloc_.allocate(storageCapacity_);
+				for (size_type i = 0; i < old_capacity; i++ )
+					(*storageHead_)[i] = temp[i];
+				storageAlloc_.deallocate(temp, old_capacity);
+			}
+			for (iterator it = end() + diff; it >= position + diff; it--)
+				*it = *(it - diff);
+			for (iterator it = position; it != position + diff; it++)
+				*it = *(first++);
+			size_ += diff;
+		};
+		// Removes from the vector a single element at "position"
+		iterator	erase(iterator position)
+		{
+			if (position < begin() || position > end())
+				return (position);
+			for (iterator it = position; it != end(); it++)
+				*it = *(it + 1);
+			size_--;
+		};
+		// Removes from the vector a range of elements [first,last).
+		iterator	erase(iterator first, iterator last)
+		{
+			size_type diff = last - first;
+			for (iterator it = first; it != last || it + diff != end(); it++)
+				*it = *(it + diff);
+			size_ -= diff;
+		};
+		// Exchanges the content of the container by the content of x, which is another vector object of the same type.
+		void	swap(vector& vec)
+		{
+			vector	temp = *this;
+			*this = vec;
+			vec = temp;
+		};
+		// Removes all elements from the vector (which are destroyed), leaving the container with a size of 0.
+		void	clear(void)
+			{ size_ = 0; };
+		// allocator_type	get_allocator(void) const
+		// 	{ return (allocator_type()); };
 
-	// 	friend bool	operator<(const vector<bool>& lhs, const vector<bool>& rhs)
-	// 	{
-	// 		size_type	l_byte_size = lhs.size_ >> 3;
-	// 		size_type	r_byte_size = rhs.size_ >> 3;
-	// 		size_type	min_offset;
+		friend bool	operator<(const vector<bool>& lhs, const vector<bool>& rhs)
+		{
+			size_type	l_byte_size = lhs.size_ / storage_unit__;
+			size_type	r_byte_size = rhs.size_ / storage_unit__;
+			size_type	min_offset;
 
-	// 		for (min_offset = 0; min_offset < l_byte_size && min_offset < r_byte_size; min_offset++)
-	// 			if (lhs.head_[min_offset] >= rhs.head_[min_offset])
-	// 				return (false);
+			for (min_offset = 0; min_offset < l_byte_size && min_offset < r_byte_size; min_offset++)
+				if (lhs.storageHead_[min_offset] >= rhs.storageHead_[min_offset])
+					return (false);
 
-	// 		min_offset <<= 3;
-	// 		size_type	l_remain = lhs.size_ - min_offset;
-	// 		size_type	r_remain = rhs.size_ - min_offset;
+			min_offset <<= 3;
+			size_type	l_remain = lhs.size_ - min_offset;
+			size_type	r_remain = rhs.size_ - min_offset;
 
-	// 		for (size_type i = 0; i < l_remain && i < r_remain; i++)
-	// 			if (internal_reference(rhs.head_, min_offset + i) > internal_reference(lhs.head_, min_offset + 1))
-	// 				return (false);
-	// 		if (lhs.size_ >= rhs.size_)
-	// 			return (false);
-	// 		return (true);
-	// 	};
+			for (size_type i = 0; i < l_remain && i < r_remain; i++)
+				if (reference(rhs.storageHead_, min_offset + i) > reference(lhs.storageHead_, min_offset + 1))
+					return (false);
+			if (lhs.size_ >= rhs.size_)
+				return (false);
+			return (true);
+		};
 	};
 
-	// template	<class T, class Alloc>
-	// bool	operator==(const vector<bool>& lhs, const vector<bool>& rhs)
-	// {
-	// 	if (lhs.size() != rhs.size())
-	// 		return (false);
-	// 	typename vector<bool>::const_iterator lhs_it = lhs.begin();
-	// 	typename vector<bool>::const_iterator rhs_it = rhs.begin();
-	// 	while (lhs_it != lhs.end())
-	// 	{
-	// 		if (*(lhs_it++) != *(rhs_it++))
-	// 			return (false);
-	// 	}
-	// 	return (true);
-	// };
+	template	<class T, class Alloc>
+	bool	operator==(const vector<bool>& lhs, const vector<bool>& rhs)
+	{
+		if (lhs.size() != rhs.size())
+			return (false);
+		typename vector<bool>::const_iterator lhs_it = lhs.begin();
+		typename vector<bool>::const_iterator rhs_it = rhs.begin();
+		while (lhs_it != lhs.end())
+		{
+			if (*(lhs_it++) != *(rhs_it++))
+				return (false);
+		}
+		return (true);
+	};
 
-	// template	<class T, class Alloc>
-	// bool	operator!=(const vector<bool>& lhs, const vector<bool>& rhs)
-	// 	{ return (!(lhs == rhs)); };
+	template	<class T, class Alloc>
+	bool	operator!=(const vector<bool>& lhs, const vector<bool>& rhs)
+		{ return (!(lhs == rhs)); };
 
-	// template	<class T, class Alloc>
-	// void	swap(vector<bool>& x, vector<bool>& y)
-	// {
-	// 	vector<bool> temp = x;
-	// 	x = y;
-	// 	y = temp;
-	// };
+	template	<class T, class Alloc>
+	void	swap(vector<bool>& x, vector<bool>& y)
+	{
+		vector<bool> temp = x;
+		x = y;
+		y = temp;
+	};
 }
 
 #endif
