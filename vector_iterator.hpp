@@ -3,6 +3,7 @@
 
 // # include <__config>
 # include <memory>
+# include <iostream>
 # include "iterator.hpp"
 # include "enable_if.hpp"
 # include "reverse_iterator.hpp"
@@ -36,6 +37,12 @@ namespace	ft
 
 	template	<class Alloc>
 	class	vector<bool, Alloc>;
+
+	class	byte;
+
+	class	bool_vector_reference;
+
+	std::ostream&	operator<<(std::ostream& os, bool_vector_reference const& ref);
 
 	// template	<>
 	// vector_iterator<bool>	operator+(int op, vector_iterator<bool> const& it);
@@ -201,17 +208,135 @@ namespace	ft
 		return (&*lhs - &*rhs);
 	};
 
+	class	byte
+	{
+	private:
+		union	u_bitset
+		{
+			unsigned char	field;
+			struct	s_bits
+			{
+				friend class	byte;
+				unsigned char	_7 : 1;
+				unsigned char	_6 : 1;
+				unsigned char	_5 : 1;
+				unsigned char	_4 : 1;
+				unsigned char	_3 : 1;
+				unsigned char	_2 : 1;
+				unsigned char	_1 : 1;
+				unsigned char	_0 : 1;
+			}				bits;
+		};
+
+		union u_bitset	bitset;
+
+	public:
+		byte(void)
+		{ bitset.field = 0; };
+		byte(byte const& b)
+		{ this->bitset.field = b.bitset.field; }
+		~byte(void) {};
+		byte&	operator=(unsigned char value)
+		{
+			bitset.field = value;
+			return (*this);
+		};
+		unsigned char	operator>>(int const shift)
+			{ return (bitset.field >> shift); };
+		unsigned char	operator<<(int const shift)
+			{ return (bitset.field << shift); };
+		template	<typename T>
+		unsigned char	operator|(T const& t)
+			{ return (bitset.field | t); };
+		template	<typename T>
+		unsigned char	operator&(T const& t)
+			{ return (bitset.field & t); };
+		template	<typename T>
+		unsigned char	operator^(T const& t)
+			{ return (bitset.field ^ t); };
+		byte&	operator>>=(int const shift)
+			{ bitset.field >>= shift; return (*this); }
+		byte&	operator<<=(int const shift)
+			{ bitset.field <<= shift; return (*this); }
+		template	<typename T>
+		byte&	operator|=(T const& t)
+			{ bitset.field |= t; return (*this); };
+		template	<typename T>
+		byte&	operator&=(T const& t)
+			{ bitset.field &= t; return (*this); };
+		template	<typename T>
+		byte&	operator^=(T const& t)
+			{ bitset.field ^= t; return (*this); };
+		unsigned char	get_bitset(void)
+			{ return (bitset.field); };
+		void	set_bitset(unsigned char value)
+			{ bitset.field = value; };
+		void	set_bits(int bit, bool value)
+		{
+			switch(bit)
+			{
+				case 0:
+					bitset.bits._0 = value;
+					break ;
+				case 1:
+					bitset.bits._1 = value;
+					break ;
+				case 2:
+					bitset.bits._2 = value;
+					break ;
+				case 3:
+					bitset.bits._3 = value;
+					break ;
+				case 4:
+					bitset.bits._4 = value;
+					break ;
+				case 5:
+					bitset.bits._5 = value;
+					break ;
+				case 6:
+					bitset.bits._6 = value;
+					break ;
+				case 7:
+					bitset.bits._7 = value;
+					break ;
+			}
+		}
+		bool	get_bits(int bit)
+		{
+			switch(bit)
+			{
+				case 0:
+					return (bitset.bits._0);
+				case 1:
+					return (bitset.bits._1);
+				case 2:
+					return (bitset.bits._2);
+				case 3:
+					return (bitset.bits._3);
+				case 4:
+					return (bitset.bits._4);
+				case 5:
+					return (bitset.bits._5);
+				case 6:
+					return (bitset.bits._6);
+				case 7:
+					return (bitset.bits._7);
+			}
+			return (false);
+		}
+	};
+
 	class	bool_vector_reference
 	{
 	private:
-		unsigned char&	byte_;
+		byte&			byte_;
 		unsigned char	bit_offset_;
 
 		bool_vector_reference(void);
 
 	protected:
-		bool_vector_reference(unsigned char** const& head, size_t offset):
-			byte_(*(*head + (offset >> 3))), bit_offset_(offset & 8) {};
+		bool_vector_reference(byte** const& head, size_t offset):
+			byte_(*(*head + (offset >> 3))), bit_offset_(offset & 7) {};
 
 	public:
 		~bool_vector_reference(void) {};
@@ -233,6 +358,12 @@ namespace	ft
 			byte_ |= bit << bit_offset_;
 			return (*this);
 		};
+
+		friend std::ostream&	operator<<(std::ostream& os, bool_vector_reference const& ref)
+		{
+			os << ((ref.byte_ >> ref.bit_offset_) & 1);
+			return (os);
+		};
 		// flip bit value.
 		void flip(void)
 		{ byte_ ^= 1 << bit_offset_; };
@@ -245,13 +376,12 @@ namespace	ft
 		typedef bit_iterator						iterator;
 		typedef bool_vector_reference				bool_reference;
 		typedef
-			typename conditional<is_const, const unsigned char, unsigned char>::type
-													byte;
-		typedef byte*								byte_array;
-		typedef unsigned char						bit_offset;
-		template	<typename B>
-		void	is_compatible(vector_iterator<B> const& iter,
-			typename enable_if<is_const_same<B, bool>::value>::type* = 0) const
+			typename conditional<is_const, const byte, byte>::type
+													byte_;
+		typedef byte_*								byte_array_;
+
+		template	<bool _is_const>
+		void	is_compatible(bit_iterator<_is_const> const& iter) const
 			{ (void)iter; };
 
 	protected:
@@ -259,9 +389,15 @@ namespace	ft
 		{
 		private:
 			typedef bool_reference	base_reference;
+
+			internal_reference(void) {};
+
 		public:
-			internal_reference(byte_array* const& head, size_t offset):
+			internal_reference(internal_reference const& ref):
+				base_reference(ref) {};
+			internal_reference(byte_array_* const& head, size_t offset):
 				base_reference(head, offset) {};
+
 		};
 
 	public:
@@ -273,7 +409,7 @@ namespace	ft
 		typedef size_t								size_type;
 
 	private:
-		byte_array*			head_;
+		byte_array_*			head_;
 		size_type const*	size_;
 		difference_type		offset_;
 
@@ -281,7 +417,7 @@ namespace	ft
 		reference	reverse_reference(void)
 			{ return (internal_reference(head_, offset_ - 1)); };
 
-		bit_iterator(byte_array* const& head, size_type const& size, difference_type offset):
+		bit_iterator(byte_array_* const& head, size_type const& size, difference_type offset):
 			head_(head),
 			size_(&size),
 			offset_(offset)
@@ -374,24 +510,9 @@ namespace	ft
 		};
 		friend bool operator<(const iterator& lhs, const iterator& rhs)
 		{
-			size_type	l_byte_size = (lhs.offset_ >> 3) - 1;
-			size_type	r_byte_size = (rhs.offset_ >> 3) - 1;
-			size_type	min_offset;
-
-			for (min_offset = 0; min_offset < l_byte_size && min_offset < r_byte_size; min_offset++)
-				if (lhs.head_[min_offset] > rhs.head_[min_offset])
-					return (false);
-
-			min_offset <<= 3;
-			size_type	l_remain = lhs.offset_ - min_offset;
-			size_type	r_remain = rhs.offset_ - min_offset;
-
-			for (size_type i = 0; i < l_remain && i < r_remain; i++)
-				if (internal_reference(rhs.head_, min_offset + i) > internal_reference(lhs.head_, min_offset + 1))
-					return (false);
-			if (lhs.offset_ > rhs.offset_)
+			if (lhs.head_ != rhs.head_)
 				return (false);
-			return (true);
+			return (lhs.offset_ < rhs.offset_);
 		};
 		friend difference_type	operator-(const iterator& lhs, const iterator& rhs)
 		{
