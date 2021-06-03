@@ -1,5 +1,5 @@
-#ifndef ENABLE_IF_HPP
-# define ENABLE_IF_HPP
+#ifndef TEMPLATE_UTILS_HPP
+# define TEMPLATE_UTILS_HPP
 
 # include <stddef.h>
 
@@ -192,5 +192,22 @@ namespace	ft
 	template	<size_t Base>
 	struct	logarithm<0, Base>
 	{ static const size_t	value = 0; };
+
+	// define a template binary function
+	template	<typename Arg1, typename Arg2, typename Result>
+	struct	binary_function
+	{
+		typedef Arg1	first_argument_type;
+		typedef Arg2	second_argument_type;
+		typedef Result	result_type;
+	};
+
+	// using an operator (), it returns the operation of the operator "<".
+	template	<typename Tp = void>
+	struct	less : public binary_function<Tp, Tp, bool>
+	{
+		bool	operator()(Tp const& x, Tp const& y) const
+			{ return (x < y); };
+	};
 }
 #endif

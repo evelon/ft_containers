@@ -919,11 +919,25 @@ namespace	ft
 			*this = vec;
 			vec = temp;
 		};
+
+		static void swap (reference ref1, reference ref2)
+		{
+			bool	temp = ref1;
+			ref1 = ref2;
+			ref2 = temp;
+		}
 		// Removes all elements from the vector (which are destroyed), leaving the container with a size of 0.
 		void	clear(void)
 			{ size_ = 0; };
-		// allocator_type	get_allocator(void) const
-		// 	{ return (allocator_type()); };
+		allocator_type	get_allocator(void) const
+			{ return (allocator_type()); };
+
+		// Flips all values in the container: All instances of true become false, and all instances of false become true.
+		void	flip(void)
+		{
+			for (size_type i = 0; i < size_ / storage_unit__; i++)
+				~(*storageHead_)[i];
+		}
 
 		friend bool	operator<(const vector<bool>& lhs, const vector<bool>& rhs)
 		{

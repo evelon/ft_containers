@@ -18,13 +18,13 @@ int	main()
 	for (int i = 0; i < 200; i++)
 		lst.push_back(rand()%2);
 	NS::vector<bool>	boolvec(lst.begin(), lst.end());
-
+	bool	b;
 
 	NS::list<int>::iterator		lit = lst.end();
 	boolvec.insert(--boolvec.end(), 1);
 	NS::vector<bool>::iterator	vit = boolvec.end();
 	while (vit != boolvec.begin())
-		std::cout << !!(*(--vit));
+		std::cout << (b = *(--vit));
 	std::cout << std::endl;
 	while (lit != lst.begin())
 		std::cout << (*(--lit));

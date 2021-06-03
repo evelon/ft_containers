@@ -654,6 +654,10 @@ namespace	ft
 				last--;
 			}
 		};
+
+		// Returns a copy of the allocator object associated with the list container.
+		allocator_type get_allocator() const
+			{ return (allocator_type()); };
 	};
 
 	template	<class T, class Alloc>

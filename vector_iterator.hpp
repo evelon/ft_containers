@@ -213,124 +213,6 @@ namespace	ft
 		return (&*lhs - &*rhs);
 	};
 
-	// class	storage_type_
-	// {
-	// private:
-	// 	union	u_bitset
-	// 	{
-	// 		unsigned char	field;
-	// 		struct	s_bits
-	// 		{
-	// 			friend class	storage_type_;
-	// 			unsigned char	_7 : 1;
-	// 			unsigned char	_6 : 1;
-	// 			unsigned char	_5 : 1;
-	// 			unsigned char	_4 : 1;
-	// 			unsigned char	_3 : 1;
-	// 			unsigned char	_2 : 1;
-	// 			unsigned char	_1 : 1;
-	// 			unsigned char	_0 : 1;
-	// 		}				bits;
-	// 	};
-
-	// 	union u_bitset	bitset;
-
-	// public:
-	// 	storage_type_(void)
-	// 	{ bitset.field = 0; };
-	// 	storage_type_(storage_type_ const& b)
-	// 	{ this->bitset.field = b.bitset.field; }
-	// 	~storage_type_(void) {};
-	// 	storage_type_&	operator=(unsigned char value)
-	// 	{
-	// 		bitset.field = value;
-	// 		return (*this);
-	// 	};
-	// 	unsigned char	operator>>(int const shift)
-	// 		{ return (bitset.field >> shift); };
-	// 	unsigned char	operator<<(int const shift)
-	// 		{ return (bitset.field << shift); };
-	// 	template	<typename T>
-	// 	unsigned char	operator|(T const& t)
-	// 		{ return (bitset.field | t); };
-	// 	template	<typename T>
-	// 	unsigned char	operator&(T const& t)
-	// 		{ return (bitset.field & t); };
-	// 	template	<typename T>
-	// 	unsigned char	operator^(T const& t)
-	// 		{ return (bitset.field ^ t); };
-	// 	storage_type_&	operator>>=(int const shift)
-	// 		{ bitset.field >>= shift; return (*this); }
-	// 	storage_type_&	operator<<=(int const shift)
-	// 		{ bitset.field <<= shift; return (*this); }
-	// 	template	<typename T>
-	// 	storage_type_&	operator|=(T const& t)
-	// 		{ bitset.field |= t; return (*this); };
-	// 	template	<typename T>
-	// 	storage_type_&	operator&=(T const& t)
-	// 		{ bitset.field &= t; return (*this); };
-	// 	template	<typename T>
-	// 	storage_type_&	operator^=(T const& t)
-	// 		{ bitset.field ^= t; return (*this); };
-	// 	unsigned char	get_bitset(void)
-	// 		{ return (bitset.field); };
-	// 	void	set_bitset(unsigned char value)
-	// 		{ bitset.field = value; };
-	// 	void	set_bits(int bit, bool value)
-	// 	{
-	// 		switch(bit)
-	// 		{
-	// 			case 0:
-	// 				bitset.bits._0 = value;
-	// 				break ;
-	// 			case 1:
-	// 				bitset.bits._1 = value;
-	// 				break ;
-	// 			case 2:
-	// 				bitset.bits._2 = value;
-	// 				break ;
-	// 			case 3:
-	// 				bitset.bits._3 = value;
-	// 				break ;
-	// 			case 4:
-	// 				bitset.bits._4 = value;
-	// 				break ;
-	// 			case 5:
-	// 				bitset.bits._5 = value;
-	// 				break ;
-	// 			case 6:
-	// 				bitset.bits._6 = value;
-	// 				break ;
-	// 			case 7:
-	// 				bitset.bits._7 = value;
-	// 				break ;
-	// 		}
-	// 	}
-	// 	bool	get_bits(int bit)
-	// 	{
-	// 		switch(bit)
-	// 		{
-	// 			case 0:
-	// 				return (bitset.bits._0);
-	// 			case 1:
-	// 				return (bitset.bits._1);
-	// 			case 2:
-	// 				return (bitset.bits._2);
-	// 			case 3:
-	// 				return (bitset.bits._3);
-	// 			case 4:
-	// 				return (bitset.bits._4);
-	// 			case 5:
-	// 				return (bitset.bits._5);
-	// 			case 6:
-	// 				return (bitset.bits._6);
-	// 			case 7:
-	// 				return (bitset.bits._7);
-	// 		}
-	// 		return (false);
-	// 	}
-	// };
-
 	template	<class Alloc>
 	class	bool_vector_reference
 	{
@@ -365,7 +247,7 @@ namespace	ft
 		// assign from bit
 		bool_vector_reference&	operator=(const bool_vector_reference& b)
 		{
-			bool	bit = b.storage_ >> b.bit_offset_ & 1;
+			bool	bit = (b.storage_ >> b.bit_offset_) & 1;
 			storage_ &= ~(1 << bit_offset_);
 			storage_ |= bit << bit_offset_;
 			return (*this);

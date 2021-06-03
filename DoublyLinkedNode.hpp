@@ -12,7 +12,7 @@ namespace	ft
 	class	DoublyLinkedNode
 	{
 	private:
-		typedef DoublyLinkedNode<Tp, Alloc>	node;
+		typedef DoublyLinkedNode						node;
 
 	public:
 		typedef Tp										value_type;
@@ -29,16 +29,16 @@ namespace	ft
 		node*					prev_;
 
 	public:
-		explicit DoublyLinkedNode(const allocator_type& alloc = allocator_type()):
+		explicit DoublyLinkedNode(allocator_type const& alloc = allocator_type()):
 			content_(NULL),
 			next_(this),
 			prev_(this)
 		{
 			allocator_ = alloc;
 		};
-		DoublyLinkedNode(
-			const value_type& val,
-			const allocator_type& alloc = allocator_type()):
+		explicit DoublyLinkedNode(
+			value_type const& val,
+			allocator_type const& alloc = allocator_type()):
 			content_(allocator_.allocate(1)),
 			next_(this),
 			prev_(this)
@@ -48,7 +48,7 @@ namespace	ft
 		};
 		DoublyLinkedNode(
 			node const& ori_node,
-			const allocator_type& alloc = allocator_type()):
+			allocator_type const& alloc = allocator_type()):
 			content_(),
 			next_(ori_node.next_),
 			prev_(ori_node.prev_)
@@ -73,7 +73,7 @@ namespace	ft
 			value_type value,
 			node* next_node,
 			node* prev_node,
-			const allocator_type& alloc = allocator_type()):
+			allocator_type const& alloc = allocator_type()):
 			content_(allocator_.allocate(1)),
 			next_(next_node),
 			prev_(prev_node)
