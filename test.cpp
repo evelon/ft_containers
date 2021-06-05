@@ -47,18 +47,35 @@ int	main()
 	tree.addValue(a);
 	std::cout << (a = rand() % 100) << std::endl;
 	tree.addValue(a);
+	std::cout << (a = rand() % 100) << std::endl;
+	tree.addValue(a);
+	std::cout << (a = rand() % 100) << std::endl;
+	tree.addValue(a);
+	std::cout << (a = rand() % 100) << std::endl;
+	tree.addValue(a);
+	std::cout << (a = rand() % 100) << std::endl;
+	tree.addValue(a);
+	std::cout << (a = rand() % 100) << std::endl;
+	tree.addValue(a);
+	std::cout << (a = rand() % 100) << std::endl;
+	tree.addValue(a);
+	std::cout << (a = rand() % 100) << std::endl << std::endl;
+	tree.addValue(a);
 
-	// for (ft::RedBlackTree<int>::iterator it = tree.begin(); it != tree.end(); it++)
-	// 	std::cout << *it << std::endl;
-	ft::RedBlackTree<int>::iterator it = tree.begin();
-	std::cout << *it << std::endl;
-	++it;
-	std::cout << *it << std::endl;
-	++it;
-	std::cout << *it << std::endl;
-	++it;
-	std::cout << *it << std::endl;
-	++it;
-	std::cout << *it << std::endl;
-	++it;
+	for (ft::RedBlackTree<int>::iterator it = tree.begin();
+		it != tree.end();
+		++it)
+	{
+		std::cout << *it << std::endl;
+	}
+	// ft::RedBlackTree<int>::iterator it = tree.begin();
+	// std::cout << *it << std::endl;
+	// ++it;
+	// std::cout << *it << std::endl;
+	// ++it;
+	// std::cout << *it << std::endl;
+	// ++it;
+	// std::cout << *it << std::endl;
+	// ++it;
+	// std::cout << *it << std::endl;
 }

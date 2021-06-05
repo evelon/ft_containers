@@ -10,7 +10,6 @@
 # define RIGHT 1
 # define RED true
 # define BLACK false
-# define LEAF NULL
 
 
 #include <iostream>
@@ -42,6 +41,20 @@ namespace	ft
 		node*					child[2];
 		color_type				color;
 
+		node*	sibling(void)
+		{
+			if (this->parent->child[LEFT] == this)
+				return (this->parent->child[RIGHT]);
+			return (this->parent->child[LEFT]);
+		}
+		node*	uncle(void)
+		{
+			return (this->parent->sibling());
+		}
+		node*	grand(void)
+		{
+			return (this->parent->parent);
+		}
 		void	leftRotate(void)
 		{
 			if (this->parent)
@@ -78,10 +91,61 @@ namespace	ft
 			new_right->child[LEFT] = new_parent->child[RIGHT];
 			new_parent->child[RIGHT] = new_right;
 		}
-		// void	reconstruct(position pos)
-		// {
+		void	leftRightRotate(void)
+		{
+			// if (!this->child[LEFT] || this->child[LEFT]->child[RIGHT]) -> crash!
+			node*	new_parent = this->child[LEFT]->child[RIGHT];
+			node*	new_left = this->child[LEFT];
+			node*	new_right = this;
 
-		// }
+			new_parent->parent = this->parent;
+			new_left->parent = new_parent;
+			new_right->parent = new_parent;
+			new_left->child[RIGHT] = new_parent->child[LEFT];
+			new_right->child[LEFT] = new_parent->child[RIGHT];
+			new_parent->child[LEFT] = new_left;
+			new_parent->child[RIGHT] = new_right;
+		}
+		void	rightLeftRotate(void)
+		{
+			// if (!this->child[RIGHT] || this->child[RIGHT]->child[LEFT]) -> crash!
+			node*	new_parent = this->child[RIGHT]->child[LEFT];
+			node*	new_right = this->child[RIGHT];
+			node*	new_left = this;
+
+			new_parent->parent = this->parent;
+			new_left->parent = new_parent;
+			new_right->parent = new_parent;
+			new_left->child[RIGHT] = new_parent->child[LEFT];
+			new_right->child[LEFT] = new_parent->child[RIGHT];
+			new_parent->child[LEFT] = new_left;
+			new_parent->child[RIGHT] = new_right;
+		}
+		void	reconstruct(position pos)
+		{
+			node*	p = this->parent;
+			node*	g = p->parent;
+
+			if (p->child[LEFT] == this)
+			{
+				if (g->child[LEFT] == p)
+					g->rightRotate()
+				else
+					g->rightLeftRotate();
+			}
+			else
+			{
+				if (g->child[RIGHT] = p)
+					g->leftRightRotate();
+				else
+					g->leftRotate();
+			}
+		}
+		void	rebalance(void)
+		{
+			if (this->sibling()->color == BLACK)
+				this->reconstruct();
+		}
 		// void	recolor(void)
 	private:
 		RedBlackTreeNode(void);
@@ -121,8 +185,8 @@ namespace	ft
 			this_node->color = that_node->color;
 			for (int pos = LEFT; pos <= RIGHT; pos++)
 			{
-				if (that_node->child[pos] == LEAF)
-					this_node->child[pos] == LEAF;
+				if (that_node->child[pos] == NULL)
+					this_node->child[pos] == NULL;
 				else
 				{
 					this_node->child[pos] = nodeAlloc_.allocate(1);
@@ -134,7 +198,7 @@ namespace	ft
 		// Recursively delete tree.
 		void	deleteTree(node_*& node)
 		{
-			if (node != LEAF)
+			if (node != NULL)
 			{
 				deleteTree(node->child[LEFT]);
 				deleteTree(node->child[RIGHT]);
@@ -149,14 +213,14 @@ namespace	ft
 			this_node->color = that_node->color;
 			for (int pos = LEFT; pos <= RIGHT; pos++)
 			{
-				if (that_node->child[pos] == LEAF)
+				if (that_node->child[pos] == NULL)
 				{
 					deleteTree(this_node->child[pos]);
-					this_node->child[pos] = LEAF;
+					this_node->child[pos] = NULL;
 				}
 				else
 				{
-					if (this_node->child[pos] == LEAF)
+					if (this_node->child[pos] == NULL)
 						this_node->child[pos] = nodeAlloc_.allocate(1);
 					this_node->child[pos]->parent = this_node;
 					assignTree(this_node->child[pos], that_node->child[pos]);
@@ -170,7 +234,7 @@ namespace	ft
 			node_allocator_type_ const& node_alloc = node_allocator_type_()):
 			alloc_(alloc),
 			nodeAlloc_(node_alloc),
-			root_(LEAF)
+			root_(NULL)
 		{
 			pastTheEnd_ = nodeAlloc_.allocate(1);
 			pastTheEnd_->parent = NULL;
@@ -182,17 +246,17 @@ namespace	ft
 			alloc_(tree.alloc_),
 			nodeAlloc_(tree.nodeAlloc_)
 		{
-			if (tree.root_ != LEAF)
-			{
-				this->root_ = nodeAlloc_.allocate(1);
-				this->root_->parent = LEAF;
-				copyTree(this->root_, tree.root_);
-			}
 			pastTheEnd_ = nodeAlloc_.allocate(1);
 			pastTheEnd_->parent = NULL;
 			pastTheEnd_->child[LEFT] = root_;
 			pastTheEnd_->child[RIGHT] = root_;
 			pastTheEnd_->color = RED;
+			if (tree.root_ != NULL)
+			{
+				this->root_ = nodeAlloc_.allocate(1);
+				this->root_->parent = pastTheEnd_;
+				copyTree(this->root_, tree.root_);
+			}
 		};
 		~RedBlackTree(void)
 		{
@@ -201,9 +265,9 @@ namespace	ft
 		};
 		tree_&	operator=(tree_ const& tree)
 		{
-			if (tree.root_ != LEAF)
+			if (tree.root_ != NULL)
 			{
-				if (this->root_ != LEAF)
+				if (this->root_ != NULL)
 					this->root_ = nodeAlloc_.allocate(1);
 				assignTree(this->root_, tree.root_);
 			}
@@ -212,18 +276,17 @@ namespace	ft
 		{
 			node_*	new_node = nodeAlloc_.allocate(1);
 			alloc_.construct(&new_node->content, val);
-			new_node->child[LEFT] = LEAF;
-			new_node->child[RIGHT] = LEAF;
+			new_node->child[LEFT] = NULL;
+			new_node->child[RIGHT] = NULL;
 			new_node->color = RED;
 			addNode(new_node);
 		};
-		void	addNode(node_*& node)
+		void	addNode(node_* node)
 		{
-			std::cout << ">>" << node->content << std::endl;
-			if (root_ == LEAF)
+			if (!root_)
 			{
-				std::cout << "setRoot" << std::endl;
 				root_ = node;
+				node->parent = pastTheEnd_;
 				pastTheEnd_->child[LEFT] = root_;
 				pastTheEnd_->child[RIGHT] = root_;
 				return ;
@@ -235,22 +298,21 @@ namespace	ft
 				node->parent = node_next;
 				if (node_next->content < node->content)
 				{
-					std::cout << "toRight" << std::endl;
 					node_next = node_next->child[RIGHT];
 					is_right = RIGHT;
 				}
 				else
 				{
-					std::cout << "toLeft" << std::endl;
 					node_next = node_next->child[LEFT];
 					is_right = LEFT;
 				}
 			}
-			std::cout << "setNode" << std::endl << std::endl;
 			if (is_right)
 				node->parent->child[RIGHT] = node;
 			else
 				node->parent->child[LEFT] = node;
+			if (node->parent->color == RED)
+				node.rebalance();
 		};
 
 		iterator	begin(void)
@@ -377,17 +439,10 @@ namespace	ft
 				toLeftMost();
 				return (*this);
 			}
-			if (ptrToNode_->parent)
-				std::cout << ptrToNode_->parent->child[LEFT] << std::endl;
 			while (ptrToNode_->parent && ptrToNode_->parent->child[LEFT] != ptrToNode_)
-			{
-				std::cout << "goUp" << std::endl;
 				ptrToNode_ = ptrToNode_->parent;
-			}
-			if (ptrToNode_->child[LEFT] && ptrToNode_->child[RIGHT] && ptrToNode_->child[LEFT] != ptrToNode_->child[RIGHT])
+			if (ptrToNode_->parent)
 				ptrToNode_ = ptrToNode_->parent;
-			else
-				std::cout << "isEndNode" << std::endl;
 			return (*this);
 		};
 		iterator_	operator++(int)
@@ -406,11 +461,10 @@ namespace	ft
 			}
 			while (ptrToNode_->parent && ptrToNode_->parent->child[RIGHT] != ptrToNode_)
 				ptrToNode_ = ptrToNode_->parent;
-			ptrToNode_ = ptrToNode_->parent;
-			if (ptrToNode_->child[LEFT] == ptrToNode_->child[RIGHT])
-				ptrToNode_ = NULL;
-			else
+			if (ptrToNode_->parent)
 				ptrToNode_ = ptrToNode_->parent;
+			else
+				ptrToNode_ = NULL;
 			return (*this);
 		};
 		iterator_	operator--(int)
