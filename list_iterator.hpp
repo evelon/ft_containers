@@ -67,7 +67,7 @@ namespace	ft
 			typename disable_if<is_const_of<Tp, _Tp>::value>::type* dummy;
 			(void)dummy;
 		};
-		virtual ~list_iterator() {};
+		virtual ~list_iterator(void) {};
 		iterator_&	operator=(iterator_ const& iter)
 		{
 			this->ptrToNode_ = iter.ptrToNode_;

@@ -45,6 +45,8 @@ namespace	ft
 		{
 			allocator_ = alloc;
 			allocator_.construct(content_, val);
+			content = allocator.allocate(n);
+			allocator.construct(content, point, point, n);
 		};
 		DoublyLinkedNode(
 			node const& ori_node,

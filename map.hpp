@@ -18,6 +18,7 @@ namespace	ft
 	template	<typename Key, typename Val, class Compare, class Alloc>
 	class	map
 	{
+
 	public:
 		typedef Key									key_type;
 		typedef Val									mapped_type;

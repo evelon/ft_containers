@@ -1,31 +1,64 @@
-#include <list>
-#include <vector>
+#include "RedBlackTree.hpp"
 #include <iostream>
-#include <memory>
-#include <type_traits>
-#include "list.hpp"
-#include "vector.hpp"
+#include <set>
 #include <random>
-#define NS ft
+#define NS std
+
+// class A
+// {
+// public:
+// 	A(void)
+// 	{ std::cout << "construct" << std::endl; };
+// 	A(A const&)
+// 	{ std::cout << "copy construct" << std::endl; };
+// 	~A(void)
+// 	{ std::cout << "destroy" << std::endl; };
+// 	A&	operator=(A const&)
+// 	{ return (*this); };
+// 	bool	operator<(A const&)
+// 	{ return (false); };
+// };
 
 int	main()
 {
-
 	srand(time(NULL));
+	// NS::set<int>	intset;
+	// intset.insert(rand()%100);
+	// intset.insert(rand()%100);
+	// intset.insert(rand()%100);
+	// intset.insert(rand()%100);
+	// intset.insert(rand()%100);
+	// intset.insert(rand()%100);
 
-	NS::list<int>		lst;
+	// for (NS::set<int>::iterator it = intset.begin(); it != intset.end(); ++it)
+	// 	std::cout << *it << std::endl;
+	// NS::set<int>::reverse_iterator	it = intset.rend();
+	// std::cout << *(--it) << std::endl;
 
-	for (int i = 0; i < 200; i++)
-		lst.push_back(rand()%2);
-	NS::vector<bool>	boolvec(lst.begin(), lst.end());
-	bool	b;
+	ft::RedBlackTree<int>	tree;
+	int	a;
+	std::cout << (a = rand() % 100) << std::endl;
+	tree.addValue(a);
+	std::cout << (a = rand() % 100) << std::endl;
+	tree.addValue(a);
+	std::cout << (a = rand() % 100) << std::endl;
+	tree.addValue(a);
+	std::cout << (a = rand() % 100) << std::endl;
+	tree.addValue(a);
+	std::cout << (a = rand() % 100) << std::endl;
+	tree.addValue(a);
 
-	NS::list<int>::iterator		lit = lst.end();
-	boolvec.insert(--boolvec.end(), 1);
-	NS::vector<bool>::iterator	vit = boolvec.end();
-	while (vit != boolvec.begin())
-		std::cout << (b = *(--vit));
-	std::cout << std::endl;
-	while (lit != lst.begin())
-		std::cout << (*(--lit));
+	// for (ft::RedBlackTree<int>::iterator it = tree.begin(); it != tree.end(); it++)
+	// 	std::cout << *it << std::endl;
+	ft::RedBlackTree<int>::iterator it = tree.begin();
+	std::cout << *it << std::endl;
+	++it;
+	std::cout << *it << std::endl;
+	++it;
+	std::cout << *it << std::endl;
+	++it;
+	std::cout << *it << std::endl;
+	++it;
+	std::cout << *it << std::endl;
+	++it;
 }
