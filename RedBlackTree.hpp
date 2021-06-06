@@ -6,10 +6,15 @@
 # include "iterator.hpp"
 # include "reverse_iterator.hpp"
 
+# define PAST_THE_END -2
+# define ROOT -1
 # define LEFT 0
 # define RIGHT 1
 # define RED true
 # define BLACK false
+
+# define IDENTIFY(X, Y) (X->parent->child[Y] == X)
+# define IS_ROOT(X) (IDENTIFY(X, RIGHT) && IDENTIFY(X, LEFT))
 
 
 #include <iostream>
@@ -41,9 +46,21 @@ namespace	ft
 		node*					child[2];
 		color_type				color;
 
+		RedBlackTreeNode(node const& nod):
+			content(nod.content),
+			color(nod.color)
+		{};
+		~RedBlackTreeNode(void) {};
+		node&	operator=(node const& nod)
+		{
+			this->content = nod.content;
+			this->color = nod.color;
+		}
 		node*	sibling(void)
 		{
-			if (this->parent->child[LEFT] == this)
+			if (IS_ROOT(this))
+				return (NULL);
+			if (IDENTIFY(this, LEFT))
 				return (this->parent->child[RIGHT]);
 			return (this->parent->child[LEFT]);
 		}
@@ -57,96 +74,141 @@ namespace	ft
 		}
 		void	leftRotate(void)
 		{
-			if (this->parent)
-			{
-				if (this->parent->child[LEFT] == this)
-					this->parent->child[LEFT] = this->child[RIGHT];
-				else
-					this->parent->child[RIGHT] = this->child[RIGHT];
-			}
+			std::cout << "LeftR" << std::endl;
 
 			node*	new_left = this;
 			node*	new_parent = this->child[RIGHT];
 
-			new_parent->parent = new_left->parent;
-			new_left->parent = new_parent;
-			new_left->child[RIGHT] = new_parent->child[LEFT];
+			if (IDENTIFY(this, LEFT))
+				this->parent->child[LEFT] = new_parent;
+			if (IDENTIFY(this, RIGHT))
+				this->parent->child[RIGHT] = new_parent;
+			new_parent->parent = this->parent;
+			new_left->child[RIGHT] = this->child[RIGHT]->child[LEFT];
+			if (new_left->child[RIGHT])
+				new_left->child[RIGHT]->parent = new_left;
 			new_parent->child[LEFT] = new_left;
+			new_left->parent = new_parent;
+			new_parent->color = BLACK;
+			new_left->color = RED;
 		}
 		void	rightRotate(void)
 		{
-			if (this->parent)
-			{
-				if (this->parent->child[LEFT] == this)
-					this->parent->child[LEFT] = this->child[LEFT];
-				else
-					this->parent->child[RIGHT] = this->child[LEFT];
-			}
+			std::cout << "RightR" << std::endl;
 
 			node*	new_right = this;
 			node*	new_parent = this->child[LEFT];
 
-			new_parent->parent = new_right->parent;
-			new_right->parent = new_parent;
-			new_right->child[LEFT] = new_parent->child[RIGHT];
+			if (IDENTIFY(this, LEFT))
+				this->parent->child[LEFT] = new_parent;
+			if (IDENTIFY(this, RIGHT))
+				this->parent->child[RIGHT] = new_parent;
+			new_parent->parent = this->parent;
+			new_right->child[LEFT] = this->child[LEFT]->child[RIGHT];
+			if (new_right->child[LEFT])
+				new_right->child[LEFT]->parent = new_right;
 			new_parent->child[RIGHT] = new_right;
+			new_right->parent = new_parent;
+			new_parent->color = BLACK;
+			new_right->color = RED;
 		}
 		void	leftRightRotate(void)
 		{
-			// if (!this->child[LEFT] || this->child[LEFT]->child[RIGHT]) -> crash!
+			std::cout << "leftRightR" << std::endl;
+
+			// this->child[LEFT]->leftRotate();
+			// this->rightRotate();
+
 			node*	new_parent = this->child[LEFT]->child[RIGHT];
 			node*	new_left = this->child[LEFT];
 			node*	new_right = this;
 
+			if (IDENTIFY(this, LEFT))
+				this->parent->child[LEFT] = new_parent;
+			if (IDENTIFY(this, RIGHT))
+				this->parent->child[RIGHT] = new_parent;
 			new_parent->parent = this->parent;
-			new_left->parent = new_parent;
-			new_right->parent = new_parent;
-			new_left->child[RIGHT] = new_parent->child[LEFT];
 			new_right->child[LEFT] = new_parent->child[RIGHT];
+			if (new_right->child[LEFT])
+				new_right->child[LEFT]->parent = new_right;
+			new_left->child[RIGHT] = new_parent->child[LEFT];
+			if (new_left->child[RIGHT])
+				new_left->child[RIGHT]->parent = new_left;
 			new_parent->child[LEFT] = new_left;
+			new_left->parent = new_parent;
 			new_parent->child[RIGHT] = new_right;
+			new_right->parent = new_parent;
 		}
 		void	rightLeftRotate(void)
 		{
-			// if (!this->child[RIGHT] || this->child[RIGHT]->child[LEFT]) -> crash!
-			node*	new_parent = this->child[RIGHT]->child[LEFT];
-			node*	new_right = this->child[RIGHT];
-			node*	new_left = this;
+			std::cout << "rightLeftR" << std::endl;
 
-			new_parent->parent = this->parent;
-			new_left->parent = new_parent;
-			new_right->parent = new_parent;
-			new_left->child[RIGHT] = new_parent->child[LEFT];
-			new_right->child[LEFT] = new_parent->child[RIGHT];
-			new_parent->child[LEFT] = new_left;
-			new_parent->child[RIGHT] = new_right;
+			this->child[RIGHT]->rightRotate();
+			this->leftRotate();
+			// node*	new_parent = this->child[RIGHT]->child[LEFT];
+			// node*	new_right = this->child[RIGHT];
+			// node*	new_left = this;
+
+			// if (IDENTIFY(this, LEFT))
+			// 	this->parent->child[LEFT] = new_parent;
+			// if (IDENTIFY(this, RIGHT))
+			// 	this->parent->child[RIGHT] = new_parent;
+			// new_parent->parent = this->parent;
+			// new_left->child[RIGHT] = new_parent->child[LEFT];
+			// if (new_left->child[RIGHT])
+			// 	new_left->child[RIGHT]->parent = new_left;
+			// new_right->child[LEFT] = new_parent->child[RIGHT];
+			// if (new_right->child[LEFT])
+			// 	new_right->child[LEFT]->parent = new_right;
+			// new_parent->child[LEFT] = new_left;
+			// new_left->parent = new_parent;
+			// new_parent->child[RIGHT] = new_right;
+			// new_right->parent = new_parent;
 		}
-		void	reconstruct(position pos)
+		void	restruct(void)
 		{
 			node*	p = this->parent;
-			node*	g = p->parent;
+			node*	g = this->grand();
 
-			if (p->child[LEFT] == this)
+			if (IDENTIFY(this, LEFT))
 			{
-				if (g->child[LEFT] == p)
-					g->rightRotate()
+				if (IDENTIFY(p, LEFT))
+					g->rightRotate();
 				else
 					g->rightLeftRotate();
 			}
 			else
 			{
-				if (g->child[RIGHT] = p)
+				if (IDENTIFY(p, LEFT))
 					g->leftRightRotate();
 				else
 					g->leftRotate();
 			}
 		}
+		void	recolor(void)
+		{
+			node*	p = this->parent;
+			node*	g = this->grand();
+			node*	u = this->uncle();
+
+			if (u)
+				u->color = BLACK;
+			if (IS_ROOT(p))
+				return ;
+			p->color = BLACK;
+			if (IS_ROOT(g))
+				return ;
+			g->color = RED;
+			if (!IS_ROOT(g->parent) && g->parent->color == RED)
+				g->rebalance();
+		}
 		void	rebalance(void)
 		{
-			if (this->sibling()->color == BLACK)
-				this->reconstruct();
+			if (!this->uncle() || this->uncle()->color == BLACK)
+				this->restruct();
+			else
+				this->recolor();
 		}
-		// void	recolor(void)
 	private:
 		RedBlackTreeNode(void);
 	};
@@ -182,7 +244,6 @@ namespace	ft
 		void	copyTree(node_*& this_node, node_* const& that_node)
 		{
 			alloc_.construct(this_node->content, that_node->content);
-			this_node->color = that_node->color;
 			for (int pos = LEFT; pos <= RIGHT; pos++)
 			{
 				if (that_node->child[pos] == NULL)
@@ -285,6 +346,7 @@ namespace	ft
 		{
 			if (!root_)
 			{
+				node->color = BLACK;
 				root_ = node;
 				node->parent = pastTheEnd_;
 				pastTheEnd_->child[LEFT] = root_;
@@ -292,27 +354,29 @@ namespace	ft
 				return ;
 			}
 			node_*	node_next = root_;
-			bool	is_right = RIGHT;
+			int		pos = ROOT;
+			if (node->content == 1)
+				std::cout << "root" << root_->content << std::endl;
 			while (node_next)
 			{
 				node->parent = node_next;
 				if (node_next->content < node->content)
 				{
 					node_next = node_next->child[RIGHT];
-					is_right = RIGHT;
+					pos = RIGHT;
 				}
 				else
 				{
 					node_next = node_next->child[LEFT];
-					is_right = LEFT;
+					pos = LEFT;
 				}
 			}
-			if (is_right)
+			if (pos == RIGHT)
 				node->parent->child[RIGHT] = node;
 			else
 				node->parent->child[LEFT] = node;
 			if (node->parent->color == RED)
-				node.rebalance();
+				node->rebalance();
 		};
 
 		iterator	begin(void)
