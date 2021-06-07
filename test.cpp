@@ -37,74 +37,46 @@ int	main()
 
 	ft::RedBlackTree<int>	tree;
 
-	// int	a;
+	int	a;
 	// std::cout << (a = rand() % 100) << std::endl;
-	// tree.addValue(a);
+	// tree.insert(a, false);
 	// for (ft::RedBlackTree<int>::iterator it = tree.begin(); it != tree.end(); ++it)
 	// 	std::cout << *it << ' ';
 	// std::cout << '\n';
 
-	// std::cout << (a = rand() % 100) << std::endl;
-	// tree.addValue(a);
-	// for (ft::RedBlackTree<int>::iterator it = tree.begin(); it != tree.end(); ++it)
-	// 	std::cout << *it << ' ';
-	// std::cout << '\n';
+	std::cout << (a = rand() % 100) << std::endl;
+	tree.insert(a, false);
+	std::cout << (a = rand() % 100) << std::endl;
+	tree.insert(a, false);
+	std::cout << (a = rand() % 100) << std::endl;
+	tree.insert(a, false);
+	std::cout << (a = rand() % 100) << std::endl;
+	tree.insert(a, false);
+	std::cout << (a = rand() % 100) << std::endl;
+	tree.insert(a, false);
+	std::cout << (a = rand() % 100) << std::endl;
+	tree.insert(a, false);
+	std::cout << (a = rand() % 100) << std::endl;
+	tree.insert(a, false);
+	std::cout << (a = rand() % 100) << std::endl;
+	tree.insert(a, false);
+	std::cout << (a = rand() % 100) << std::endl;
+	tree.insert(a, false);
+	std::cout << (a = rand() % 100) << std::endl << std::endl;;
+	tree.insert(a, false);
 
-	// std::cout << (a = rand() % 100) << std::endl;
-	// tree.addValue(a);
-	// for (ft::RedBlackTree<int>::iterator it = tree.begin(); it != tree.end(); ++it)
-	// 	std::cout << *it << ' ';
-	// std::cout << '\n';
+	// tree.insert(30);
+	// tree.insert(7);
+	// tree.insert(20);
+	// tree.insert(77);
+	// tree.insert(83);
+	// tree.insert(45);
+	// tree.insert(94);
 
-	// std::cout << (a = rand() % 100) << std::endl;
-	// tree.addValue(a);
-	// for (ft::RedBlackTree<int>::iterator it = tree.begin(); it != tree.end(); ++it)
-	// 	std::cout << *it << ' ';
-	// std::cout << '\n';
-
-	// std::cout << (a = rand() % 100) << std::endl;
-	// tree.addValue(a);
-	// for (ft::RedBlackTree<int>::iterator it = tree.begin(); it != tree.end(); ++it)
-	// 	std::cout << *it << ' ';
-	// std::cout << '\n';
-
-	// std::cout << (a = rand() % 100) << std::endl;
-	// tree.addValue(a);
-	// for (ft::RedBlackTree<int>::iterator it = tree.begin(); it != tree.end(); ++it)
-	// 	std::cout << *it << ' ';
-	// std::cout << '\n';
-
-	// std::cout << (a = rand() % 100) << std::endl;
-	// tree.addValue(a);
-	// for (ft::RedBlackTree<int>::iterator it = tree.begin(); it != tree.end(); ++it)
-	// 	std::cout << *it << ' ';
-	// std::cout << '\n';
-
-	// std::cout << (a = rand() % 100) << std::endl;
-	// tree.addValue(a);
-	// for (ft::RedBlackTree<int>::iterator it = tree.begin(); it != tree.end(); ++it)
-	// 	std::cout << *it << ' ';
-	// std::cout << '\n';
-
-	// std::cout << (a = rand() % 100) << std::endl << std::endl;
-	// tree.addValue(a);
-
-	// for (ft::RedBlackTree<int>::iterator it = tree.begin(); it != tree.end(); ++it)
-	// 	std::cout << *it << ' ';
-	// std::cout << '\n';
-
-	// tree.addValue(30);
-	// tree.addValue(7);
-	// tree.addValue(20);
-	// tree.addValue(77);
-	// tree.addValue(83);
-	// tree.addValue(45);
-	// tree.addValue(94);
-
-	tree.addValue(5);
-	tree.addValue(3);
-	tree.addValue(4);
-	tree.addValue(1);
+	// tree.insert(5);
+	// tree.insert(3);
+	// tree.insert(4);
+	// tree.insert(1);
 
 
 	int	prev = 0;

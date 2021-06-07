@@ -23,30 +23,27 @@ namespace	ft
 		typedef typename Alloc::const_pointer			const_pointer;
 
 	private:
-		static allocator_type	allocator_;
+		allocator_type	allocator_;
 		value_type*				content_;
 		node*					next_;
 		node*					prev_;
 
 	public:
 		explicit DoublyLinkedNode(allocator_type const& alloc = allocator_type()):
+			allocator_(alloc),
 			content_(NULL),
 			next_(this),
 			prev_(this)
-		{
-			allocator_ = alloc;
-		};
+		{};
 		explicit DoublyLinkedNode(
 			value_type const& val,
 			allocator_type const& alloc = allocator_type()):
+			allocator_(alloc),
 			content_(allocator_.allocate(1)),
 			next_(this),
 			prev_(this)
 		{
-			allocator_ = alloc;
 			allocator_.construct(content_, val);
-			content = allocator.allocate(n);
-			allocator.construct(content, point, point, n);
 		};
 		DoublyLinkedNode(
 			node const& ori_node,
@@ -147,9 +144,6 @@ namespace	ft
 			this->content_ = temp;
 		}
 	};
-
-	template	<typename Tp, class Alloc>
-	Alloc	DoublyLinkedNode<Tp, Alloc>::allocator_ = Alloc();
 }
 
 #endif

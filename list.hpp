@@ -6,6 +6,8 @@
 # include "list_iterator.hpp"
 # include "reverse_iterator.hpp"
 
+#include <iostream>
+
 
 namespace	ft
 {
