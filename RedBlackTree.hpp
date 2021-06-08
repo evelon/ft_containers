@@ -3,10 +3,10 @@
 
 # include <memory>
 # include "template_utils.hpp"
+# include "pair.hpp"
 # include "iterator.hpp"
 # include "reverse_iterator.hpp"
 
-# define PAST_THE_END -2
 # define ROOT -1
 # define LEFT 0
 # define RIGHT 1
@@ -14,7 +14,9 @@
 # define BLACK false
 
 # define IDENTIFY(X, Y) (X->parent->child[Y] == X)
+# define POSITION(X) (X->parent->child[RIGHT] == X)
 # define IS_ROOT(X) (IDENTIFY(X, RIGHT) && IDENTIFY(X, LEFT))
+# define COLOR(X) (X ? X->color : BLACK)
 
 
 #include <iostream>
@@ -187,9 +189,9 @@ namespace	ft
 				return ;
 			g->color = RED;
 			if (!IS_ROOT(g->parent) && g->parent->color == RED)
-				g->rebalance();
+				g->insertRebalance();
 		}
-		void	rebalance(void)
+		void	insertRebalance(void)
 		{
 			if (!this->uncle() || this->uncle()->color == BLACK)
 				this->restruct();
@@ -219,13 +221,18 @@ namespace	ft
 		typedef TreeIterator<Tp>								iterator;
 		typedef reverse_iterator<const_iterator>				const_reverse_iterator;
 		typedef reverse_iterator<iterator>						reverse_iterator;
-
+		typedef ptrdiff_t										difference_type;
+		typedef size_t											size_type;
 
 	private:
 		Compare					comp;
 		allocator_type			alloc_;
 		node_allocator_type_	nodeAlloc_;
 		node_*					superRoot_;
+		size_type				size_;
+
+		bool	equal(value_type const& x, value_type const& y)
+		{ return (!comp(x, y) && !comp(y, x)); };
 
 		node_*&	getRoot(void)
 		{ return (superRoot_->child[LEFT]); };
@@ -282,24 +289,37 @@ namespace	ft
 				}
 			}
 		};
-		iterator	addNode(value_type const& val, bool unique)
+		node_*	newNode(value_type const& val)
+		{
+			node_*	node = nodeAlloc_.allocate(1);
+			alloc_.construct(&node->content, val);
+			node->child[LEFT] = NULL;
+			node->child[RIGHT] = NULL;
+			node->color = RED;
+			return (node);
+		};
+		pair<iterator, bool>	addNode(value_type const& val, bool unique)
 		{
 			node_*	node;
 
 			if (!getRoot())
 			{
 				node = nodeAlloc_.allocate(1);
-				alloc_.contruct(&node->content, val);
+				alloc_.construct(&node->content, val);
 				node->color = BLACK;
 				node->parent = superRoot_;
+				node->child[LEFT] = NULL;
+				node->child[RIGHT] = NULL;
 				setRoot(node);
-				return ;
+				++size_;
+				return (pair<iterator, bool>(iterator(node), true));
 			}
 			node_*	node_next = getRoot();
+			node_*	parent_node;
 			int		pos = ROOT;
 			while (node_next)
 			{
-				node->parent = node_next;
+				parent_node = node_next;
 				if (comp(node_next->content, val))
 				{
 					node_next = node_next->child[RIGHT];
@@ -307,23 +327,122 @@ namespace	ft
 				}
 				else
 				{
-					if (unique && val == node_next->content)
-						return (iterator(node_next));
+					if (unique && equal(node_next->content, val))
+						return (pair<iterator, bool>(iterator(node_next), false));
 					node_next = node_next->child[LEFT];
 					pos = LEFT;
 				}
 			}
-			node = nodeAlloc_.allocate(1);
-			alloc_.contruct(&node->content, val);
-			node->child[LEFT] = NULL;
-			node->child[RIGHT] = NULL;
-			node->color = RED;
+			node = newNode(val);
+			node->parent = parent_node;
 			if (pos == RIGHT)
 				node->parent->child[RIGHT] = node;
 			else
 				node->parent->child[LEFT] = node;
 			if (node->parent->color == RED)
-				node->rebalance();
+				node->insertRebalance();
+			++size_;
+			return (pair<iterator, bool>(iterator(node), true));
+		};
+		void	reduceBlack(node_* parent, bool position)
+		{
+			node_*	p = parent;
+			node_*	s = parent->child[!position];
+			node_*	l = s->child[LEFT];
+			node_*	r = s->child[RIGHT];
+
+			// case 1-1
+			if (COLOR(p) == RED && COLOR(l) == BLACK && COLOR(r) == BLACK)
+			{
+				p->color = BLACK;
+				s->color = RED;
+				return ;
+			}
+			// case *-2
+			if (COLOR(s) == BLACK && COLOR(r) == RED)
+			{
+				if (position == LEFT)
+					p->leftRotate();
+				else
+					p->rightRotate();
+				bool	temp = p->color;
+				p->color = s->color;
+				s->color = temp;
+				r->color = BLACK;
+			}
+			// case *-3
+			if (COLOR(s) == BLACK && color(r) == BLACK && color(l) == RED)
+			{
+				s->rightRotate();
+				l->color = BLACK;
+				s->color = RED;
+				r = s;
+				s = l;
+				if (position == LEFT)
+					p->leftRotate();
+				else
+					p->rightRotate();
+				bool	temp = p->color;
+				p->color = s->color;
+				s->color = temp;
+				r->color = BLACK;
+			}
+			// case 2-1
+			if (COLOR(p) == BLACK && COLOR(s) == BLACK && COLOR(l) == BLACK && COLOR(r) == BLACK)
+			{
+				s->color = RED;
+				if (IS_ROOT(p))
+					return ;
+				reduceBlack(p->parent, POSITION(p));
+				return ;
+			}
+			// case 2-4
+			if (COLOR(p) == BLACK && COLOR(s) == RED)
+			{
+				if (position == LEFT)
+					p->leftRotate();
+				else
+					p->rightRotate();
+				bool	temp = p->color;
+				p->color = s->color;
+				s->color = temp;
+				reduceBlack(p, position);
+			}
+		};
+		void	deleteNode(node_* node)
+		{
+			if (node->child[LEFT] && node->child[RIGHT])
+			{
+				iterator	successor = ++iterator(node);
+				node->content = *successor;
+				deleteNode(successor->getNode());
+				return ;
+			}
+			node_*	only_child = node->child[LEFT] ? node->child[LEFT] : node->child[RIGHT];
+			node_*	parent = node->parent;
+			bool	position;
+			if (only_child)
+				only_child->parent = parent;
+			if (IDENTIFY(node, RIGHT))
+			{
+				position = RIGHT;
+				parent->child[RIGHT] = only_child;
+			}
+			else
+			{
+				position = LEFT;
+				parent->child[LEFT] = only_child;
+			}
+			bool	node_color = node->color;
+			alloc_.destroy(&node->content);
+			nodeAlloc_.deallocate(node);
+			if (node_color ^ COLOR(only_child))
+			{
+				if (COLOR(only_child) == RED)
+					only_child->color = BLACK;
+				return ;
+			}
+			reduceBlack(parent, position);
 		};
 
 	public:
@@ -332,7 +451,8 @@ namespace	ft
 			node_allocator_type_ const& node_alloc = node_allocator_type_()):
 			comp(Compare()),
 			alloc_(alloc),
-			nodeAlloc_(node_alloc)
+			nodeAlloc_(node_alloc),
+			size_(0)
 		{
 			superRoot_ = nodeAlloc_.allocate(1);
 			superRoot_->parent = NULL;
@@ -342,7 +462,8 @@ namespace	ft
 		RedBlackTree(tree_ const& tree):
 			comp(Compare()),
 			alloc_(tree.alloc_),
-			nodeAlloc_(tree.nodeAlloc_)
+			nodeAlloc_(tree.nodeAlloc_),
+			size_(tree.size_)
 		{
 			superRoot_ = nodeAlloc_.allocate(1);
 			superRoot_->parent = NULL;
@@ -368,21 +489,7 @@ namespace	ft
 					this->getRoot() = nodeAlloc_.allocate(1);
 				assignTree(this->getRoot(), tree.getRoot());
 			}
-		};
-		iterator	insert(value_type const& val, bool unique)
-		{
-			return (addNode(val, unique));
-		};
-		iterator	insert(iterator position, value_type const& val, bool unique)
-		{
-			node_*	node;
-			if (unique)
-			{
-				if (*position < val)
-				node = position->ptrToNode_
-			}
-
-			return (addNode(val, unique));
+			this->size_ = tree.size_;
 		};
 
 		iterator	begin(void)
@@ -402,6 +509,123 @@ namespace	ft
 		const_reverse_iterator	rend(void) const
 		{ return (const_reverse_iterator(const_iterator(superRoot_).toLeftMost())); };
 
+		bool	empty(void) const
+		{ return (!size_); };
+		size_type	size(void) const
+		{ return (size_); };
+		size_type	max_size(void) const
+		{
+			if (nodeAlloc_.max_size() < std::numeric_limits<size_type>::max())
+				return (nodeAlloc_.max_size());
+			return (std::numeric_limits<size_type>::max());
+		};
+
+		pair<iterator, bool>	insert(value_type const& val, bool unique)
+		{ return (addNode(val, unique)); };
+		iterator	insert(iterator position, value_type const& val, bool unique)
+		{
+			node_*	prev_node = position.getNode();
+			node_*	next_node = (++position).getNode();
+
+			if ((unique && prev_node->content < val && next_node->content > val)
+				|| (!unique && prev_node->content <= val && next_node->content >= val))
+			{
+				node_*	new_node;
+				new_node = newNode(val);
+				if (!prev_node->child[RIGHT])
+				{
+					prev_node->child[RIGHT] = new_node;
+					new_node->parent = prev_node;
+				}
+				else
+				{
+					next_node->child[LEFT] = new_node;
+					new_node->parent = next_node;
+				}
+				++size_;
+			}
+			return (addNode(val, unique).first);
+		};
+		template <class InputIterator>
+		void	insert(InputIterator first, InputIterator last, bool unique)
+		{
+			iterator	hint = begin();
+			for (InputIterator it = first; it != last; it++)
+				hint = insert(hint, *it, unique);
+		};
+
+		void	erase(iterator position)
+		{ deleteNode(position.getNode()); }
+
+		iterator	find(value_type const& val)
+		{
+			node_*	node = root();
+			while (node)
+			{
+				if (equal(node->content, val))
+					break ;
+				if (comp(node->content, val))
+					node = node->child[RIGHT];
+				else
+					node = node->child[LEFT];
+			}
+			if (!node)
+				return (end());
+			return (iterator(node));
+		};
+		const_iterator	find(value_type const& val) const
+		{
+			iterator	it = find(val);
+			return (const_iterator(it));
+		};
+		size_type	count(value_type const& val) const
+		{
+			node_*	node = root();
+			while (node)
+			{
+				if (equal(node->content, val))
+					break ;
+				if (comp(node->content, val))
+					node = node->child[RIGHT];
+				else
+					node = node->child[LEFT];
+			}
+			if (!node)
+				return (0);
+			iterator	it(node);
+			size_type	count = 0;
+			while (equal(*it, val))
+			{
+				++count;
+				++it;
+			}
+			it = --iterator(node);
+			while (equal(*it, val))
+			{
+				++count;
+				--it;
+			}
+			return (count);
+		};
+
+		iterator	lower_bound(value_type const& val)
+		{
+			node_*	node = root();
+			node_*	prev = superRoot_;
+			while (comp(node->content, val))
+			{
+				if (!node->child[RIGHT])
+					break ;
+				prev = node;
+				node = node->child[RIGHT];
+			}
+			//
+		};
+		const_iterator	lower_bound(value_type const& val) const
+		{
+			iterator	it = lower_bound(val);
+			return (const_iterator(it));
+		};
 	};
 
 	template	<typename Tp>
@@ -431,8 +655,6 @@ namespace	ft
 		TreeIterator(reverse_iterator<iterator_>) {};
 
 	protected:
-		node*&		getNode_(void)
-			{ return (ptrToNode_); };
 		reference	reverse_reference(void)
 		{
 			iterator_ rev = --(*this);
@@ -458,6 +680,9 @@ namespace	ft
 			(void)dummy;
 		};
 		virtual ~TreeIterator(void) {};
+
+		node*&		getNode(void)
+			{ return (ptrToNode_); };
 
 		iterator_&	toLeftMost(void)
 		{

@@ -1,4 +1,5 @@
 #include "RedBlackTree.hpp"
+#include "list.hpp"
 #include <iostream>
 #include <set>
 #include <random>
@@ -21,6 +22,7 @@
 
 int	main()
 {
+{
 	srand(time(NULL));
 	// NS::set<int>	intset;
 	// intset.insert(rand()%100);
@@ -35,35 +37,38 @@ int	main()
 	// NS::set<int>::reverse_iterator	it = intset.rend();
 	// std::cout << *(--it) << std::endl;
 
+	ft::list<int>			lst;
+	lst.push_back(rand() % 15);
+	lst.push_back(rand() % 15);
+	lst.push_back(rand() % 15);
+	lst.push_back(rand() % 15);
+	lst.push_back(rand() % 15);
+	lst.push_back(rand() % 15);
+	lst.push_back(rand() % 15);
+	lst.push_back(rand() % 15);
 	ft::RedBlackTree<int>	tree;
 
 	int	a;
-	// std::cout << (a = rand() % 100) << std::endl;
+	// std::cout << (a = rand() % 15) << std::endl;
 	// tree.insert(a, false);
 	// for (ft::RedBlackTree<int>::iterator it = tree.begin(); it != tree.end(); ++it)
 	// 	std::cout << *it << ' ';
 	// std::cout << '\n';
 
-	std::cout << (a = rand() % 100) << std::endl;
-	tree.insert(a, false);
-	std::cout << (a = rand() % 100) << std::endl;
-	tree.insert(a, false);
-	std::cout << (a = rand() % 100) << std::endl;
-	tree.insert(a, false);
-	std::cout << (a = rand() % 100) << std::endl;
-	tree.insert(a, false);
-	std::cout << (a = rand() % 100) << std::endl;
-	tree.insert(a, false);
-	std::cout << (a = rand() % 100) << std::endl;
-	tree.insert(a, false);
-	std::cout << (a = rand() % 100) << std::endl;
-	tree.insert(a, false);
-	std::cout << (a = rand() % 100) << std::endl;
-	tree.insert(a, false);
-	std::cout << (a = rand() % 100) << std::endl;
-	tree.insert(a, false);
-	std::cout << (a = rand() % 100) << std::endl << std::endl;;
-	tree.insert(a, false);
+
+
+	std::cout << (a = rand() % 15) << std::endl;
+	tree.insert(a, true);
+	std::cout << (a = rand() % 15) << std::endl;
+	tree.insert(a, true);
+	std::cout << (a = rand() % 15) << std::endl;
+	tree.insert(a, true);
+	std::cout << (a = rand() % 15) << std::endl;
+	tree.insert(a, true);
+	std::cout << (a = rand() % 15) << std::endl;
+	tree.insert(a, true);
+
+	tree.insert(lst.begin(), lst.end(), true);
 
 	// tree.insert(30);
 	// tree.insert(7);
@@ -78,6 +83,7 @@ int	main()
 	// tree.insert(4);
 	// tree.insert(1);
 
+	std::cout << std::endl;
 
 	int	prev = 0;
 	for (ft::RedBlackTree<int>::iterator it = tree.begin();
@@ -91,6 +97,7 @@ int	main()
 			std::cout << std::endl;
 		prev = *it;
 	}
+	std::cout << '\n' << tree.size();
 	// ft::RedBlackTree<int>::iterator it = tree.begin();
 	// std::cout << *it << std::endl;
 	// ++it;
@@ -101,4 +108,6 @@ int	main()
 	// std::cout << *it << std::endl;
 	// ++it;
 	// std::cout << *it << std::endl;
+}
+	system("leaks a.out >> leaks");
 }
