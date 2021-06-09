@@ -29,6 +29,12 @@ namespace	ft
 	template	<typename Tp, class Compare = less<Tp>, class Alloc = std::allocator<Tp> >
 	class	RedBlackTree;
 
+	template	<typename Tp, class Compare, class Alloc>
+	bool	operator==(RedBlackTree<Tp, Compare, Alloc> const& lhs, RedBlackTree<Tp, Compare, Alloc> const& rhs);
+
+	template	<typename Tp, class Compare, class Alloc>
+	bool	operator<(RedBlackTree<Tp, Compare, Alloc> const& lhs, RedBlackTree<Tp, Compare, Alloc> const& rhs);
+
 	template	<typename Tp>
 	class	TreeIterator;
 
@@ -83,13 +89,16 @@ namespace	ft
 				this->parent->child[LEFT] = new_parent;
 			if (IDENTIFY(this, RIGHT))
 				this->parent->child[RIGHT] = new_parent;
-			new_parent->parent = this->parent;
-			new_left->child[RIGHT] = this->child[RIGHT]->child[LEFT];
+			if (new_parent)
+				new_parent->parent = this->parent;
+			new_left->child[RIGHT] = new_parent ? new_parent->child[LEFT] : NULL;
 			if (new_left->child[RIGHT])
 				new_left->child[RIGHT]->parent = new_left;
-			new_parent->child[LEFT] = new_left;
+			if (new_parent)
+				new_parent->child[LEFT] = new_left;
 			new_left->parent = new_parent;
-			new_parent->color = BLACK;
+			if (new_parent)
+				new_parent->color = BLACK;
 			new_left->color = RED;
 		}
 		void	rightRotate(void)
@@ -101,13 +110,16 @@ namespace	ft
 				this->parent->child[LEFT] = new_parent;
 			if (IDENTIFY(this, RIGHT))
 				this->parent->child[RIGHT] = new_parent;
-			new_parent->parent = this->parent;
-			new_right->child[LEFT] = this->child[LEFT]->child[RIGHT];
+			if (new_parent)
+				new_parent->parent = this->parent;
+			new_right->child[LEFT] = new_parent ? new_parent->child[RIGHT] : NULL;
 			if (new_right->child[LEFT])
 				new_right->child[LEFT]->parent = new_right;
-			new_parent->child[RIGHT] = new_right;
+			if (new_parent)
+				new_parent->child[RIGHT] = new_right;
 			new_right->parent = new_parent;
-			new_parent->color = BLACK;
+			if (new_parent)
+				new_parent->color = BLACK;
 			new_right->color = RED;
 		}
 		void	leftRightRotate(void)
@@ -212,6 +224,7 @@ namespace	ft
 
 	public:
 		typedef Tp												value_type;
+		typedef Compare											value_compare;
 		typedef Alloc											allocator_type;
 		typedef typename Alloc::reference						reference;
 		typedef typename Alloc::const_reference					const_reference;
@@ -296,6 +309,7 @@ namespace	ft
 			node->child[LEFT] = NULL;
 			node->child[RIGHT] = NULL;
 			node->color = RED;
+			++size_;
 			return (node);
 		};
 		pair<iterator, bool>	addNode(value_type const& val, bool unique)
@@ -341,21 +355,21 @@ namespace	ft
 				node->parent->child[LEFT] = node;
 			if (node->parent->color == RED)
 				node->insertRebalance();
-			++size_;
 			return (pair<iterator, bool>(iterator(node), true));
 		};
 		void	reduceBlack(node_* parent, bool position)
 		{
 			node_*	p = parent;
 			node_*	s = parent->child[!position];
-			node_*	l = s->child[LEFT];
-			node_*	r = s->child[RIGHT];
+			node_*	l = s ? s->child[LEFT] : NULL;
+			node_*	r = s ? s->child[RIGHT] : NULL;
 
 			// case 1-1
 			if (COLOR(p) == RED && COLOR(l) == BLACK && COLOR(r) == BLACK)
 			{
 				p->color = BLACK;
-				s->color = RED;
+				if (s)
+					s->color = RED;
 				return ;
 			}
 			// case *-2
@@ -369,9 +383,10 @@ namespace	ft
 				p->color = s->color;
 				s->color = temp;
 				r->color = BLACK;
+				return ;
 			}
 			// case *-3
-			if (COLOR(s) == BLACK && color(r) == BLACK && color(l) == RED)
+			if (COLOR(s) == BLACK && COLOR(r) == BLACK && COLOR(l) == RED)
 			{
 				s->rightRotate();
 				l->color = BLACK;
@@ -386,11 +401,13 @@ namespace	ft
 				p->color = s->color;
 				s->color = temp;
 				r->color = BLACK;
+				return ;
 			}
 			// case 2-1
 			if (COLOR(p) == BLACK && COLOR(s) == BLACK && COLOR(l) == BLACK && COLOR(r) == BLACK)
 			{
-				s->color = RED;
+				if (s)
+					s->color = RED;
 				if (IS_ROOT(p))
 					return ;
 				reduceBlack(p->parent, POSITION(p));
@@ -415,7 +432,7 @@ namespace	ft
 			{
 				iterator	successor = ++iterator(node);
 				node->content = *successor;
-				deleteNode(successor->getNode());
+				deleteNode(successor.getNode());
 				return ;
 			}
 			node_*	only_child = node->child[LEFT] ? node->child[LEFT] : node->child[RIGHT];
@@ -435,7 +452,8 @@ namespace	ft
 			}
 			bool	node_color = node->color;
 			alloc_.destroy(&node->content);
-			nodeAlloc_.deallocate(node);
+			nodeAlloc_.deallocate(node, 1);
+			--size_;
 			if (node_color ^ COLOR(only_child))
 			{
 				if (COLOR(only_child) == RED)
@@ -447,6 +465,7 @@ namespace	ft
 
 	public:
 		RedBlackTree(
+
 			allocator_type const& alloc = allocator_type(),
 			node_allocator_type_ const& node_alloc = node_allocator_type_()):
 			comp(Compare()),
@@ -542,7 +561,6 @@ namespace	ft
 					next_node->child[LEFT] = new_node;
 					new_node->parent = next_node;
 				}
-				++size_;
 			}
 			return (addNode(val, unique).first);
 		};
@@ -555,11 +573,34 @@ namespace	ft
 		};
 
 		void	erase(iterator position)
-		{ deleteNode(position.getNode()); }
-
+		{
+			deleteNode(position.getNode());
+		}
+		size_type	erase(value_type const&	val)
+		{
+			pair<iterator, iterator> 	range = equal_range(val);
+			size_type	count = 0;
+			for (iterator it = range.first; it != range.second;)
+			{
+				erase(it++);
+				++count;
+			}
+			return (count);
+		};
+		void	erase(iterator first, iterator last)
+		{
+			for (iterator it = first; it != last;)
+				erase(it++);
+		};
+		void	clear(void)
+		{
+			deleteTree(getRoot());
+			setRoot(NULL);
+			size_ = 0;
+		}
 		iterator	find(value_type const& val)
 		{
-			node_*	node = root();
+			node_*	node = getRoot();
 			while (node)
 			{
 				if (equal(node->content, val))
@@ -580,7 +621,7 @@ namespace	ft
 		};
 		size_type	count(value_type const& val) const
 		{
-			node_*	node = root();
+			node_*	node = getRoot();
 			while (node)
 			{
 				if (equal(node->content, val))
@@ -610,22 +651,68 @@ namespace	ft
 
 		iterator	lower_bound(value_type const& val)
 		{
-			node_*	node = root();
-			node_*	prev = superRoot_;
-			while (comp(node->content, val))
-			{
-				if (!node->child[RIGHT])
-					break ;
-				prev = node;
-				node = node->child[RIGHT];
-			}
-			//
+			iterator	it = begin();
+			while (comp(*it, val) && it != end())
+				it++;
+			return (it);
 		};
 		const_iterator	lower_bound(value_type const& val) const
 		{
 			iterator	it = lower_bound(val);
 			return (const_iterator(it));
 		};
+		iterator	upper_bound(value_type const& val)
+		{
+			iterator	it = begin();
+			while (!comp(val, *it) && it != end())
+				it++;
+			return (it);
+		};
+		const_iterator	upper_bound(value_type const& val) const
+		{
+			iterator	it = upper_bound(val);
+			return (const_iterator(it));
+		};
+		pair<iterator, iterator>	equal_range(value_type const& val)
+			{ return (pair<iterator, iterator>(lower_bound(val), upper_bound(val))); };
+		pair<const_iterator, const_iterator>	equal_range(value_type const& val) const
+			{ return (pair<const_iterator, const_iterator>(lower_bound(val), upper_bound(val))); };
+	};
+
+	template	<typename Tp, class Compare, class Alloc>
+	bool	operator==(RedBlackTree<Tp, Compare, Alloc> const& lhs, RedBlackTree<Tp, Compare, Alloc> const& rhs)
+	{
+		if (lhs.size() != rhs.size())
+			return (false);
+		RedBlackTree<Tp, Compare, Alloc>::const_iterator	lit = lhs.begin();
+		RedBlackTree<Tp, Compare, Alloc>::const_iterator	rit = lhs.begin();
+		while (lit != lhs.end())
+		{
+			if (!(*lit == *rit))
+				return (false)
+			lit++;
+			rit++;
+		}
+		return (true);
+	};
+
+	template	<typename Tp, class Compare, class Alloc>
+	bool	operator<(RedBlackTree<Tp, Compare, Alloc> const& lhs, RedBlackTree<Tp, Compare, Alloc> const& rhs)
+	{
+		RedBlackTree<Tp, Compare, Alloc>::const_iterator	lit = lhs.begin();
+		RedBlackTree<Tp, Compare, Alloc>::const_iterator	rit = lhs.begin();
+		while (lit != lhs.end())
+		{
+			if (*lit < *rit)
+				return (true);
+			if (*lit > *rit)
+				return (false);
+			++lit;
+			++rit;
+		}
+		if (rit == rhs.end())
+			return (false)
+		return (true);
 	};
 
 	template	<typename Tp>
