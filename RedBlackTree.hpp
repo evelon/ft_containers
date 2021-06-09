@@ -465,7 +465,7 @@ namespace	ft
 
 	public:
 		RedBlackTree(
-
+			value_compare const& comp = value_compare(),
 			allocator_type const& alloc = allocator_type(),
 			node_allocator_type_ const& node_alloc = node_allocator_type_()):
 			comp(Compare()),
@@ -512,21 +512,21 @@ namespace	ft
 		};
 
 		iterator	begin(void)
-		{ return (iterator(superRoot_).toLeftMost()); };
+			{ return (iterator(superRoot_).toLeftMost()); };
 		const_iterator	begin(void) const
-		{ return (const_iterator(superRoot_).toLeftMost()); };
+			{ return (const_iterator(superRoot_).toLeftMost()); };
 		iterator	end(void)
-		{ return (iterator(superRoot_)); };
+			{ return (iterator(superRoot_)); };
 		const_iterator	end(void) const
-		{ return (const_iterator(superRoot_)); };
+			{ return (const_iterator(superRoot_)); };
 		reverse_iterator	rbegin(void)
-		{ return (reverse_iterator(iterator(superRoot_))); };
+			{ return (reverse_iterator(iterator(superRoot_))); };
 		const_reverse_iterator	rbegin(void) const
-		{ return (const_reverse_iterator(const_iterator(superRoot_))); };
+			{ return (const_reverse_iterator(const_iterator(superRoot_))); };
 		reverse_iterator	rend(void)
-		{ return (reverse_iterator(iterator(superRoot_).toLeftMost())); };
+			{ return (reverse_iterator(iterator(superRoot_).toLeftMost())); };
 		const_reverse_iterator	rend(void) const
-		{ return (const_reverse_iterator(const_iterator(superRoot_).toLeftMost())); };
+			{ return (const_reverse_iterator(const_iterator(superRoot_).toLeftMost())); };
 
 		bool	empty(void) const
 		{ return (!size_); };
