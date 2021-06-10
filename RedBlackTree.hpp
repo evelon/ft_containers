@@ -238,14 +238,14 @@ namespace	ft
 		typedef size_t											size_type;
 
 	private:
-		Compare					comp;
+		Compare					comp_;
 		allocator_type			alloc_;
 		node_allocator_type_	nodeAlloc_;
 		node_*					superRoot_;
 		size_type				size_;
 
 		bool	equal(value_type const& x, value_type const& y)
-		{ return (!comp(x, y) && !comp(y, x)); };
+		{ return (!comp_(x, y) && !comp_(y, x)); };
 
 		node_*&	getRoot(void)
 		{ return (superRoot_->child[LEFT]); };
@@ -253,6 +253,8 @@ namespace	ft
 		{
 			superRoot_->child[LEFT] = node;
 			superRoot_->child[RIGHT] = node;
+			if (node)
+				node->parent = superRoot_;
 		}
 		// Recursively copy tree.
 		void	copyTree(node_*& this_node, node_* const& that_node)
@@ -334,7 +336,7 @@ namespace	ft
 			while (node_next)
 			{
 				parent_node = node_next;
-				if (comp(node_next->content, val))
+				if (comp_(node_next->content, val))
 				{
 					node_next = node_next->child[RIGHT];
 					pos = RIGHT;
@@ -430,9 +432,10 @@ namespace	ft
 		{
 			if (node->child[LEFT] && node->child[RIGHT])
 			{
-				iterator	successor = ++iterator(node);
-				node->content = *successor;
-				deleteNode(successor.getNode());
+				node_*	next_node = (++iterator(node)).getNode();
+				alloc_.destroy(&node->content);
+				alloc_.construct(&node->content, next_node->content);
+				deleteNode(next_node);
 				return ;
 			}
 			node_*	only_child = node->child[LEFT] ? node->child[LEFT] : node->child[RIGHT];
@@ -440,7 +443,14 @@ namespace	ft
 			bool	position;
 			if (only_child)
 				only_child->parent = parent;
-			if (IDENTIFY(node, RIGHT))
+			if (IS_ROOT(node))
+			{
+				setRoot(only_child);
+				if (COLOR(only_child) == RED)
+					only_child->color = BLACK;
+				return ;
+			}
+			else if (IDENTIFY(node, RIGHT))
 			{
 				position = RIGHT;
 				parent->child[RIGHT] = only_child;
@@ -468,7 +478,7 @@ namespace	ft
 			value_compare const& comp = value_compare(),
 			allocator_type const& alloc = allocator_type(),
 			node_allocator_type_ const& node_alloc = node_allocator_type_()):
-			comp(Compare()),
+			comp_(comp),
 			alloc_(alloc),
 			nodeAlloc_(node_alloc),
 			size_(0)
@@ -479,7 +489,7 @@ namespace	ft
 			superRoot_->color = RED;
 		};
 		RedBlackTree(tree_ const& tree):
-			comp(Compare()),
+			comp_(tree.comp_),
 			alloc_(tree.alloc_),
 			nodeAlloc_(tree.nodeAlloc_),
 			size_(tree.size_)
@@ -529,9 +539,9 @@ namespace	ft
 			{ return (const_reverse_iterator(const_iterator(superRoot_).toLeftMost())); };
 
 		bool	empty(void) const
-		{ return (!size_); };
+			{ return (!size_); };
 		size_type	size(void) const
-		{ return (size_); };
+			{ return (size_); };
 		size_type	max_size(void) const
 		{
 			if (nodeAlloc_.max_size() < std::numeric_limits<size_type>::max())
@@ -605,7 +615,7 @@ namespace	ft
 			{
 				if (equal(node->content, val))
 					break ;
-				if (comp(node->content, val))
+				if (comp_(node->content, val))
 					node = node->child[RIGHT];
 				else
 					node = node->child[LEFT];
@@ -626,7 +636,7 @@ namespace	ft
 			{
 				if (equal(node->content, val))
 					break ;
-				if (comp(node->content, val))
+				if (comp_(node->content, val))
 					node = node->child[RIGHT];
 				else
 					node = node->child[LEFT];
@@ -652,7 +662,7 @@ namespace	ft
 		iterator	lower_bound(value_type const& val)
 		{
 			iterator	it = begin();
-			while (comp(*it, val) && it != end())
+			while (comp_(*it, val) && it != end())
 				it++;
 			return (it);
 		};
@@ -664,7 +674,7 @@ namespace	ft
 		iterator	upper_bound(value_type const& val)
 		{
 			iterator	it = begin();
-			while (!comp(val, *it) && it != end())
+			while (!comp_(val, *it) && it != end())
 				it++;
 			return (it);
 		};
@@ -684,12 +694,12 @@ namespace	ft
 	{
 		if (lhs.size() != rhs.size())
 			return (false);
-		RedBlackTree<Tp, Compare, Alloc>::const_iterator	lit = lhs.begin();
-		RedBlackTree<Tp, Compare, Alloc>::const_iterator	rit = lhs.begin();
+		typename RedBlackTree<Tp, Compare, Alloc>::const_iterator	lit = lhs.begin();
+		typename RedBlackTree<Tp, Compare, Alloc>::const_iterator	rit = lhs.begin();
 		while (lit != lhs.end())
 		{
 			if (!(*lit == *rit))
-				return (false)
+				return (false);
 			lit++;
 			rit++;
 		}
@@ -699,8 +709,8 @@ namespace	ft
 	template	<typename Tp, class Compare, class Alloc>
 	bool	operator<(RedBlackTree<Tp, Compare, Alloc> const& lhs, RedBlackTree<Tp, Compare, Alloc> const& rhs)
 	{
-		RedBlackTree<Tp, Compare, Alloc>::const_iterator	lit = lhs.begin();
-		RedBlackTree<Tp, Compare, Alloc>::const_iterator	rit = lhs.begin();
+		typename RedBlackTree<Tp, Compare, Alloc>::const_iterator	lit = lhs.begin();
+		typename RedBlackTree<Tp, Compare, Alloc>::const_iterator	rit = lhs.begin();
 		while (lit != lhs.end())
 		{
 			if (*lit < *rit)
@@ -711,7 +721,7 @@ namespace	ft
 			++rit;
 		}
 		if (rit == rhs.end())
-			return (false)
+			return (false);
 		return (true);
 	};
 
@@ -759,7 +769,7 @@ namespace	ft
 			ptrToNode_(iter.ptrToNode_) {};
 		TreeIterator(node* const& node):
 			ptrToNode_(node) {};
-				template	<typename _Tp>
+		template	<typename _Tp>
 		TreeIterator(TreeIterator<_Tp> const& iter):
 			ptrToNode_(((iterator_*)(&iter))->ptrToNode_)
 		{
@@ -804,7 +814,7 @@ namespace	ft
 			return (*this);
 		};
 		reference	operator*(void)
-		{ return (this->ptrToNode_->content); };
+			{ return (this->ptrToNode_->content); };
 
 		template	<typename _Tp>
 		friend bool	operator==(iterator_ const& lhs, TreeIterator<_Tp> const& rhs)

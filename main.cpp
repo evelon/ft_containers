@@ -17,9 +17,10 @@ int	main()
 	map2.insert(std::pair<char, int>('a', 3));
 	map2.insert(std::pair<char, int>('b', 4));
 	map2.insert(std::pair<char, int>('d', 5));
+	map1['a'] = 4;
 
 	for (std::map<char, int>::iterator it = map1.begin(); it != map1.end(); it++)
-		std::cout << *it << std::endl;
+		std::cout << (*it).first << ": " << (*it).second << std::endl;
 
 	std::cout << '\n';
 

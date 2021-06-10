@@ -1,4 +1,4 @@
-#include "RedBlackTree.hpp"
+#include "map.hpp"
 #include "list.hpp"
 #include <iostream>
 #include <set>
@@ -24,98 +24,74 @@ int	main()
 {
 {
 	srand(time(NULL));
-	// NS::set<int>	intset;
-	// intset.insert(rand()%100);
-	// intset.insert(rand()%100);
-	// intset.insert(rand()%100);
-	// intset.insert(rand()%100);
-	// intset.insert(rand()%100);
-	// intset.insert(rand()%100);
 
-	// for (NS::set<int>::iterator it = intset.begin(); it != intset.end(); ++it)
-	// 	std::cout << *it << std::endl;
-	// NS::set<int>::reverse_iterator	it = intset.rend();
-	// std::cout << *(--it) << std::endl;
 
-	int	arr[] = {rand() % 50, rand() % 50, rand() % 50, rand() % 50, rand() % 50, rand() % 50};
-	ft::list<int>			lst;
+	int	arr[] = {rand() % 26 + 'a', rand() % 26 + 'a', rand() % 26 + 'a', rand() % 26 + 'a', rand() % 26 + 'a', rand() % 26 + 'a'};
+	ft::list<ft::pair<char, int> >	lst;
 	for (size_t i = 0; i < 6; ++i)
-		lst.push_back(arr[i]);
-	ft::RedBlackTree<int>	tree;
-
-	// int	a;
-	// std::cout << (a = rand() % 50) << std::endl;
-	// tree.insert(a, false);
-	// for (ft::RedBlackTree<int>::iterator it = tree.begin(); it != tree.end(); ++it)
-	// 	std::cout << *it << ' ';
-	// std::cout << '\n';
+		lst.push_back(ft::make_pair(arr[i], rand() % 50));
+	ft::map<char, int>	map;
 
 
-	tree.insert(lst.begin(), lst.end(), true);
+	map.insert(lst.begin(), lst.end());
 
-	tree.insert(30, true);
-	tree.insert(7, true);
-	tree.insert(20, true);
-	tree.insert(77, true);
-	tree.insert(83, true);
-	tree.insert(45, true);
-	tree.insert(94, true);
-
-	tree.insert(5, true);
-	tree.insert(3, true);
-	tree.insert(4, true);
-	tree.insert(1, true);
+	map.insert(ft::make_pair(rand() % 26 + 'a', rand() % 50));
+	map.insert(ft::make_pair(rand() % 26 + 'a', rand() % 50));
+	map.insert(ft::make_pair(rand() % 26 + 'a', rand() % 50));
+	map.insert(ft::make_pair(rand() % 26 + 'a', rand() % 50));
+	map.insert(ft::make_pair(rand() % 26 + 'a', rand() % 50));
+	map.insert(ft::make_pair(rand() % 26 + 'a', rand() % 50));
+	map.insert(ft::make_pair(rand() % 26 + 'a', rand() % 50));
+	map.insert(ft::make_pair(rand() % 26 + 'a', rand() % 50));
+	map.insert(ft::make_pair(rand() % 26 + 'a', rand() % 50));
+	map.insert(ft::make_pair(rand() % 26 + 'a', rand() % 50));
+	map.insert(ft::make_pair(rand() % 26 + 'a', rand() % 50));
+	map.insert(ft::make_pair(rand() % 26 + 'a', rand() % 50));
 
 	std::cout << std::endl;
 
-	int	prev = 0;
-	int count = 0;
-	for (ft::RedBlackTree<int>::iterator it = tree.begin();
-		it != tree.end();
+	char	prev = 0;
+	int		count = 0;
+	for (ft::map<char, int>::iterator it = map.begin();
+		it != map.end();
 		++it)
 	{
-		std::cout << *it;
+		std::cout << (*it).first << ": " << (*it).second;
 		++count;
-		if (*it < prev)
+		if ((*it).first < prev)
 			std::cout << " WRONG!!" << std::endl;
 		else
 			std::cout << std::endl;
-		prev = *it;
+		prev = (*it).first;
+		if (count == 18)
+			break ;
 	}
-	std::cout << '\n' << count << ' ' << tree.size() << '\n';
 
-	std::cout << tree.erase(arr[0]);
-	std::cout << tree.erase(arr[1]);
-	std::cout << tree.erase(arr[2]);
-	std::cout << tree.erase(arr[3]);
-	std::cout << tree.erase(arr[4]);
-	std::cout << tree.erase(arr[5]) << std::endl;
+	std::cout << '\n' << count << ' ' << map.size() << '\n';
+
+	std::cout << map.erase(arr[0]);
+	std::cout << map.erase(arr[1]);
+	std::cout << map.erase(arr[2]);
+	std::cout << map.erase(arr[3]);
+	std::cout << map.erase(arr[4]);
+	std::cout << map.erase(arr[5]) << std::endl;
 
 	prev = 0;
 	count = 0;
-	for (ft::RedBlackTree<int>::iterator it = tree.begin();
-		it != tree.end();
+	for (ft::map<char, int>::iterator it = map.begin();
+		it != map.end();
 		++it)
 	{
-		std::cout << *it;
+		std::cout << (*it).first << ": " << (*it).second;
 		++count;
-		if (*it < prev)
+		if ((*it).first < prev)
 			std::cout << " WRONG!!" << std::endl;
 		else
 			std::cout << std::endl;
-		prev = *it;
+		prev = (*it).first;
 	}
-	std::cout << '\n' << count << ' ' << tree.size();
-	// ft::RedBlackTree<int>::iterator it = tree.begin();
-	// std::cout << *it << std::endl;
-	// ++it;
-	// std::cout << *it << std::endl;
-	// ++it;
-	// std::cout << *it << std::endl;
-	// ++it;
-	// std::cout << *it << std::endl;
-	// ++it;
-	// std::cout << *it << std::endl;
+	std::cout << '\n' << count << ' ' << map.size();
+
 }
-	// system("leaks a.out >> leaks");
+
 }
