@@ -1,28 +1,44 @@
-#include "list.hpp"
-#include "vector.hpp"
-
-#include <iostream>
+#include "map.hpp"
 #include <list>
-#include <map>
 
-int	main()
+#define TESTED_NAMESPACE ft
+#define T1 int
+#define T2 int
+typedef ft::pair<const T1, T2> T3;
+
+template <typename T>
+std::string	printPair(const T &iterator, bool nl = true, std::ostream &o = std::cout)
 {
-	std::map<char, int>	map1;
-	std::map<char, int>	map2;
+	o << "key: " << iterator->first << " | value: " << iterator->second;
+	if (nl)
+		o << std::endl;
+	return ("");
+}
 
-	map1.insert(std::pair<char, int>('a', 3));
-	map1.insert(std::pair<char, int>('c', 4));
-	map1.insert(std::pair<char, int>('d', 5));
+int		main(void)
+{
+	std::list<T3> lst;
+	unsigned int lst_size = 7;
+	for (unsigned int i = 0; i < lst_size; ++i)
+		lst.push_back(T3(lst_size - i, i));
 
-	map2.insert(std::pair<char, int>('a', 3));
-	map2.insert(std::pair<char, int>('b', 4));
-	map2.insert(std::pair<char, int>('d', 5));
-	map1['a'] = 4;
+	TESTED_NAMESPACE::map<T1, T2> mp(lst.begin(), lst.end());
+	TESTED_NAMESPACE::map<T1, T2>::iterator it = mp.begin(), ite = mp.end();
 
-	for (std::map<char, int>::iterator it = map1.begin(); it != map1.end(); it++)
-		std::cout << (*it).first << ": " << (*it).second << std::endl;
+	TESTED_NAMESPACE::map<T1, T2> mp_range(it, --(--ite));
+	for (int i = 0; it != ite; ++it)
+		it->second = ++i * 5;
 
-	std::cout << '\n';
-
-	std::cout << (map1 == map2) << std::endl;
+	it = mp.begin(); ite = --(--mp.end());
+	TESTED_NAMESPACE::map<T1, T2> mp_copy(mp);
+	for (int i = 0; it != ite; ++it)
+		it->second = ++i * 7;
+{
+	std::cout << "size: " << mp.size() << std::endl;
+	std::cout << "max_size: " << mp.max_size() << std::endl;
+	TESTED_NAMESPACE::map<T1, T2>::const_iterator it = mp.begin(), ite = mp.end();
+	std::cout << std::endl << "Content is:" << std::endl;
+	for (; it != ite; ++it)
+		std::cout << "- " << printPair(it, false) << std::endl;
+}
 }

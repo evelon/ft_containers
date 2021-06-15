@@ -18,7 +18,7 @@ namespace	ft
 		pair(const first_type& a, const second_type& b): first(a), second(b) {};
 
 		pair&	operator=(pair const& pr)
-			{ first = pr.first; second = pr.second; };
+			{ first = pr.first; second = pr.second; return (*this); };
 	};
 
 	template	<class T1, class T2>

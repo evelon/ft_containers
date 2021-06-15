@@ -76,7 +76,7 @@ namespace	ft
 			allocator_type const& alloc = allocator_type()):
 			tree_(value_compare(comp), alloc)
 		{
-			tree_.insert(first, last);
+			tree_.insert(first, last, true);
 		};
 		map(map const& x):
 			tree_(x.tree_)
@@ -137,7 +137,7 @@ namespace	ft
 		key_compare	key_comp() const
 			{ return (key_compare()); };
 		value_compare	value_comp() const
-			{ return (value_compare()); };
+			{ return (value_compare(tree_.value_comp())); };
 		iterator	find(key_type const& k)
 			{ return (iterator(tree_.find(make_pair(k, mapped_type())))); };
 		const_iterator	find(key_type const& k) const
@@ -155,14 +155,14 @@ namespace	ft
 		pair<iterator,iterator>	equal_range(const key_type& k)
 			{ return (pair<iterator, iterator>(lower_bound(k), upper_bound(k))); };
 		pair<const_iterator,const_iterator>	equal_range(const key_type& k) const
-			{ return (pair<const iterator, const iterator>(lower_bound(k), upper_bound(k))); };
+			{ return (pair<const_iterator, const_iterator>(lower_bound(k), upper_bound(k))); };
 
 		allocator_type get_allocator() const
 			{ return (allocator_type()); };
 	};
 
 	template	<typename Pair>
-	class	map_iterator : protected TreeIterator<Pair>
+	class	map_iterator : public TreeIterator<Pair>
 	{
 	private:
 		typedef map_iterator<Pair>		iterator_;
@@ -200,14 +200,14 @@ namespace	ft
 		{
 			*static_cast<parent_*>(this) = static_cast<parent_>(iter);
 			return (*this);
-		}
+		};
 		reference	operator*(void)
-			{ return (**(static_cast<parent_*>(this))); };
+			{ return (*(static_cast<parent_>(*this))); };
 		iterator_&	operator++(void)
 		{
 			++(*static_cast<parent_*>(this));
 			return (*this);
-		}
+		};
 		iterator_	operator++(int)
 		{
 			iterator_	temp = *this;
@@ -218,7 +218,7 @@ namespace	ft
 		{
 			--(*static_cast<parent_*>(this));
 			return (*this);
-		}
+		};
 		iterator_	operator--(int)
 		{
 			iterator_	temp = *this;
@@ -226,12 +226,12 @@ namespace	ft
 			return (temp);
 		};
 		pointer		operator->(void) const
-			{ return (&**this); };
+			{ return (&(*(static_cast<parent_>(*this)))); };
 
-		template	<typename P, typename _P>
-		friend bool	operator==(map_iterator<P> const& lhs, map_iterator<_P> const& rhs)
+		template	<typename P>
+		friend bool	operator==(iterator_ const& lhs, map_iterator<P> const& rhs)
 		{
-			return (*static_cast<const TreeIterator<P>*>(&lhs) == *static_cast<const TreeIterator<_P>*>(&rhs));
+			return (*static_cast<const parent_*>(&lhs) == *static_cast<const TreeIterator<P>*>(&rhs));
 		};
 	};
 
