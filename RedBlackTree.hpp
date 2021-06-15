@@ -293,7 +293,6 @@ namespace	ft
 		// Recursively copy tree from another tree. minimizing allocation.
 		void	assignTree(node_*& this_node, node_* const& that_node)
 		{
-	std::cout << ">>>>>>>>check" << std::endl;
 			alloc_.construct(&this_node->content, that_node->content);
 			this_node->color = that_node->color;
 			for (int pos = LEFT; pos <= RIGHT; pos++)
@@ -444,14 +443,22 @@ namespace	ft
 		{
 			if (node->child[LEFT] && node->child[RIGHT])
 			{
-				node_*	next_node = (++iterator(node)).getNode();
+				node_*	next_node = iterator(node->child[RIGHT]).toLeftMost().getNode();
 
 				node_	temp = *node;
+				if (IS_ROOT(node))
+					setRoot(next_node);
+				else
+					node->parent->child[POSITION(node)] = next_node;
+				if (next_node->parent == node)
+					next_node->child[POSITION(next_node)] = node;
+				else
+					next_node->parent->child[POSITION(next_node)] = node;
+				next_node->parent = temp.parent;
 				node->parent = next_node->parent;
 				node->child[LEFT] = next_node->child[LEFT];
 				node->child[RIGHT] = next_node->child[RIGHT];
 				node->color = next_node->color;
-				next_node->parent = temp.parent;
 				next_node->child[LEFT] = temp.child[LEFT];
 				next_node->child[RIGHT] = temp.child[RIGHT];
 				next_node->color = temp.color;
@@ -468,6 +475,9 @@ namespace	ft
 				setRoot(only_child);
 				if (COLOR(only_child) == RED)
 					only_child->color = BLACK;
+				alloc_.destroy(&node->content);
+				nodeAlloc_.deallocate(node, 1);
+				--size_;
 				return ;
 			}
 			else if (IDENTIFY(node, RIGHT))
@@ -534,7 +544,7 @@ namespace	ft
 		{
 			if (tree.getRoot() != NULL)
 			{
-				if (this->getRoot() != NULL)
+				if (this->getRoot() == NULL)
 					this->setRoot(nodeAlloc_.allocate(1));
 				else
 					alloc_.destroy(&this->getRoot()->content);
@@ -721,6 +731,17 @@ namespace	ft
 			{ return (pair<iterator, iterator>(lower_bound(val), upper_bound(val))); };
 		pair<const_iterator, const_iterator>	equal_range(value_type const& val) const
 			{ return (pair<const_iterator, const_iterator>(lower_bound(val), upper_bound(val))); };
+
+
+		void	iterate(void)
+		{
+			for (iterator it = begin(); it != end(); ++it)
+			{
+				if (it.getNode() == it.getNode()->child[LEFT] || it.getNode() == it.getNode()->child[RIGHT])
+					std::cout << ":::::::::::::::::::::::::::::" << std::endl;
+				std::cout << (*it).first << ":: " << (*it).second << std::endl;
+			}
+		}
 	};
 
 	template	<typename Tp, class Compare, class Alloc>

@@ -67,11 +67,16 @@ int	main()
 			break ;
 	}
 
+	map.iterate();
+
 	std::cout << '\n' << count << ' ' << map.size() << '\n';
 
 	std::cout << map.erase(arr[0]);
+	map.iterate();
 	std::cout << map.erase(arr[1]);
+	map.iterate();
 	std::cout << map.erase(arr[2]);
+	map.iterate();
 	std::cout << map.erase(arr[3]);
 	std::cout << map.erase(arr[4]);
 	std::cout << map.erase(arr[5]) << std::endl;

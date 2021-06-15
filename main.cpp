@@ -15,6 +15,21 @@ std::string	printPair(const T &iterator, bool nl = true, std::ostream &o = std::
 	return ("");
 }
 
+template <typename T_MAP>
+void	printSize(T_MAP const &mp, bool print_content = 1)
+{
+	std::cout << "size: " << mp.size() << std::endl;
+	std::cout << "max_size: " << mp.max_size() << std::endl;
+	if (print_content)
+	{
+		typename T_MAP::const_iterator it = mp.begin(), ite = mp.end();
+		std::cout << std::endl << "Content is:" << std::endl;
+		for (; it != ite; ++it)
+			std::cout << "- " << printPair(it, false) << std::endl;
+	}
+	std::cout << "###############################################" << std::endl;
+}
+
 int		main(void)
 {
 	std::list<T3> lst;
@@ -33,12 +48,19 @@ int		main(void)
 	TESTED_NAMESPACE::map<T1, T2> mp_copy(mp);
 	for (int i = 0; it != ite; ++it)
 		it->second = ++i * 7;
-{
-	std::cout << "size: " << mp.size() << std::endl;
-	std::cout << "max_size: " << mp.max_size() << std::endl;
-	TESTED_NAMESPACE::map<T1, T2>::const_iterator it = mp.begin(), ite = mp.end();
-	std::cout << std::endl << "Content is:" << std::endl;
-	for (; it != ite; ++it)
-		std::cout << "- " << printPair(it, false) << std::endl;
-}
+	std::cout << "\t-- PART ONE --" << std::endl;
+	printSize(mp);
+	printSize(mp_range);
+	printSize(mp_copy);
+
+	mp = mp_copy;
+	printSize(mp_copy);
+	mp_copy = mp_range;
+	mp_range.clear();
+
+	std::cout << "\t-- PART TWO --" << std::endl;
+	printSize(mp);
+	printSize(mp_range);
+	printSize(mp_copy);
+	return (0);
 }

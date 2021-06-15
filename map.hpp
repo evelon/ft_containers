@@ -159,6 +159,13 @@ namespace	ft
 
 		allocator_type get_allocator() const
 			{ return (allocator_type()); };
+
+
+
+		void	iterate(void)
+		{
+			tree_.iterate();
+		}
 	};
 
 	template	<typename Pair>
