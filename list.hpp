@@ -270,10 +270,10 @@ namespace	ft
 
 		// Returns a reverse iterator pointing to the element preceding the first element in the list container.
 		reverse_iterator		rend(void)
-			{ return (reverse_iterator(node_iterator(blank_node_))); };
+			{ return (reverse_iterator(node_iterator(blank_node_->getNext()))); };
 		// Returns a const reverse iterator pointing to the element preceding the first element in the list container.
 		const_reverse_iterator	rend(void) const
-			{ return (const_reverse_iterator(node_iterator(blank_node_))); };
+			{ return (const_reverse_iterator(node_iterator(blank_node_->getNext()))); };
 
 		// Returns whether the list container is empty.
 		bool			empty(void) const

@@ -91,11 +91,12 @@ namespace	ft
 		size_type const*	size_;
 		difference_type		offset_;
 
-		vector_iterator(reverse_iterator<iterator>) {};
 
 	protected:
 		reference	reverse_reference(void)
 		{ return (*(*head_ + offset_ - 1)); };
+
+		// vector_iterator(reverse_iterator<iterator>) {}; TODO
 
 		vector_iterator(pointer* const& head, size_type const& size, difference_type offset):
 			head_(head),
@@ -311,6 +312,9 @@ namespace	ft
 	protected:
 		reference	reverse_reference(void)
 			{ return (internal_reference(head_, offset_ - 1)); };
+
+		// bit_iterator(reverse_iterator<iterator>):
+		// 	 {}; TODO
 
 		bit_iterator(storage_ptr_* const& head, size_type const& size, difference_type offset):
 			head_(head),

@@ -6,7 +6,7 @@ namespace	ft
 	// operator "<" and operator "==" defines everything else
 
 	template	<typename T>
-	bool operator!=(T const& l, T const& r)
+	bool	operator!=(T const& l, T const& r)
 		{ return (!(l == r)); }
 
 	template	<typename T>
@@ -22,7 +22,7 @@ namespace	ft
 		{ return !(l < r); }
 
 	template	<typename T, typename U>
-	bool operator!=(T const& l, U const& r)
+	bool	operator!=(T const& l, U const& r)
 		{ return (!(l == r)); }
 
 	template	<typename T, typename U>

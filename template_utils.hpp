@@ -209,5 +209,14 @@ namespace	ft
 		bool	operator()(Tp const& x, Tp const& y) const
 			{ return (x < y); };
 	};
+
+	// has type if N is B is true
+	template	<typename N, bool B>
+	struct	type_reflection
+	{};
+
+	template	<typename N>
+	struct	type_reflection<N, true>
+	{ typedef N	type; };
 }
 #endif

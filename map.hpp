@@ -92,13 +92,13 @@ namespace	ft
 		const_iterator	end(void) const
 			{ return (const_iterator(tree_.end())); };
 		reverse_iterator	rbegin(void)
-			{ return (reverse_iterator(tree_.rbegin())); };
+			{ return (reverse_iterator(iterator(tree_.rbegin()))); };
 		const_reverse_iterator	rbegin(void) const
-			{ return (const_reverse_iterator(tree_.rbegin())); };
+			{ return (const_reverse_iterator(iterator(tree_.rbegin()))); };
 		reverse_iterator	rend(void)
-			{ return (reverse_iterator(tree_.rend())); };
+			{ return (reverse_iterator(iterator(tree_.rend()))); };
 		const_reverse_iterator	rend(void) const
-			{ return (const_reverse_iterator(tree_.rend())); };
+			{ return (const_reverse_iterator(iterator(tree_.rend()))); };
 		bool	empty(void) const
 			{ return (tree_.empty()); };
 		size_type	size(void) const
@@ -174,12 +174,6 @@ namespace	ft
 		typedef map_iterator<Pair>		iterator_;
 		typedef TreeIterator<Pair>		parent_;
 
-	protected:
-		template	<typename _Pair>
-		void	is_compatible(map_iterator<_Pair> const&,
-		typename enable_if<is_const_same<_Pair, Pair>::value>::type* = 0) const
-		{};
-
 	public:
 		typedef typename parent_::iterator_category		iterator_category;
 		typedef typename parent_::value_type			value_type;
@@ -187,8 +181,22 @@ namespace	ft
 		typedef typename parent_::pointer				pointer;
 		typedef typename parent_::difference_type		difference_type;
 
-	private:
-		map_iterator(reverse_iterator<iterator_>) {};
+	protected:
+		template	<typename _Pair>
+		void	is_compatible(map_iterator<_Pair> const&,
+		typename enable_if<is_const_same<_Pair, Pair>::value>::type* = 0) const
+		{};
+
+		reference	reverse_reference(void)
+		{
+			iterator_ rev = --(*this);
+			return (*rev);
+		};
+		reference	reverse_reference(void) const
+		{
+			iterator_ rev = --(*this);
+			return (*rev);
+		};
 
 	public:
 		map_iterator(parent_ const& p):
@@ -208,6 +216,8 @@ namespace	ft
 			return (*this);
 		};
 		reference	operator*(void)
+			{ return (*(static_cast<parent_>(*this))); };
+		reference	operator*(void) const
 			{ return (*(static_cast<parent_>(*this))); };
 		iterator_&	operator++(void)
 		{

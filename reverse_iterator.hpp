@@ -66,8 +66,9 @@ namespace	ft
 		};
 		iterator_type	base(void) const
 			{ iterator_type temp(*this); return (temp); };
-
 		reference	operator*(void)
+			{ return (this->reverse_reference()); };
+		reference	operator*(void) const
 			{ return (this->reverse_reference()); };
 		reverse_iterator	operator+(int op) const
 			{ return (reverse_iterator(((iterator_type*)this)->operator-(op))); };
@@ -102,13 +103,21 @@ namespace	ft
 			{ ((iterator_type*)this)->operator+=(op); return (*this); };
 		pointer		operator->(void)
 			{ return (&operator*()); };
+		pointer		operator->(void) const
+			{ return (&operator*()); };
 		reference	operator[](int ind)
+			{ return (*(*this + ind)); };
+		reference	operator[](int ind) const
 			{ return (*(*this + ind)); };
 	};
 
 	template	<class Iterator>
 	bool	operator==(const reverse_iterator<Iterator>& lhs, const reverse_iterator<Iterator>& rhs)
 		{ return (static_cast<Iterator>(lhs) == static_cast<Iterator>(rhs)); };
+
+	template	<class Iterator>
+	bool	operator!=(const reverse_iterator<Iterator>& lhs, const reverse_iterator<Iterator>& rhs)
+		{ return (static_cast<Iterator>(lhs) != static_cast<Iterator>(rhs)); };
 
 	template	<class Iterator>
 	bool	operator<(const reverse_iterator<Iterator>& lhs, const reverse_iterator<Iterator>& rhs)

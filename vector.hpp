@@ -375,7 +375,7 @@ namespace	ft
 			if (position < begin() || position > end())
 				return ;
 			int	diff = 0;
-			for (InputIterator it = first; it != last; it++)
+			for (InputIterator it = first; ft::operator!=(it, last); it++)
 				diff++;
 			if (size_ + diff > capacity_)
 			{
@@ -395,7 +395,7 @@ namespace	ft
 				*it = *(it - diff);
 				it--;
 			}
-			for (; first != last; first++)
+			for (; ft::operator!=(first, last); first++)
 				*(position++) = *first;
 			size_ += diff;
 		};

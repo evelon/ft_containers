@@ -42,6 +42,9 @@ namespace	ft
 	template	<typename Tp, typename _Tp>
 	bool	operator==(TreeIterator<Tp> const& lhs, TreeIterator<_Tp> const& rhs);
 
+	template	<typename Tp, typename N>
+	bool	operator==(TreeIterator<Tp> const& lhs, N const& rhs);
+
 	template	<typename Tp, class Alloc>
 	struct	RedBlackTreeNode
 	{
@@ -839,17 +842,31 @@ namespace	ft
 	private:
 		node*				ptrToNode_;
 
-		TreeIterator(reverse_iterator<iterator_>) {};
 		template	<typename value_type, typename, typename>
 		friend class RedBlackTree;
 
 	protected:
+
+		template	<typename _Tp>
+		void	is_compatible(TreeIterator<_Tp> const&,
+		typename enable_if<is_const_same<Tp, _Tp>::value>::type* = 0) const
+		{};
+
 		TreeIterator(node* const& node):
 			ptrToNode_(node) {};
 
 		reference	reverse_reference(void)
 		{
 			iterator_ rev = --(*this);
+			if (rev != NULL)
+				return (rev.ptrToNode_->content);
+			while (rev.ptrToNode_->parent)
+				rev.ptrToNode_ = rev.ptrToNode_->parent;
+			return (rev.ptrToNode_->content);
+		};
+		reference	reverse_reference(void) const
+		{
+			iterator_ rev = --(*const_cast<iterator_*>(this));
 			if (rev != NULL)
 				return (rev.ptrToNode_->content);
 			while (rev.ptrToNode_->parent)
@@ -914,6 +931,13 @@ namespace	ft
 			typename enable_if<is_const_same<_Tp, Tp>::value>::type*	dummy;
 			(void)dummy;
 			return (lhs.ptrToNode_ == ((iterator_*)(&rhs))->ptrToNode_);
+		};
+		template	<typename N>
+		friend bool	operator==(iterator_ const& lhs, N const& rhs)
+		{
+			typename enable_if<is_integral<N>::value>::type*	dummy;
+			(void)dummy;
+			return ((lhs.ptrToNode_ == NULL) && (rhs == 0));
 		};
 		iterator_&	operator++(void)
 		{
