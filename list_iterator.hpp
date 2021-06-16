@@ -39,7 +39,7 @@ namespace	ft
 		static value_type					default_value_;
 		node*								ptrToNode_;
 
-		list_iterator(reverse_iterator<iterator_>) {};
+		// list_iterator(reverse_iterator<iterator_>) {};
 
 	protected:
 		list_iterator(node* nod):

@@ -6,6 +6,7 @@
 # include "pair.hpp"
 # include "iterator.hpp"
 # include "reverse_iterator.hpp"
+# include "relational_operator_impl.hpp"
 
 # define ROOT -1
 # define LEFT 0
@@ -58,13 +59,18 @@ namespace	ft
 
 		RedBlackTreeNode(node const& nod):
 			content(nod.content),
+			parent(nod.parent),
 			color(nod.color)
-		{};
+		{
+			this->child[LEFT] = nod.child[LEFT];
+			this->child[RIGHT] = nod.child[RIGHT];
+		};
 		~RedBlackTreeNode(void) {};
 		node&	operator=(node const& nod)
 		{
-			alloc.destroy(&this->content);
-			alloc.construct(&this->content, nod.content);
+			this->content = nod.content;
+			this->parent = nod.parent;
+			this->child = nod.child;
 			this->color = nod.color;
 			return (*this);
 		}
@@ -280,7 +286,7 @@ namespace	ft
 			}
 		};
 		// Recursively delete tree.
-		void	deleteTree(node_*& node)
+		void	deleteTree(node_* node)
 		{
 			if (node != NULL)
 			{
@@ -308,6 +314,8 @@ namespace	ft
 					{
 						this_node->child[pos] = nodeAlloc_.allocate(1);
 						this_node->child[pos]->parent = this_node;
+						this_node->child[pos]->child[LEFT] = NULL;
+						this_node->child[pos]->child[RIGHT] = NULL;
 					}
 					else
 						alloc_.destroy(&this_node->child[pos]->content);
@@ -444,24 +452,56 @@ namespace	ft
 			if (node->child[LEFT] && node->child[RIGHT])
 			{
 				node_*	next_node = iterator(node->child[RIGHT]).toLeftMost().getNode();
-
-				node_	temp = *node;
-				if (IS_ROOT(node))
-					setRoot(next_node);
-				else
-					node->parent->child[POSITION(node)] = next_node;
+				node_	temp = *next_node;
 				if (next_node->parent == node)
-					next_node->child[POSITION(next_node)] = node;
+				{
+					if (IS_ROOT(node))
+						setRoot(next_node);
+					else
+					{
+						node->parent->child[POSITION(node)] = next_node;
+						next_node->parent = node->parent;
+					}
+					next_node->child[LEFT] = node->child[LEFT];
+					next_node->child[LEFT]->parent = next_node;
+					next_node->child[RIGHT] = node;
+					next_node->color = node->color;
+					node->parent = next_node;
+					node->child[LEFT] = temp.child[LEFT];
+					if (node->child[LEFT])
+						node->child[LEFT]->parent = node;
+					node->child[RIGHT] = temp.child[RIGHT];
+					if (node->child[RIGHT])
+						node->child[RIGHT]->parent = node;
+					node->color = temp.color;
+				}
 				else
-					next_node->parent->child[POSITION(next_node)] = node;
-				next_node->parent = temp.parent;
-				node->parent = next_node->parent;
-				node->child[LEFT] = next_node->child[LEFT];
-				node->child[RIGHT] = next_node->child[RIGHT];
-				node->color = next_node->color;
-				next_node->child[LEFT] = temp.child[LEFT];
-				next_node->child[RIGHT] = temp.child[RIGHT];
-				next_node->color = temp.color;
+				{
+					if (IS_ROOT(node))
+						setRoot(next_node);
+					else
+					{
+						node->parent->child[POSITION(node)] = next_node;
+						next_node->parent = node->parent;
+					}
+					next_node->child[LEFT] = node->child[LEFT];
+					next_node->child[LEFT]->parent = next_node;
+					next_node->child[RIGHT] = node->child[RIGHT];
+					next_node->child[RIGHT]->parent = next_node;
+					next_node->color = node->color;
+					node->parent = temp.parent;
+					if (node->parent->child[LEFT] == next_node)
+						node->parent->child[LEFT] = node;
+					else
+						node->parent->child[RIGHT] = node;
+					node->child[LEFT] = temp.child[LEFT];
+					if (node->child[LEFT])
+						node->child[LEFT]->parent = node;
+					node->child[RIGHT] = temp.child[RIGHT];
+					if (node->child[RIGHT])
+						node->child[RIGHT]->parent = node;
+					node->color = temp.color;
+				}
 				deleteNode(node);
 				return ;
 			}
@@ -545,7 +585,13 @@ namespace	ft
 			if (tree.getRoot() != NULL)
 			{
 				if (this->getRoot() == NULL)
-					this->setRoot(nodeAlloc_.allocate(1));
+				{
+					node_*	node = nodeAlloc_.allocate(1);
+					node->child[LEFT] = NULL;
+					node->child[RIGHT] = NULL;
+					node->color = RED;
+					this->setRoot(node);
+				}
 				else
 					alloc_.destroy(&this->getRoot()->content);
 				assignTree(this->getRoot(), tree.getRoot());
@@ -731,17 +777,6 @@ namespace	ft
 			{ return (pair<iterator, iterator>(lower_bound(val), upper_bound(val))); };
 		pair<const_iterator, const_iterator>	equal_range(value_type const& val) const
 			{ return (pair<const_iterator, const_iterator>(lower_bound(val), upper_bound(val))); };
-
-
-		void	iterate(void)
-		{
-			for (iterator it = begin(); it != end(); ++it)
-			{
-				if (it.getNode() == it.getNode()->child[LEFT] || it.getNode() == it.getNode()->child[RIGHT])
-					std::cout << ":::::::::::::::::::::::::::::" << std::endl;
-				std::cout << (*it).first << ":: " << (*it).second << std::endl;
-			}
-		}
 	};
 
 	template	<typename Tp, class Compare, class Alloc>

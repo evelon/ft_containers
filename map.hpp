@@ -107,12 +107,12 @@ namespace	ft
 			{ return (tree_.max_size()); };
 
 		mapped_type&	operator[](key_type const& k)
-			{ return ((*((tree_.insert(make_pair(k, mapped_type()), true)).first)).second); };
+			{ return ((*((tree_.insert(ft::make_pair(k, mapped_type()), true)).first)).second); };
 
 		pair<iterator,bool>	insert(value_type const& val)
 		{
 			pair<TreeIterator<value_type>, bool>	temp = tree_.insert(val, true);
-			return (make_pair(iterator(temp.first), temp.second));
+			return (ft::make_pair(iterator(temp.first), temp.second));
 		};
 		iterator	insert(iterator position, value_type const& val)
 			{ return (tree_.insert(position, val, true)); };
@@ -122,7 +122,7 @@ namespace	ft
 		void	erase(iterator position)
 			{ tree_.erase(position); };
 		size_type	erase(const key_type& k)
-			{ return (tree_.erase(make_pair(k, mapped_type()))); };
+			{ return (tree_.erase(ft::make_pair(k, mapped_type()))); };
 		void	erase(iterator first, iterator last)
 			{ tree_.erase(first, last); };
 		void	swap(map& m)
@@ -139,19 +139,19 @@ namespace	ft
 		value_compare	value_comp() const
 			{ return (value_compare(tree_.value_comp())); };
 		iterator	find(key_type const& k)
-			{ return (iterator(tree_.find(make_pair(k, mapped_type())))); };
+			{ return (iterator(tree_.find(ft::make_pair(k, mapped_type())))); };
 		const_iterator	find(key_type const& k) const
-			{ return (const_iterator(tree_.find(make_pair(k, mapped_type())))); };
+			{ return (const_iterator(tree_.find(ft::make_pair(k, mapped_type())))); };
 		size_type	count(key_type const& k) const
-			{ return (tree_.count(make_pair(k, mapped_type()))); };
+			{ return (tree_.count(ft::make_pair(k, mapped_type()))); };
 		iterator	lower_bound(key_type const& k)
-			{ return (iterator(tree_.lower_bound(make_pair(k, mapped_type())))); };
+			{ return (iterator(tree_.lower_bound(ft::make_pair(k, mapped_type())))); };
 		const_iterator	lower_bound(key_type const& k) const
-			{ return (const_iterator(tree_.lower_bound(make_pair(k, mapped_type())))); };
+			{ return (const_iterator(tree_.lower_bound(ft::make_pair(k, mapped_type())))); };
 		iterator	upper_bound(key_type const& k)
-			{ return (iterator(tree_.upper_bound(make_pair(k, mapped_type())))); };
+			{ return (iterator(tree_.upper_bound(ft::make_pair(k, mapped_type())))); };
 		const_iterator	upper_bound(key_type const& k) const
-			{ return (const_iterator(tree_.upper_bound(make_pair(k, mapped_type())))); };
+			{ return (const_iterator(tree_.upper_bound(ft::make_pair(k, mapped_type())))); };
 		pair<iterator,iterator>	equal_range(const key_type& k)
 			{ return (pair<iterator, iterator>(lower_bound(k), upper_bound(k))); };
 		pair<const_iterator,const_iterator>	equal_range(const key_type& k) const
@@ -160,12 +160,11 @@ namespace	ft
 		allocator_type get_allocator() const
 			{ return (allocator_type()); };
 
+		friend bool	operator==(map const& lhs, map const& rhs)
+		{ return (lhs.tree_ == rhs.tree_); };
 
-
-		void	iterate(void)
-		{
-			tree_.iterate();
-		}
+		friend bool	operator<(map const& lhs, map const& rhs)
+		{ return (lhs.tree_ < rhs.tree_); };
 	};
 
 	template	<typename Pair>
