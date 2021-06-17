@@ -4,6 +4,10 @@
 # include "template_utils.hpp"
 # include "relational_operator_impl.hpp"
 
+
+#include <iostream>
+
+
 namespace	ft
 {
 	template	<typename Iterator>
@@ -121,7 +125,19 @@ namespace	ft
 
 	template	<class Iterator>
 	bool	operator<(const reverse_iterator<Iterator>& lhs, const reverse_iterator<Iterator>& rhs)
-		{ return (static_cast<Iterator>(rhs) < static_cast<Iterator>(lhs)); };
+		{ return (static_cast<Iterator>(lhs) < static_cast<Iterator>(rhs)); };
+
+	template	<class Iterator>
+	bool	operator<=(const reverse_iterator<Iterator>& lhs, const reverse_iterator<Iterator>& rhs)
+		{ return (static_cast<Iterator>(lhs) <= static_cast<Iterator>(rhs)); };
+
+	template	<class Iterator>
+	bool	operator>(const reverse_iterator<Iterator>& lhs, const reverse_iterator<Iterator>& rhs)
+		{ return (static_cast<Iterator>(lhs) > static_cast<Iterator>(rhs)); };
+
+	template	<class Iterator>
+	bool	operator>=(const reverse_iterator<Iterator>& lhs, const reverse_iterator<Iterator>& rhs)
+		{ return (static_cast<Iterator>(lhs) >= static_cast<Iterator>(rhs)); };
 
 	template	<class Iterator>
 	reverse_iterator<Iterator>	operator+(int n, reverse_iterator<Iterator> const& rev_it)
@@ -132,9 +148,16 @@ namespace	ft
 		const reverse_iterator<Iterator>& lhs,
 		const reverse_iterator<Iterator>& rhs)
 	{
-		typename reverse_iterator<Iterator>::difference_type \
-			diff = static_cast<Iterator>(rhs) - static_cast<Iterator>(lhs);
-		return (diff < 0 ? -diff : diff);
+		return (static_cast<Iterator>(rhs) - static_cast<Iterator>(lhs));
+	};
+
+	template	<class It, class _It>
+	typename reverse_iterator<It>::difference_type operator-(
+		const reverse_iterator<It>& lhs,
+		const reverse_iterator<_It>& rhs)
+	{
+
+		return (static_cast<Iterator>(rhs) - static_cast<Iterator>(lhs));
 	};
 
 	template	<class Iterator>
