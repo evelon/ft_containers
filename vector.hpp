@@ -422,9 +422,15 @@ namespace	ft
 		// Exchanges the content of the container by the content of x, which is another vector object of the same type.
 		void	swap(vector& vec)
 		{
-			vector	temp = *this;
-			*this = vec;
-			vec = temp;
+			size_type	temp_cap = this->capacity_;
+			pointer*	temp_head = this->head_;
+			size_type	temp_size = this->size_;
+			this->capacity_ = vec.capacity_;
+			this->head_ = vec.head_;
+			this->size_ = vec.size_;
+			vec.capacity_ = temp_cap;
+			vec.head_ = temp_head;
+			vec.size_ = temp_size;
 		};
 		// Removes all elements from the vector (which are destroyed), leaving the container with a size of 0.
 		void	clear(void)
@@ -915,9 +921,15 @@ namespace	ft
 		// Exchanges the content of the container by the content of x, which is another vector object of the same type.
 		void	swap(vector& vec)
 		{
-			vector	temp = *this;
-			*this = vec;
-			vec = temp;
+			size_type	temp_cap = this->capacity_;
+			pointer*	temp_head = this->head_;
+			size_type	temp_size = this->size_;
+			this->capacity_ = vec.capacity_;
+			this->head_ = vec.head_;
+			this->size_ = vec.size_;
+			vec.capacity_ = temp_cap;
+			vec.head_ = temp_head;
+			vec.size_ = temp_size;
 		};
 
 		static void swap (reference ref1, reference ref2)
