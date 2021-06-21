@@ -1,32 +1,47 @@
-#include <iostream>
-#include "vector.hpp"
+#include "common.hpp"
+#include <list>
 
-#define TESTED_TYPE int
+#define T1 float
+#define T2 foo<int>
+typedef _pair<const T1, T2> T3;
 
 int		main(void)
 {
-	const int size = 5;
-	ft::vector<TESTED_TYPE> vct(size);
-	ft::vector<TESTED_TYPE>::reverse_iterator it = vct.rbegin();
-	ft::vector<TESTED_TYPE>::const_reverse_iterator ite = vct.rbegin();
+	std::list<T3> lst;
+	unsigned int lst_size = 5;
+	for (unsigned int i = 0; i < lst_size; ++i)
+		lst.push_back(T3(2.5 - i, (i + 1) * 7));
 
-	for (int i = 0; i < size; ++i)
-		it[i] = (size - i) * 5;
+	TESTED_NAMESPACE::map<T1, T2> mp(lst.begin(), lst.end());
+	TESTED_NAMESPACE::map<T1, T2>::reverse_iterator it(mp.rbegin());
+	TESTED_NAMESPACE::map<T1, T2>::const_reverse_iterator ite(mp.rbegin());
+	printSize(mp);
 
-	it = it + 5;
-	it = 1 + it;
-	it = it - 4;
-	std::cout << *(it += 2) << std::endl;
-	std::cout << *(it -= 1) << std::endl;
+	printPair(++ite);
+	printPair(ite++);
+	printPair(ite++);
+	printPair(++ite);
 
-	*(it -= 2) = 42;
-	*(it += 2) = 21;
+	it->second.m();
+	ite->second.m();
 
-	std::cout << "const_ite +=/-=: " << *(ite += 2) << " | " << *(ite -= 2) << std::endl;
+	printPair(++it);
+	printPair(it++);
+	printPair(it++);
+	printPair(++it);
 
-	std::cout << "(it == const_it): " << (ite == it) << std::endl;
-	std::cout << "(const_ite - it): " << (ite - it) << std::endl;
-	std::cout << "(ite + 3 == it): " << (ite + 3 == it) << std::endl;
+	printPair(--ite);
+	printPair(ite--);
+	printPair(--ite);
+	printPair(ite--);
+
+	(*it).second.m();
+	(*ite).second.m();
+
+	printPair(--it);
+	printPair(it--);
+	printPair(it--);
+	printPair(--it);
 
 	return (0);
 }

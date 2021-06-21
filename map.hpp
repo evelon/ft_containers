@@ -13,11 +13,17 @@ namespace	ft
 		class Alloc = std::allocator<pair<const Key, Val> > >
 	class	map;
 
+	template	<typename Key, typename Val>
+	struct	lexical_compare;
+
 	template	<typename Key, typename Val, class Compare, class Alloc>
 	bool	operator==(map<Key, Val, Compare, Alloc> const& lhs, map<Key, Val, Compare, Alloc> const& rhs);
 
 	template	<typename Key, typename Val, class Compare, class Alloc>
 	bool	operator<(map<Key, Val, Compare, Alloc> const& lhs, map<Key, Val, Compare, Alloc> const& rhs);
+
+	template	<class Key, class T, class Compare, class Alloc>
+	void	swap(map<Key,T,Compare,Alloc>& x, map<Key,T,Compare,Alloc>& y);
 
 	template	<typename Pair>
 	class	map_iterator;
@@ -126,11 +132,7 @@ namespace	ft
 		void	erase(iterator first, iterator last)
 			{ tree_.erase(first, last); };
 		void	swap(map& m)
-		{
-			tree_type	temp = this->tree_;
-			this->tree_ = m.tree_;
-			m.tree_ = temp;
-		};
+			{ this->tree_.swap(m.tree_); };
 		void	clear()
 			{ tree_.clear(); };
 
@@ -145,13 +147,13 @@ namespace	ft
 		size_type	count(key_type const& k) const
 			{ return (tree_.count(ft::make_pair(k, mapped_type()))); };
 		iterator	lower_bound(key_type const& k)
-			{ return (iterator(tree_.lower_bound(ft::make_pair(k, mapped_type())))); };
+			{ return (iterator(tree_.lower_bound(make_pair(k, mapped_type())))); };
 		const_iterator	lower_bound(key_type const& k) const
-			{ return (const_iterator(tree_.lower_bound(ft::make_pair(k, mapped_type())))); };
+			{ return (const_iterator(tree_.lower_bound(make_pair(k, mapped_type())))); };
 		iterator	upper_bound(key_type const& k)
-			{ return (iterator(tree_.upper_bound(ft::make_pair(k, mapped_type())))); };
+			{ return (iterator(tree_.upper_bound(make_pair(k, mapped_type())))); };
 		const_iterator	upper_bound(key_type const& k) const
-			{ return (const_iterator(tree_.upper_bound(ft::make_pair(k, mapped_type())))); };
+			{ return (const_iterator(tree_.upper_bound(make_pair(k, mapped_type())))); };
 		pair<iterator,iterator>	equal_range(const key_type& k)
 			{ return (pair<iterator, iterator>(lower_bound(k), upper_bound(k))); };
 		pair<const_iterator,const_iterator>	equal_range(const key_type& k) const
@@ -161,10 +163,29 @@ namespace	ft
 			{ return (allocator_type()); };
 
 		friend bool	operator==(map const& lhs, map const& rhs)
-		{ return (lhs.tree_ == rhs.tree_); };
+			{ return (lhs.tree_ == rhs.tree_); };
 
 		friend bool	operator<(map const& lhs, map const& rhs)
-		{ return (lhs.tree_ < rhs.tree_); };
+		{
+			return (operator< <map::value_type, map::value_compare, map::allocator_type, lexical_compare<Key, Val>, false>(lhs.tree_, rhs.tree_));
+		};
+	};
+
+	template	<typename Key, typename Val>
+	struct	lexical_compare : public binary_function<pair<const Key, Val>, pair<const Key, Val>, bool>
+	{
+		bool	operator()(pair<const Key, Val> const& x, pair<const Key, Val> const& y) const
+		{
+			return (x.first < y.first || (x.first == y.first && x.second < y.second));
+		};
+	};
+
+	template	<class Key, class T, class Compare, class Alloc>
+	void	swap(map<Key,T,Compare,Alloc>& x, map<Key,T,Compare,Alloc>& y)
+	{
+		map<Key, T, Compare, Alloc>	temp = x;
+		x = y;
+		y = temp;
 	};
 
 	template	<typename Pair>
@@ -186,17 +207,6 @@ namespace	ft
 		void	is_compatible(map_iterator<_Pair> const&,
 		typename enable_if<is_const_same<_Pair, Pair>::value>::type* = 0) const
 		{};
-
-		reference	reverse_reference(void)
-		{
-			iterator_ rev = --(*this);
-			return (*rev);
-		};
-		reference	reverse_reference(void) const
-		{
-			iterator_ rev = --(*this);
-			return (*rev);
-		};
 
 	public:
 		map_iterator(parent_ const& p):
