@@ -3,13 +3,15 @@
 
 # include "../common.hpp"
 
-# if NS == ft
+# if NAMESPACE == FT
 #  include "list.hpp"
 # else
 #  include <list>
 # endif
 
-typedef 	ft::list<A, std::allocator<A> >listA;
+typedef 	NS::list<A, std::allocator<A> >			listA;
+typedef 	NS::list<int>			listInt;
+typedef 	NS::list<std::string>	listStr;
 
 template	<typename Tp>
 void	receive_list(NS::list<Tp>) {}

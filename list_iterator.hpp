@@ -43,7 +43,9 @@ namespace	ft
 		list_iterator(node* nod):
 			ptrToNode_(nod) {};
 
-		// list_iterator(reverse_iterator<iterator_>) {}; TODO
+		list_iterator(reverse_iterator<iterator_> rit):
+			ptrToNode_(rit.ptrToNode_)
+		{};
 
 		node*&		getNode_(void)
 			{ return (ptrToNode_); };
@@ -124,6 +126,14 @@ namespace	ft
 		pointer		operator->(void) const
 			{ return (this->ptrToNode_->getContent()); };
 	};
+
+	template	<typename Tp>
+	bool		operator==(reverse_iterator<list_iterator<Tp> > const&, list_iterator<Tp> const&)
+	{ typename disable_if<is_same<Tp, Tp>::value>::type* dummy; (void)dummy; }
+
+	template	<typename Tp>
+	bool		operator==(list_iterator<Tp> const&, reverse_iterator<list_iterator<Tp> > const&)
+	{ typename disable_if<is_same<Tp, Tp>::value>::type* dummy; (void)dummy; }
 
 	template	<typename Tp>
 	Tp	list_iterator<Tp>::default_value_ = Tp();

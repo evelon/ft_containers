@@ -1,9 +1,44 @@
 #ifndef COMMON_HPP
 # define COMMON_HPP
 
-# ifndef NS
-#  define NS ft
+# include <iostream>
+# include <string>
+
+# define FT 0
+# define STD 1
+
+# ifndef NAMESPACE
+#  define NAMESPACE FT
 # endif
+
+# if NAMESPACE == FT
+#  define NS ft
+# else
+#  define NS std
+# endif
+
+template	<class It, class _It>
+void	print_it(It first, _It last)
+{
+	for (It it = first; it != last; ++it)
+		std::cout << *it << '\n';
+}
+
+template	<class Container>
+void	print_all(Container cont)
+{
+	print_it(cont.begin(), cont.end());
+}
+
+template	<class Container>
+void	fill_int(Container& cont, int first, int diff)
+{
+	for (typename Container::iterator it = cont.begin(); it != cont.end(); ++it)
+	{
+		*it = first;
+		first += diff;
+	}
+}
 
 class	A {};
 
