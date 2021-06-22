@@ -1,18 +1,9 @@
 #include <list>
-
-
-class	B
-{
-};
-
-class	A
-{
-	B	b;
-};
+#include <iostream>
 
 int	main()
 {
-	std::list<int>	lst;
-
-	lst.erase(lst.begin());
+	unsigned int	a;
+	a = -1;
+	std::cout << a << std::endl;
 }
