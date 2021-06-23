@@ -63,7 +63,7 @@ namespace	ft
 		template	<class It>
 		reverse_iterator(reverse_iterator<It> const& rev_iter):
 			iterator_type(rev_iter)
-			{ this->is_compatible(static_cast<It>(rev_iter)); };
+			{ this->is_compatible(rev_iter); };
 		virtual ~reverse_iterator(void) {};
 		reverse_iterator&	operator=(reverse_iterator const& rev_iter)
 		{
@@ -119,8 +119,8 @@ namespace	ft
 		template	<class _Iterator>
 		friend bool	operator==(const iterator& lhs, const reverse_iterator<_Iterator>& rhs)
 		{
-			lhs.is_compatible(static_cast<_Iterator>(rhs));
-			return (static_cast<iterator_type>(lhs) == static_cast<_Iterator>(rhs));
+			lhs.is_compatible(rhs);
+			return (lhs.operator==( rhs));
 		};
 
 		// template	<class _Iterator>
@@ -132,8 +132,8 @@ namespace	ft
 		template	<class _Iterator>
 		friend bool	operator<(const iterator& lhs, const reverse_iterator<_Iterator>& rhs)
 		{
-			lhs.is_compatible(static_cast<_Iterator>(rhs));
-			return (static_cast<_Iterator>(rhs) < static_cast<iterator_type>(lhs));
+			lhs.is_compatible(rhs);
+			return (rhs.operator<(lhs));
 		};
 
 		// template	<class _Iterator>
