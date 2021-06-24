@@ -76,7 +76,7 @@ compare ()
   diff $std_log $ft_log 2>/dev/null 1>"$diff_file";
   comp_ret=$?
 
-  printf "| OUTPUT: ${emoji[$comp_ret]}\n"
+  printf "| OUTPUT: ${emoji[!!$comp_ret]}\n"
 
   rm -f $ft_out $std_out
   [ -s "$diff_file" ] || rm -f $diff_file $ft_log $std_log &>/dev/null

@@ -3,6 +3,7 @@
 
 # include <iostream>
 # include <string>
+# include <memory>
 
 # define FT 0
 # define STD 1
@@ -39,6 +40,41 @@ void	fill_int(Container& cont, int first, int diff)
 		first += diff;
 	}
 }
+
+template	<typename T>
+class	wrapper;
+
+template	<typename T>
+std::ostream	operator<<(std::ostream os, wrapper<T> wrap);
+
+template	<typename T>
+class	wrapper
+{
+	T		content_;
+	bool	verbose_;
+
+public:
+	wrapper(T content, bool verbose = false): content_(content), verbose_(verbose)
+	{ if (verbose_) std::cout << "wrapper constructed" << '\n'; };
+
+	wrapper(wrapper const& a): content_(a.content_), verbose_(a.verbose_)
+	{ if (verbose_) std::cout << "wrapper copy-constructed" << '\n'; };
+
+	~wrapper()
+	{ if (verbose_) std::cout << "wrapper destructed" << '\n'; };
+
+	wrapper&	operator=(wrapper const& a)
+	{
+		this->content_ = a.content_; this->verbose_ = a.verbose_;
+		if (verbose_) std::cout << "wrapper assigned" << '\n';
+	};
+
+	friend std::ostream&	operator<<(std::ostream& os, wrapper wrap)
+	{
+		os << wrap.content_;
+		return (os);
+	};
+};
 
 class	A {};
 

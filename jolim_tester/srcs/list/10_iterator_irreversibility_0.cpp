@@ -6,4 +6,6 @@ int	main()
 
 	listInt::const_iterator	cit = lst.begin();
 	listInt::iterator	it(cit); // Error here. Should not be constructed
+
+	return (0);
 }

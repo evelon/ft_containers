@@ -13,4 +13,6 @@ int	main()
 	std::cout << *it2 << '\n'; // 3
 
 	std::cout << (++it2 == lst.rend()) << '\n'; // 1
+
+	return (0);
 }

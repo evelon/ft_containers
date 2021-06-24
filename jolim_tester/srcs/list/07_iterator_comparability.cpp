@@ -39,4 +39,6 @@ int	main()
 
 	rit1 = lst1.rend();
 	std::cout << (rit1 != rit2) << '\n'; // 1
+
+	return (0);
 }

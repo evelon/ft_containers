@@ -21,4 +21,5 @@ int	main()
 	listA	b6(a6);
 	listA	b7(a7);
 	listA	c7(b7);
+	return (0);
 }

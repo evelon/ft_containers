@@ -6,4 +6,6 @@ int	main()
 
 	listInt::reverse_iterator	rit = lst.rbegin();
 	listInt::iterator	it(rit); // Error here. Should not be constructed
+
+	return (0);
 }

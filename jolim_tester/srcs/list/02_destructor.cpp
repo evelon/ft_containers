@@ -12,4 +12,5 @@ int	main()
 		it = lst.begin()->begin();
 	}
 	std::cout << *it << std::endl;
+	return (0);
 }

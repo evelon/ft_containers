@@ -71,7 +71,7 @@ namespace	ft
 			return (*this);
 		};
 		iterator_type	base(void) const
-			{ iterator_type temp(*this); return (temp); };
+			{ return (*const_cast<iterator_type*>(static_cast<const iterator_type*>(this))); };
 		reference	operator*(void)
 			{ return (this->reverse_reference()); };
 		reference	operator*(void) const

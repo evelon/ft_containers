@@ -29,5 +29,5 @@ int	main()
 	print_it(cit_7b, it_7e);
 	print_it(crit_4b, rit_4e);
 
-
+	return (0);
 }

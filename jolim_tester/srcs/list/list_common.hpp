@@ -9,9 +9,10 @@
 #  include <list>
 # endif
 
-typedef 	NS::list<A, std::allocator<A> >			listA;
-typedef 	NS::list<int>			listInt;
-typedef 	NS::list<std::string>	listStr;
+typedef NS::list<A, std::allocator<A> >			listA;
+typedef NS::list<int>			listInt;
+typedef NS::list<std::string>	listStr;
+typedef NS::list<float>			listFloat;
 
 template	<typename Tp>
 void	receive_list(NS::list<Tp>) {}

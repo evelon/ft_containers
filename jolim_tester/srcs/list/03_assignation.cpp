@@ -26,4 +26,5 @@ int	main()
 	print_all(strlst1);
 	print_all(strlst2);
 	print_all(strlst3);
+	return (0);
 }

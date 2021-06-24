@@ -29,4 +29,5 @@ int	main()
 	listA::size_type	size;
 	size = -1;
 	std::cout << (size > 0) << std::endl;
+	return (0);
 }
