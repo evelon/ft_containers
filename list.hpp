@@ -24,7 +24,8 @@ namespace	ft
 		class	node_iterator: public list_iterator<Tp>
 		{
 		private:
-			typedef list_iterator<Tp>	iterator;
+			typedef list_iterator<Tp>		iterator;
+			typedef list_iterator<const Tp>	const_iterator;
 		public:
 			node_iterator():
 				iterator() {};
@@ -33,6 +34,8 @@ namespace	ft
 			node_iterator(node_* nod):
 				iterator(nod) {};
 			node_iterator(iterator const& it):
+				iterator(it) {};
+			node_iterator(const_iterator const& it):
 				iterator(it) {};
 			node_iterator&	operator=(node_iterator const& n_it)
 				{ iterator::operator=(n_it); return (*this); }
@@ -111,10 +114,10 @@ namespace	ft
 			return (node_max);
 		}
 
-		bool	is_included(iterator& position, list& lst)
+		bool	is_included(const_iterator& position, list& lst)
 		{
 			size_type	i = 0;
-			for (iterator it = lst.begin(); it != position; it++)
+			for (const_iterator it = lst.begin(); it != position; it++)
 				if (i++ > lst.size_)
 					return (false);
 			return (true);
@@ -480,7 +483,7 @@ namespace	ft
 		};
 
 		// Splice entire list. Transfers all the elements of x into the container, inserting them at position.
-		void	splice(iterator position, list& lst)
+		void	splice(const_iterator position, list& lst)
 		{
 			if (!is_included(position, *this))
 				return ;
@@ -498,7 +501,7 @@ namespace	ft
 			}
 		};
 		// Splice a single element. Transfers only the element pointed by i from x into the container, inserting them at position.
-		void	splice(iterator position, list& lst, iterator i)
+		void	splice(const_iterator position, list& lst, const_iterator i)
 		{
 			if (!is_included(position, *this) || !is_included(i, lst))
 				return ;
@@ -510,7 +513,7 @@ namespace	ft
 			this->size_++;
 		};
 		// Splice a range of elements. Transfers the range [first,last) from "lst" into the container, inserting them at position
-		void	splice(iterator position, list& lst, iterator first, iterator last)
+		void	splice(const_iterator position, list& lst, const_iterator first, const_iterator last)
 		{
 			if (!is_included(position, *this) || !is_included(first, lst) || !is_included(last, lst))
 				return ;
@@ -602,11 +605,13 @@ namespace	ft
 		};
 		// Merges x into the list by transferring all of its elements at their respective ordered positions into the container (both containers shall already be ordered).
 		void	merge(list& lst)
-		{ merge(lst, basic_compare()); }
+			{ merge(lst, basic_compare()); }
 		// Merges x into the list by transferring all of its elements at their respective ordered positions into the container (both containers shall already be ordered). Binary predicate "comp" shall be a function pointer or a function object.
 		template	<class Compare>
 		void	merge(list& lst, Compare comp)
 		{
+			if (*lst == this)
+				return ;
 			node_iterator	this_nit(this->begin());
 			node_iterator	lst_nit(lst.begin());
 
@@ -632,11 +637,11 @@ namespace	ft
 
 		// Sorts the elements in the list by applying an algorithm that uses "operator<", altering their position within the container.
 		void	sort(void)
-		{ insertion_sort(basic_compare()); };
+			{ insertion_sort(basic_compare()); };
 		// Sorts the elements in the list by applying an algorithm that uses "comp", altering their position within the container.
 		template	<class Compare>
 		void	sort (Compare comp)
-		{ insertion_sort(comp); };
+			{ insertion_sort(comp); };
 
 		// // Reverses the order of the elements in the list container.
 		void	reverse(void)
@@ -716,7 +721,7 @@ namespace	ft
 
 	template	<class T, class Alloc>
 	void	swap(list<T, Alloc>& x, list<T, Alloc>& y)
-		{ list<T, Alloc> temp = x; x = y; y = temp; }
+		{ list<T, Alloc> temp = x; x = y; y = temp; };
 }
 
 #endif

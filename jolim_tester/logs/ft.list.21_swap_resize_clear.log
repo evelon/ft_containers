@@ -1,0 +1,308 @@
+=================================================================
+==10629==ERROR: AddressSanitizer: heap-use-after-free on address 0x6030000019f8 at pc 0x00010b034998 bp 0x7ffee4bd5dd0 sp 0x7ffee4bd5dc8
+READ of size 8 at 0x6030000019f8 thread T0
+    #0 0x10b034997 in ft::list_iterator<wrapper<int> >::operator*() list_iterator.hpp:88
+    #1 0x10b02fb46 in void print_it<ft::list_iterator<wrapper<int> >, ft::list_iterator<wrapper<int> > >(ft::list_iterator<wrapper<int> >, ft::list_iterator<wrapper<int> >) common.hpp:27
+    #2 0x10b02e117 in main 21_swap_resize_clear.cpp:52
+    #3 0x7fff6f41dcc8 in start+0x0 (libdyld.dylib:x86_64+0x1acc8)
+
+0x6030000019f8 is located 8 bytes inside of 32-byte region [0x6030000019f0,0x603000001a10)
+freed by thread T0 here:
+    #0 0x10b0a3c0d in wrap__ZdlPv+0x7d (libclang_rt.asan_osx_dynamic.dylib:x86_64h+0x55c0d)
+    #1 0x10b0348e4 in std::__1::_DeallocateCaller::__do_call(void*) new:334
+    #2 0x10b0348c8 in std::__1::_DeallocateCaller::__do_deallocate_handle_size(void*, unsigned long) new:292
+    #3 0x10b0348a0 in std::__1::_DeallocateCaller::__do_deallocate_handle_size_align(void*, unsigned long, unsigned long) new:262
+    #4 0x10b034874 in std::__1::__libcpp_deallocate(void*, unsigned long, unsigned long) new:340
+    #5 0x10b0344dc in std::__1::allocator<ft::DoublyLinkedNode<wrapper<int>, std::__1::allocator<wrapper<int> > > >::deallocate(ft::DoublyLinkedNode<wrapper<int>, std::__1::allocator<wrapper<int> > >*, unsigned long) memory:1872
+    #6 0x10b03653e in ft::list<wrapper<int>, std::__1::allocator<wrapper<int> > >::pop_back() list.hpp:356
+    #7 0x10b030a4d in ft::list<wrapper<int>, std::__1::allocator<wrapper<int> > >::clear() list.hpp:478
+    #8 0x10b02e022 in main 21_swap_resize_clear.cpp:48
+    #9 0x7fff6f41dcc8 in start+0x0 (libdyld.dylib:x86_64+0x1acc8)
+
+previously allocated by thread T0 here:
+    #0 0x10b0a37ed in wrap__Znwm+0x7d (libclang_rt.asan_osx_dynamic.dylib:x86_64h+0x557ed)
+    #1 0x10b033578 in std::__1::__libcpp_allocate(unsigned long, unsigned long) new:253
+    #2 0x10b033307 in std::__1::allocator<ft::DoublyLinkedNode<wrapper<int>, std::__1::allocator<wrapper<int> > > >::allocate(unsigned long, void const*) memory:1869
+    #3 0x10b0333fb in ft::list<wrapper<int>, std::__1::allocator<wrapper<int> > >::push_back(wrapper<int> const&) list.hpp:345
+    #4 0x10b03326f in ft::list<wrapper<int>, std::__1::allocator<wrapper<int> > >::list(unsigned long, wrapper<int> const&, std::__1::allocator<wrapper<int> > const&) list.hpp:171
+    #5 0x10b02f02c in ft::list<wrapper<int>, std::__1::allocator<wrapper<int> > >::list(unsigned long, wrapper<int> const&, std::__1::allocator<wrapper<int> > const&) list.hpp:168
+    #6 0x10b02d9c0 in main 21_swap_resize_clear.cpp:6
+    #7 0x7fff6f41dcc8 in start+0x0 (libdyld.dylib:x86_64+0x1acc8)
+
+SUMMARY: AddressSanitizer: heap-use-after-free list_iterator.hpp:88 in ft::list_iterator<wrapper<int> >::operator*()
+Shadow bytes around the buggy address:
+  0x1c06000002e0: 00 00 fa fa 00 00 01 fa fa fa 00 00 00 00 fa fa
+  0x1c06000002f0: 00 00 00 00 fa fa 00 00 00 00 fa fa 00 00 00 00
+  0x1c0600000300: fa fa 00 00 00 00 fa fa 00 00 00 00 fa fa 00 00
+  0x1c0600000310: 00 00 fa fa fd fd fd fd fa fa fd fd fd fd fa fa
+  0x1c0600000320: fd fd fd fd fa fa fd fd fd fd fa fa fd fd fd fd
+=>0x1c0600000330: fa fa fd fd fd fd fa fa 00 00 00 00 fa fa fd[fd]
+  0x1c0600000340: fd fd fa fa fd fd fd fd fa fa fd fd fd fd fa fa
+  0x1c0600000350: fd fd fd fd fa fa fd fd fd fd fa fa fd fd fd fd
+  0x1c0600000360: fa fa fd fd fd fd fa fa fd fd fd fd fa fa fd fd
+  0x1c0600000370: fd fd fa fa fd fd fd fd fa fa fd fd fd fd fa fa
+  0x1c0600000380: fd fd fd fd fa fa fd fd fd fd fa fa fd fd fd fd
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+  Shadow gap:              cc
+==10629==ABORTING
+before member-swap
+0: 2
+1: 4
+2: 6
+3: 8
+4: 10
+5: 12
+6: 14
+7: 16
+8: 18
+9: 20
+10: 22
+11: 24
+0: 2
+1: 4
+2: 6
+3: 8
+4: 10
+5: 12
+6: 14
+7: 16
+8: 18
+9: 20
+10: 22
+11: 24
+size: 12
+
+0: 28
+1: 26
+2: 24
+3: 22
+4: 20
+5: 18
+6: 16
+7: 14
+8: 12
+9: 10
+10: 8
+11: 6
+12: 4
+13: 2
+0: 28
+1: 26
+2: 24
+3: 22
+4: 20
+5: 18
+6: 16
+7: 14
+8: 12
+9: 10
+10: 8
+11: 6
+12: 4
+13: 2
+size: 14
+
+
+after member swap
+0: 2
+1: 4
+2: 6
+3: 8
+4: 10
+5: 12
+6: 14
+7: 16
+8: 18
+9: 20
+10: 22
+11: 24
+0: 28
+1: 26
+2: 24
+3: 22
+4: 20
+5: 18
+6: 16
+7: 14
+8: 12
+9: 10
+10: 8
+11: 6
+12: 4
+13: 2
+size: 14
+
+0: 28
+1: 26
+2: 24
+3: 22
+4: 20
+5: 18
+6: 16
+7: 14
+8: 12
+9: 10
+10: 8
+11: 6
+12: 4
+13: 2
+0: 2
+1: 4
+2: 6
+3: 8
+4: 10
+5: 12
+6: 14
+7: 16
+8: 18
+9: 20
+10: 22
+11: 24
+size: 12
+
+
+resize
+0: 28
+1: 26
+2: 24
+3: 22
+4: 0
+5: 0
+size: 6
+
+0: 2
+1: 4
+2: 6
+3: 8
+4: 10
+5: 12
+6: 14
+7: 16
+8: 18
+9: 20
+10: 22
+11: 24
+12: 28
+13: 28
+14: 28
+15: 28
+16: 28
+17: 28
+18: 28
+19: 28
+20: 28
+21: 28
+22: 28
+23: 28
+24: 28
+25: 28
+26: 28
+27: 28
+size: 28
+
+after non-member swap
+0: 28
+1: 26
+2: 24
+3: 22
+4: 0
+5: 0
+0: 2
+1: 4
+2: 6
+3: 8
+4: 10
+5: 12
+6: 14
+7: 16
+8: 18
+9: 20
+10: 22
+11: 24
+12: 28
+13: 28
+14: 28
+15: 28
+16: 28
+17: 28
+18: 28
+19: 28
+20: 28
+21: 28
+22: 28
+23: 28
+24: 28
+25: 28
+26: 28
+27: 28
+size: 28
+
+0: 2
+1: 4
+2: 6
+3: 8
+4: 10
+5: 12
+6: 14
+7: 16
+8: 18
+9: 20
+10: 22
+11: 24
+12: 28
+13: 28
+14: 28
+15: 28
+16: 28
+17: 28
+18: 28
+19: 28
+20: 28
+21: 28
+22: 28
+23: 28
+24: 28
+25: 28
+26: 28
+27: 28
+0: 28
+1: 26
+2: 24
+3: 22
+4: 0
+5: 0
+size: 6
+
+clear and some swap0: 28
+1: 26
+2: 24
+3: 22
+4: 0
+5: 0
+0: 28
+1: 26
+2: 24
+3: 22
+4: 0
+5: 0
+size: 6
+
+0: 

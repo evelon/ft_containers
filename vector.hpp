@@ -6,9 +6,6 @@
 # include "reverse_iterator.hpp"
 # include "vector_iterator.hpp"
 
-
-#include <bitset>
-
 namespace	ft
 {
 	// template	<class Tp, class Alloc = std::allocator<Tp> >

@@ -2,8 +2,8 @@
 
 int	main()
 {
-	listInt		lst1(3, 4);
-	listFloat	lst2(3, 4.4);
+	listInt_o		lst1(3, 4);
+	listFloat_o	lst2(3, 4.4);
 
 	std::cout << (lst1.begin() == *lst2.begin()) << '\n';
 
