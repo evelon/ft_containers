@@ -2,4 +2,13 @@
 
 . functions.sh
 printheader
-run_test "list" 2>/dev/null
+containers="list vector"
+
+if [ $# -ne 0 ]; then
+	containers=$@
+fi
+
+for container in ${containers[@]}; do
+	run_test $container 2>/dev/null
+	printf "\n"
+done

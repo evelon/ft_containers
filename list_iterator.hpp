@@ -36,6 +36,9 @@ namespace	ft
 		typedef std::ptrdiff_t				difference_type;
 
 	private:
+		template	<typename T, class Alloc>
+		friend class list;
+
 		static value_type					default_value_;
 		node*								ptrToNode_;
 
@@ -43,7 +46,7 @@ namespace	ft
 		list_iterator(node* nod):
 			ptrToNode_(nod) {};
 
-		list_iterator(reverse_iterator<iterator_> rit):
+		list_iterator(reverse_iterator<iterator_> const& rit):
 			ptrToNode_(rit.ptrToNode_)
 		{};
 

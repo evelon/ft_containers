@@ -120,7 +120,7 @@ namespace	ft
 		friend bool	operator==(const iterator& lhs, const reverse_iterator<_Iterator>& rhs)
 		{
 			lhs.is_compatible(rhs);
-			return (lhs.operator==( rhs));
+			return (lhs.operator==(rhs));
 		};
 
 		// template	<class _Iterator>

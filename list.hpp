@@ -35,8 +35,8 @@ namespace	ft
 				iterator(nod) {};
 			node_iterator(iterator const& it):
 				iterator(it) {};
-			node_iterator(const_iterator const& it):
-				iterator(it) {};
+			node_iterator(const_iterator const& cit):
+				iterator((node_*)(cit.ptrToNode_)) {};
 			node_iterator&	operator=(node_iterator const& n_it)
 				{ iterator::operator=(n_it); return (*this); }
 			node_iterator&	operator=(iterator const& it)
@@ -221,11 +221,14 @@ namespace	ft
 			node_*	cur_node = this->blank_node_->getNext();
 			if (lst.size_ <= this->size_)
 			{
+				node_*	last_node = this->blank_node_;
 				for (const_iterator it = lst.begin(); it != lst.end(); it++)
 				{
 					cur_node->setContent(*it);
+					last_node = cur_node;
 					cur_node = cur_node->getNext();
 				}
+				last_node->getNext() = this->blank_node_;
 				node_*	temp;
 				while (cur_node != this->blank_node_)
 				{
@@ -363,8 +366,6 @@ namespace	ft
 		// Single element insert. The container is extended by inserting a new element "val", before the element at the specified "position".
 		iterator	insert(iterator position, const value_type& val)
 		{
-			if (!is_included(position, *this))
-				return (position);
 			node_*	new_node(node_alloc_.allocate(1));
 			node_alloc_.construct(new_node, *new_node);
 			new_node->setContent(val);
@@ -376,8 +377,6 @@ namespace	ft
 		// Fill insert. The container is extended by inserting new elements containing "val", before the element at the specified "position".
 		void		insert(iterator position, size_type n, const value_type& val)
 		{
-			if (!is_included(position, *this))
-				return ;
 			node_iterator	nit(position);
 			node_*			temp;
 			for (size_type i = 0; i < n; i++)
@@ -397,8 +396,6 @@ namespace	ft
 			InputIterator last,
 			typename ft::disable_if<is_integral<InputIterator>::value>::type* = 0)
 		{
-			if (!is_included(position, *this))
-				return ;
 			node_iterator	nit(position);
 
 			list	temp_list(first, last);
@@ -417,8 +414,6 @@ namespace	ft
 		// Removes from the list container either an element, "position".
 		iterator erase (iterator position)
 		{
-			if (!is_included(position, *this))
-				return (position);
 			node_iterator	nit(position++);
 			node_alloc_.destroy(nit.getNode());
 			node_alloc_.deallocate(nit.getNode(), 1);
@@ -428,8 +423,6 @@ namespace	ft
 		// Removes from the list container either a range of elements [first,last).
 		iterator erase (iterator first, iterator last)
 		{
-			if (!is_included(first, *this) || !is_included(last, *this))
-				return (last);
 			node_iterator	nit(first);
 			node_*			pos_node(nit.getNode());
 			node_*			temp;
@@ -483,12 +476,10 @@ namespace	ft
 		};
 
 		// Splice entire list. Transfers all the elements of x into the container, inserting them at position.
-		void	splice(const_iterator position, list& lst)
+		void	splice(iterator position, list& lst)
 		{
-			if (!is_included(position, *this))
-				return ;
-			node_iterator	nit(position);
-			node_*	pos_node = nit.getNode();
+			// node_iterator	nit(position);
+			node_*	pos_node = position.getNode_();
 			node_*	cur_node = lst.blank_node_->getNext();
 			node_*	next_node = cur_node->getNext();
 			while (next_node != lst.blank_node_)
@@ -500,11 +491,9 @@ namespace	ft
 				lst.size_--;
 			}
 		};
-		// Splice a single element. Transfers only the element pointed by i from x into the container, inserting them at position.
-		void	splice(const_iterator position, list& lst, const_iterator i)
+		// Splice a single element. Transfers only the element pointed by i from lst into the container, inserting them at position.
+		void	splice(iterator position, list& lst, iterator i)
 		{
-			if (!is_included(position, *this) || !is_included(i, lst))
-				return ;
 			node_iterator	this_nit(--position);
 			node_iterator	that_nit(i);
 
@@ -513,10 +502,8 @@ namespace	ft
 			this->size_++;
 		};
 		// Splice a range of elements. Transfers the range [first,last) from "lst" into the container, inserting them at position
-		void	splice(const_iterator position, list& lst, const_iterator first, const_iterator last)
+		void	splice(const_iterator position, list& lst, iterator first, iterator last)
 		{
-			if (!is_included(position, *this) || !is_included(first, lst) || !is_included(last, lst))
-				return ;
 			node_iterator	nit(position);
 			node_iterator	first_n = first;
 			node_iterator	last_n = last;
@@ -610,7 +597,7 @@ namespace	ft
 		template	<class Compare>
 		void	merge(list& lst, Compare comp)
 		{
-			if (*lst == this)
+			if (&lst == this)
 				return ;
 			node_iterator	this_nit(this->begin());
 			node_iterator	lst_nit(lst.begin());
@@ -721,7 +708,7 @@ namespace	ft
 
 	template	<class T, class Alloc>
 	void	swap(list<T, Alloc>& x, list<T, Alloc>& y)
-		{ list<T, Alloc> temp = x; x = y; y = temp; };
+		{ x.swap(y); };
 }
 
 #endif

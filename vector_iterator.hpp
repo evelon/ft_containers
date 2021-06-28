@@ -18,9 +18,6 @@ namespace	ft
 	vector_iterator<Tp>	operator+(int op, vector_iterator<Tp> const& it);
 
 	template	<typename T, typename U>
-	bool	operator==(const vector_iterator<T>& lhs, const vector_iterator<U>& rhs);
-
-	template	<typename T, typename U>
 	bool	operator<(const vector_iterator<T>& lhs, const vector_iterator<U>& rhs);
 
 	template	<typename Tp>
@@ -96,7 +93,11 @@ namespace	ft
 		reference	reverse_reference(void)
 		{ return (*(*head_ + offset_ - 1)); };
 
-		// vector_iterator(reverse_iterator<iterator>) {}; TODO
+		vector_iterator(reverse_iterator<iterator> const& rit):
+			head_(rit.head_),
+			size_(rit.size_),
+			offset_(rit.size_)
+		{};
 
 		vector_iterator(pointer* const& head, size_type const& size, difference_type offset):
 			head_(head),
@@ -182,14 +183,10 @@ namespace	ft
 			{ return (&operator*()); };
 		reference	operator[](int ind)
 			{ return (*(*head_ + offset_ + ind)); };
-	};
 
-	template	<typename T, typename U>
-	bool	operator==(const vector_iterator<T>& lhs, const vector_iterator<U>& rhs)
-	{
-		typename enable_if<is_const_same<T, U>::value>::type*	dummy;
-		(void)dummy;
-		return (&*lhs == &*rhs);
+		template	<typename T>
+		bool	operator==(vector_iterator<T> const& rhs) const
+			{ return (&**this == &*rhs); }
 	};
 
 	template	<typename T, typename U>
@@ -313,8 +310,11 @@ namespace	ft
 		reference	reverse_reference(void)
 			{ return (internal_reference(head_, offset_ - 1)); };
 
-		// bit_iterator(reverse_iterator<iterator>):
-		// 	 {}; TODO
+		bit_iterator(reverse_iterator<iterator> const& rit):
+			head_(rit.head_),
+			size_(rit.size_),
+			offset_(rit.size_)
+		{};
 
 		bit_iterator(storage_ptr_* const& head, size_type const& size, difference_type offset):
 			head_(head),
@@ -417,6 +417,10 @@ namespace	ft
 		{
 			return (lhs.offset_ - rhs.offset_);
 		};
+
+		template	<typename T>
+		bool	operator==(vector_iterator<T> const& rhs) const
+			{ return (&**this == &*rhs); }
 	};
 
 	template	<bool is_const>

@@ -18,6 +18,17 @@
 #  define NS std
 # endif
 
+template	<typename A, typename B>
+void	compare_all(A const& a, B const& b)
+{
+	std::cout << (a == b) << '\n';
+	std::cout << (a != b) << '\n';
+	std::cout << (a < b) << '\n';
+	std::cout << (a <= b) << '\n';
+	std::cout << (a > b) << '\n';
+	std::cout << (a >= b) << '\n';
+}
+
 template	<class It, class _It>
 void	print_it(It first, _It last)
 {
@@ -63,6 +74,9 @@ template	<typename T>
 std::ostream	operator<<(std::ostream os, wrapper<T> wrap);
 
 template	<typename T>
+bool	operator==(wrapper<T> lhs, wrapper<T> rhs);
+
+template	<typename T>
 class	wrapper
 {
 	T		content_;
@@ -70,13 +84,16 @@ class	wrapper
 
 public:
 	wrapper(T content = T(), bool verbose = false): content_(content), verbose_(verbose)
-	{ if (verbose_) std::cout << "wrapper constructed" << '\n'; };
+		{ if (verbose_) std::cout << "wrapper constructed" << '\n'; };
 
 	wrapper(wrapper const& a): content_(a.content_), verbose_(a.verbose_)
-	{ if (verbose_) std::cout << "wrapper copy-constructed" << '\n'; };
+		{ if (verbose_) std::cout << "wrapper copy-constructed" << '\n'; };
 
 	~wrapper()
-	{ if (verbose_) std::cout << "wrapper destructed" << '\n'; };
+		{ if (verbose_) std::cout << "wrapper destructed" << '\n'; };
+
+	operator int() const
+		{ return content_; }
 
 	wrapper&	operator=(wrapper const& a)
 	{
@@ -90,6 +107,9 @@ public:
 		os << wrap.content_;
 		return (os);
 	};
+
+	friend bool	operator==(wrapper lhs, wrapper rhs)
+		{ return (lhs.content_ == rhs.content_); };
 };
 
 class	A {};

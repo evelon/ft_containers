@@ -35,9 +35,9 @@ compare ()
   container=$(echo $1 | cut -d "/" -f 2)
   file=$(echo $1 | cut -d "/" -f 3)
   test_name=$(echo $file | cut -d "." -f 1)
-  ft_out="ft.$container.out"
+  ft_out="$container.out"
   ft_log="$log_dir/ft.$container.$test_name.log"
-  std_out="std.$container.out"
+  std_out="$container.out"
   std_log="$log_dir/std.$container.$test_name.log"
 
   printf "%-30s: " $test_name

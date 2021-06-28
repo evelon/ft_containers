@@ -26,7 +26,7 @@ int	main()
 	print_it(bit, peit);
 
 	std::cout << "\nsplice list2 to list1 by a iterator\n";
-	flst1.splice(flst1.end(), flst2, peit);
+	flst1.splice(flst1.end(), flst2, --flst2.end());
 
 	std::cout << "\nlist1\n";
 	print_all(flst1);
@@ -46,6 +46,5 @@ int	main()
 	print_all(flst2);
 	std::cout << "\niterator validity";
 	print_it(bit, peit);
-	exit(0);
 	return (0);
 }
