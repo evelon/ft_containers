@@ -18,6 +18,9 @@ namespace	ft
 	vector_iterator<Tp>	operator+(int op, vector_iterator<Tp> const& it);
 
 	template	<typename T, typename U>
+	bool	operator==(vector_iterator<T> lhs, vector_iterator<U> const& rhs);
+
+	template	<typename T, typename U>
 	bool	operator<(const vector_iterator<T>& lhs, const vector_iterator<U>& rhs);
 
 	template	<typename Tp>
@@ -185,8 +188,16 @@ namespace	ft
 			{ return (*(*head_ + offset_ + ind)); };
 
 		template	<typename T>
-		bool	operator==(vector_iterator<T> const& rhs) const
-			{ return (&**this == &*rhs); }
+		friend bool	operator==(iterator lhs, vector_iterator<T> const& rhs)
+		{
+			// need improvement
+			return
+			(
+				lhs.head_ == static_cast<iterator>(rhs).head_
+				&&
+				lhs.offset_ == static_cast<iterator>(rhs).offset_
+			);
+		}
 	};
 
 	template	<typename T, typename U>
