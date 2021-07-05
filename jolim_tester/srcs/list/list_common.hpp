@@ -1,5 +1,5 @@
-#ifndef LIST_TEST_HPP
-# define LIST_TEST_HPP
+#ifndef LIST_COMMON_HPP
+# define LIST_COMMON_HPP
 
 # include "../common.hpp"
 

@@ -1,5 +1,5 @@
-#ifndef VECTOR_TEST_HPP
-# define VECTOR_TEST_HPP
+#ifndef VECTOR_COMMON_HPP
+# define VECTOR_COMMON_HPP
 
 # include "../common.hpp"
 
@@ -18,6 +18,6 @@ typedef NS::vector<wrapper<float> >			vecFloat;
 typedef NS::vector<vecA::size_type>		vecSize;
 
 template	<typename Tp>
-void	receive_list(NS::vector<Tp>) {}
+void	receive_vector(NS::vector<Tp>) {}
 
 #endif

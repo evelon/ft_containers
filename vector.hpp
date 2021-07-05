@@ -270,7 +270,7 @@ namespace	ft
 			typename ft::disable_if<is_integral<InputIterator>::value>::type* = 0)
 		{
 			size_type	diff = 0;
-			for (InputIterator it = first; it != last; it++)
+			for (InputIterator it = first; it != last; ++it)
 				diff++;
 			if (diff > capacity_)
 			{
@@ -279,7 +279,7 @@ namespace	ft
 				*head_ = alloc_.allocate(diff);
 				capacity_ = diff;
 			}
-			for (size_type i = 0; first != last; first++)
+			for (size_type i = 0; first != last; ++first)
 				(*head_)[i++] = *first;
 			size_ = diff;
 		};
@@ -293,7 +293,7 @@ namespace	ft
 				*head_ = alloc_.allocate(n);
 				capacity_ = n;
 			}
-			for (size_type i = 0; i < n; i++)
+			for (size_type i = 0; i < n; ++i)
 				(*head_)[i] = val;
 			size_ = n;
 		};
@@ -305,7 +305,7 @@ namespace	ft
 				pointer	temp;
 				temp = *head_;
 				*head_ = alloc_.allocate(capacity_ ? capacity_ * 2 : 1);
-				for (size_type i = 0; i < size_; i++ )
+				for (size_type i = 0; i < size_; ++i)
 					(*head_)[i] = temp[i];
 				if (capacity_)
 					alloc_.deallocate(temp, capacity_);
@@ -326,14 +326,14 @@ namespace	ft
 				pointer	temp;
 				temp = *head_;
 				*head_ = alloc_.allocate(capacity_ ? capacity_ * 2 : 1);
-				for (size_type i = 0; i < size_; i++ )
+				for (size_type i = 0; i < size_; ++i)
 					(*head_)[i] = temp[i];
 				if (capacity_)
 					alloc_.deallocate(temp, capacity_);
 				capacity_ = capacity_ ? capacity_ * 2 : 1;
 			}
 			if (size_)
-				for (iterator it = end(); it > position && it > begin(); it--)
+				for (iterator it = end(); it > position && it > begin(); --it)
 					*it = *(it - 1);
 			*position = val;
 			size_++;
@@ -350,13 +350,13 @@ namespace	ft
 				temp = *head_;
 				size_type	new_capacity = size_ + n;
 				*head_ = alloc_.allocate(new_capacity);
-				for (size_type i = 0; i < size_; i++ )
+				for (size_type i = 0; i < size_; ++i)
 					(*head_)[i] = temp[i];
 				if (capacity_)
 					alloc_.deallocate(temp, capacity_);
 				capacity_ = new_capacity;
 			}
-			for (iterator it = end() - 1; it >= position; it--)
+			for (iterator it = end() - 1; it >= position; --it)
 				*(it + n) = *it;
 			for (size_type i = 0; i < n; i++)
 				*(position++) = val;
@@ -373,26 +373,26 @@ namespace	ft
 				return ;
 			int	diff = 0;
 			for (InputIterator it = first; ft::operator!=(it, last); it++)
-				diff++;
+				++diff;
 			if (size_ + diff > capacity_)
 			{
 				pointer	temp;
 				temp = *head_;
 				size_type	new_capacity = determineCapacity(size_ + diff);
 				*head_ = alloc_.allocate(new_capacity);
-				for (size_type i = 0; i < size_; i++ )
+				for (size_type i = 0; i < size_; ++i)
 					(*head_)[i] = temp[i];
 				if (capacity_)
 					alloc_.deallocate(temp, capacity_);
 				capacity_ = new_capacity;
 			}
 			iterator	it = end() + diff - 1;
-			for (iterator pos = position; pos < end(); pos++)
+			for (iterator pos = position; pos < end(); ++pos)
 			{
 				*it = *(it - diff);
 				it--;
 			}
-			for (; ft::operator!=(first, last); first++)
+			for (; ft::operator!=(first, last); ++first)
 				*(position++) = *first;
 			size_ += diff;
 		};
@@ -401,7 +401,7 @@ namespace	ft
 		{
 			if (position < begin() || position > end())
 				return (position);
-			for (iterator it = position; it <= end() - 1; it++)
+			for (iterator it = position; it < end() - 1; ++it)
 				*it = *(it + 1);
 			size_--;
 			return (position);
@@ -416,7 +416,7 @@ namespace	ft
 			size_ -= diff;
 			return (ret);
 		};
-		// Exchanges the content of the container by the content of x, which is another vector object of the same type.
+		// Exchanges the content of the container by the content of vec, which is another vector object of the same type.
 		void	swap(vector& vec)
 		{
 			size_type	temp_cap = this->capacity_;

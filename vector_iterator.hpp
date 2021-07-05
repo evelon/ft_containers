@@ -17,8 +17,8 @@ namespace	ft
 	template	<typename Tp>
 	vector_iterator<Tp>	operator+(int op, vector_iterator<Tp> const& it);
 
-	template	<typename T, typename U>
-	bool	operator==(vector_iterator<T> lhs, vector_iterator<U> const& rhs);
+	// template	<typename T, typename U>
+	// bool	operator==(vector_iterator<T> lhs, vector_iterator<U> const& rhs);
 
 	template	<typename T, typename U>
 	bool	operator<(const vector_iterator<T>& lhs, const vector_iterator<U>& rhs);
@@ -187,26 +187,44 @@ namespace	ft
 		reference	operator[](int ind)
 			{ return (*(*head_ + offset_ + ind)); };
 
-		template	<typename T>
-		friend bool	operator==(iterator lhs, vector_iterator<T> const& rhs)
+		template	<typename _Tp>
+		bool	operator==(vector_iterator<_Tp> const& rhs) const
 		{
-			// need improvement
+			typename enable_if<is_const_same<Tp, _Tp>::value>::type*	dummy;
+			(void)dummy;
 			return
 			(
-				lhs.head_ == static_cast<iterator>(rhs).head_
+				this->head_ == ((iterator*)(&rhs))->head_
 				&&
-				lhs.offset_ == static_cast<iterator>(rhs).offset_
+				this->offset_ == ((iterator*)(&rhs))->offset_
 			);
-		}
+		};
+
+		template	<typename _Tp>
+		bool	operator<(vector_iterator<_Tp> const& rhs) const
+		{
+			typename enable_if<is_const_same<Tp, _Tp>::value>::type*	dummy;
+			(void)dummy;
+			return (&**this < &*rhs);
+		};
 	};
 
-	template	<typename T, typename U>
-	bool	operator<(const vector_iterator<T>& lhs, const vector_iterator<U>& rhs)
-	{
-		typename enable_if<is_const_same<T, U>::value>::type*	dummy;
-		(void)dummy;
-		return (&*lhs < &*rhs);
-	};
+
+	template	<typename Tp>
+	bool		operator==(reverse_iterator<vector_iterator<Tp> > const&, vector_iterator<Tp> const&)
+	{ typename disable_if<is_same<Tp, Tp>::value>::type* dummy; (void)dummy; }
+
+	template	<typename Tp>
+	bool		operator==(vector_iterator<Tp> const&, reverse_iterator<vector_iterator<Tp> > const&)
+	{ typename disable_if<is_same<Tp, Tp>::value>::type* dummy; (void)dummy; }
+
+	template	<typename Tp>
+	bool		operator<(reverse_iterator<vector_iterator<Tp> > const&, vector_iterator<Tp> const&)
+	{ typename disable_if<is_same<Tp, Tp>::value>::type* dummy; (void)dummy; }
+
+	template	<typename Tp>
+	bool		operator<(vector_iterator<Tp> const&, reverse_iterator<vector_iterator<Tp> > const&)
+	{ typename disable_if<is_same<Tp, Tp>::value>::type* dummy; (void)dummy; }
 
 	template	<typename Tp>
 	vector_iterator<Tp>	operator+(int n, vector_iterator<Tp> const& it)
