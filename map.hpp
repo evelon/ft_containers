@@ -254,12 +254,20 @@ namespace	ft
 		pointer		operator->(void) const
 			{ return (&(*(static_cast<parent_>(*this)))); };
 
-		template	<typename P>
-		friend bool	operator==(iterator_ const& lhs, map_iterator<P> const& rhs)
+		template	<typename _Tp>
+		bool	operator==(map_iterator<_Tp> const& rhs) const
 		{
-			return (*static_cast<const parent_*>(&lhs) == *static_cast<const TreeIterator<P>*>(&rhs));
+			return (*static_cast<const parent_*>(this) == *static_cast<const TreeIterator<_Tp>*>(&rhs));
 		};
 	};
+
+	template	<typename Tp>
+	bool		operator==(reverse_iterator<map_iterator<Tp> > const&, map_iterator<Tp> const&)
+	{ typename disable_if<is_same<Tp, Tp>::value>::type* dummy; (void)dummy; }
+
+	template	<typename Tp>
+	bool		operator==(map_iterator<Tp> const&, reverse_iterator<map_iterator<Tp> > const&)
+	{ typename disable_if<is_same<Tp, Tp>::value>::type* dummy; (void)dummy; }
 
 }
 

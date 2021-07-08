@@ -577,6 +577,8 @@ namespace	ft
 				setRoot(root);
 				copyTree(root, tree.getRoot());
 			}
+			else
+				setRoot(NULL);
 		};
 		~RedBlackTree(void)
 		{

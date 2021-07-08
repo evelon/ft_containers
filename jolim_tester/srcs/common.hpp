@@ -116,6 +116,21 @@ class	A {};
 
 namespace	test
 {
+	template	<typename Arg1, typename Arg2, typename Result>
+	struct	binary_function
+	{
+		typedef Arg1	first_argument_type;
+		typedef Arg2	second_argument_type;
+		typedef Result	result_type;
+	};
+
+	template	<typename Tp = void>
+	struct	less : public binary_function<Tp, Tp, bool>
+	{
+		bool	operator()(Tp const& x, Tp const& y) const
+			{ return (x < y); };
+	};
+
 	template	<bool B, typename T = void>
 	struct	enable_if
 	{};
