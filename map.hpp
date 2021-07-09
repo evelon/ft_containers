@@ -208,6 +208,10 @@ namespace	ft
 		typename enable_if<is_const_same<_Pair, Pair>::value>::type* = 0) const
 		{};
 
+		map_iterator(reverse_iterator<iterator_> const& rit):
+			parent_(rit)
+		{};
+
 	public:
 		map_iterator(parent_ const& p):
 			parent_(p) {};

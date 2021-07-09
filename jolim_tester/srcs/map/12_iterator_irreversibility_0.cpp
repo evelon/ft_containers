@@ -1,11 +1,14 @@
-#include "list_common.hpp"
+#include "map_common.hpp"
 
 int	main()
 {
-	listInt	lst(3, 4);
+	stdListIntStr	lst;
+	lst.push_back(PAIR(3, "three"));
 
-	listInt::const_iterator	cit = lst.begin();
-	listInt::iterator	it(cit); // Error here. Should not be constructed
+	mapIntStr	mp(lst.begin(), lst.end());
+
+	mapIntStr::const_iterator	cit = mp.begin();
+	mapIntStr::iterator	it(cit); // Error here. Should not be constructed
 
 	return (0);
 }

@@ -1,24 +1,27 @@
-#include "list_common.hpp"
+#include "map_common.hpp"
 
 int	main()
 {
-	listStr	lst(1, "4");
+	stdListIntStr	lst;
+	lst.push_back(PAIR(4, "aaaaaaaaaaaaaaaa"));
+	lst.push_back(PAIR(3, "bbbbbbbbb"));
+	lst.push_back(PAIR(5, "ccccccccccccccccccccccccc"));
+	lst.push_back(PAIR(1, "d"));
+	lst.push_back(PAIR(2, "eeee"));
 
-	lst.push_back("abababab");
-	lst.push_back("123123123123123123123");
-	lst.push_back("1234123412341234123412341234123412341234124");
+	mapIntStr	mp(lst.begin(), lst.end());
 
-	std::cout << (lst.begin() == lst.rend().base()) << '\n';
-	std::cout << (lst.end() == lst.rbegin().base()) << '\n';
-	*(lst.rend().base()) = "changed";
+	std::cout << (mp.begin() == mp.rend().base()) << '\n';
+	std::cout << (mp.end() == mp.rbegin().base()) << '\n';
+	(*mp.rend().base()).second = "changed";
 
-	listStr::iterator	it = lst.begin();
-	listStr::reverse_iterator	rit = lst.rend();
+	mapIntStr::iterator	it = mp.begin();
+	mapIntStr::reverse_iterator	rit = mp.rend();
 
-	std::cout << *it << '\n';
+	std::cout << (*it).second << '\n';
 	std::cout << (it == rit.base()) << '\n';
 	std::cout << (it != rit.base()) << '\n';
-	std::cout << (++it == (++rit).base()) << '\n';
+	// std::cout << (++it == (++rit).base()) << '\n'; // undefined behavior
 
 	return (0);
 }

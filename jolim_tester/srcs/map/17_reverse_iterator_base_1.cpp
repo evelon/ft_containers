@@ -1,16 +1,19 @@
-#include "list_common.hpp"
+#include "map_common.hpp"
 
 int	main()
 {
-	listStr	lst(1, "4");
+	stdListIntStr	lst;
+	lst.push_back(PAIR(4, "aaaaaaaaaaaaaaaa"));
+	lst.push_back(PAIR(3, "bbbbbbbbb"));
+	lst.push_back(PAIR(5, "ccccccccccccccccccccccccc"));
+	lst.push_back(PAIR(1, "d"));
+	lst.push_back(PAIR(2, "eeee"));
 
-	lst.push_back("abababab");
-	lst.push_back("123123123123123123123");
-	lst.push_back("1234123412341234123412341234123412341234124");
+	mapIntStr	mp(lst.begin(), lst.end());
 
-	*(lst.rend().base()) = "changed";
-	listStr::const_reverse_iterator	crit = lst.rend();
-	*(crit.base()) = "should not be changeable";
+	(*mp.rend().base()).second = "changed";
+	mapIntStr::const_reverse_iterator	crit = mp.rend();
+	(*crit.base()).second = "should not be changeable";
 
 	return (0);
 }

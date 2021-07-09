@@ -1,23 +1,26 @@
-#include "list_common.hpp"
+#include "map_common.hpp"
 
 int	main()
 {
-	listStr	lst(1, "4");
+	stdListIntStr	lst;
+	lst.push_back(PAIR(4, "aaaaaaaaaaaaaaaa"));
+	lst.push_back(PAIR(3, "bbbbbbbbb"));
+	lst.push_back(PAIR(5, "ccccccccccccccccccccccccc"));
+	lst.push_back(PAIR(1, "d"));
+	lst.push_back(PAIR(2, "eeee"));
 
-	lst.push_back("abababab");
-	lst.push_back("123123123123123123123");
-	lst.push_back("1234123412341234123412341234123412341234124");
+	mapIntStr	mp(lst.begin(), lst.end());
 
-	std::cout << lst.begin()->c_str() << '\n';
-	std::cout << (++(lst.begin()))->c_str() << '\n';
+	std::cout << mp.begin()->second.c_str() << '\n';
+	std::cout << (++(mp.begin()))->second.c_str() << '\n';
 
-	listStr::const_iterator	cit = --lst.end();
-	listStr::const_reverse_iterator	crit = lst.rbegin();
+	mapIntStr::const_iterator	cit = --mp.end();
+	mapIntStr::const_reverse_iterator	crit = mp.rbegin();
 
-	std::cout << (cit->capacity() == (crit++)->capacity()) << '\n';
-	std::cout << ((*(--cit)).capacity() == (*crit).capacity()) << '\n';
-	std::cout << (cit->get_allocator() == (*crit).get_allocator()) << '\n';
-	std::cout << *cit << *crit << '\n';
+	std::cout << (cit->second.capacity() == (crit++)->second.capacity()) << '\n';
+	std::cout << ((*(--cit)).second.capacity() == (*crit).second.capacity()) << '\n';
+	std::cout << (cit->second.get_allocator() == (*crit).second.get_allocator()) << '\n';
+	std::cout << (*cit).second << (*crit).second << '\n';
 
 	return (0);
 }
