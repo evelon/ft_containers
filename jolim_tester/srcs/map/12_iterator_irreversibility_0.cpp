@@ -10,5 +10,7 @@ int	main()
 	mapIntStr::const_iterator	cit = mp.begin();
 	mapIntStr::iterator	it(cit); // Error here. Should not be constructed
 
+	(void)it;
+
 	return (0);
 }

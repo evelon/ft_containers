@@ -1,5 +1,5 @@
-#ifndef MAP_TEST_HPP
-# define MAP_TEST_HPP
+#ifndef MAP_COMMON_HPP
+# define MAP_COMMON_HPP
 
 # include "../common.hpp"
 

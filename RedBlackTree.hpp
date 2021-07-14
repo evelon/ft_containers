@@ -246,8 +246,8 @@ namespace	ft
 		typedef typename Alloc::const_reference					const_reference;
 		typedef typename Alloc::pointer							pointer;
 		typedef typename Alloc::const_pointer					const_pointer;
-		typedef TreeIterator<const Tp>							const_iterator;
-		typedef TreeIterator<Tp>								iterator;
+		typedef TreeIterator<const value_type>					const_iterator;
+		typedef TreeIterator<value_type>						iterator;
 		typedef reverse_iterator<const_iterator>				const_reverse_iterator;
 		typedef reverse_iterator<iterator>						reverse_iterator;
 		typedef ptrdiff_t										difference_type;
@@ -640,10 +640,10 @@ namespace	ft
 
 		pair<iterator, bool>	insert(value_type const& val, bool unique)
 			{ return (addNode(val, unique)); };
-		iterator	insert(iterator position, value_type const& val, bool unique)
+		iterator	insert(const_iterator position, value_type const& val, bool unique)
 		{
-			node_*	prev_node = position.getNode();
-			node_*	next_node = (++position).getNode();
+			node_*	prev_node = (node_*)position.getNode();
+			node_*	next_node = (node_*)(++position).getNode();
 
 			if ((unique && prev_node->content < val && next_node->content > val)
 				|| (!unique && prev_node->content <= val && next_node->content >= val))
@@ -671,9 +671,9 @@ namespace	ft
 				hint = insert(hint, *it, unique);
 		};
 
-		void	erase(iterator position)
+		void	erase(const_iterator position)
 		{
-			deleteNode(position.getNode());
+			deleteNode((node_*)position.getNode());
 		}
 		size_type	erase(value_type const&	val)
 		{
@@ -686,9 +686,9 @@ namespace	ft
 			}
 			return (count);
 		};
-		void	erase(iterator first, iterator last)
+		void	erase(const_iterator first, const_iterator last)
 		{
-			for (iterator it = first; it != last;)
+			for (const_iterator it = first; it != last;)
 				erase(it++);
 		};
 		void	swap(tree_& tree)

@@ -123,6 +123,10 @@ namespace	ft
 	struct	is_const_of<T, const T>
 	{ static const bool	value = true; };
 
+	template	<typename T>
+	struct	is_const_of<const T, const T>
+	{ static const bool	value = false; };
+
 	// value is true if a type is const.
 	template	<typename T>
 	struct	is_const

@@ -11,7 +11,11 @@ int	main()
 
 	mapIntStr	mp(lst.begin(), lst.end());
 
+	mapIntStr::iterator	it = mp.begin();
+
+	(*it).second = "first";
+
 	mapIntStr::const_iterator	cit = mp.begin();
 
-	*cit = NS::make_pair<const wrapper<int>, std::string>(0, std::string("zero")); // Error here.
+	(*cit).second = "zero"; // Error here.
 }

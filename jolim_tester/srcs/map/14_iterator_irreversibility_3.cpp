@@ -10,5 +10,7 @@ int	main()
 	mapIntStr::const_reverse_iterator	crit = mp.rbegin();
 	mapIntStr::iterator	it(crit); // Error here. Should not be constructed
 
+	(void)it;
+
 	return (0);
 }

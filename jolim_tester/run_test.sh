@@ -2,7 +2,7 @@
 
 . functions.sh
 printheader
-containers="list vector"
+containers="list vector set"
 
 if [ $# -ne 0 ]; then
 	containers=$@

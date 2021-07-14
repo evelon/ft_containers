@@ -1,9 +1,9 @@
-#include "map_common.hpp"
+#include "set_common.hpp"
 
 int	main()
 {
-	mapIntStr::iterator	it1;
-	mapIntStr::reverse_iterator	it2;
+	setInt::iterator	it1;
+	setInt::reverse_iterator	it2;
 
 	std::cout << (it1 == it2) << '\n'; // Error here. Should not be comparable
 	std::cout << (it1 != it2) << '\n'; // Error here. Should not be comparable

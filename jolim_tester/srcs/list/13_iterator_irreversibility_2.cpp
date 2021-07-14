@@ -7,5 +7,7 @@ int	main()
 	listInt::const_reverse_iterator	crit = lst.rbegin();
 	listInt::reverse_iterator	rit(crit); // Error here. Should not be constructed
 
+	(void)rit;
+
 	return (0);
 }
