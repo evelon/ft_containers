@@ -3,6 +3,7 @@
 
 # include "RedBlackTree.hpp"
 # include "pair.hpp"
+# include "compare.hpp"
 
 namespace	ft
 {
@@ -12,9 +13,6 @@ namespace	ft
 		class Compare = less<Key>,
 		class Alloc = std::allocator<pair<const Key, Val> > >
 	class	map;
-
-	template	<typename Key, typename Val>
-	struct	lexical_compare;
 
 	template	<typename Key, typename Val, class Compare, class Alloc>
 	bool	operator==(map<Key, Val, Compare, Alloc> const& lhs, map<Key, Val, Compare, Alloc> const& rhs);
@@ -167,16 +165,12 @@ namespace	ft
 
 		friend bool	operator<(map const& lhs, map const& rhs)
 		{
-			return (operator< <map::value_type, map::value_compare, map::allocator_type, lexical_compare<Key, Val>, false>(lhs.tree_, rhs.tree_));
-		};
-	};
-
-	template	<typename Key, typename Val>
-	struct	lexical_compare : public binary_function<pair<const Key, Val>, pair<const Key, Val>, bool>
-	{
-		bool	operator()(pair<const Key, Val> const& x, pair<const Key, Val> const& y) const
-		{
-			return (x.first < y.first || (x.first == y.first && x.second < y.second));
+			return (
+				ft::lexicographical_compare(
+					lhs.begin(), lhs.end(),
+					rhs.begin(), rhs.end()
+				)
+			);
 		};
 	};
 

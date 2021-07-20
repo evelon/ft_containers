@@ -3,7 +3,7 @@
 
 # include "template_utils.hpp"
 # include "relational_operator_impl.hpp"
-
+# include "iterator.hpp"
 
 #include <iostream>
 
@@ -48,12 +48,12 @@ namespace	ft
 		typedef reverse_iterator							iterator;
 
 	public:
-		typedef Iterator									iterator_type;
-		typedef typename iterator_type::iterator_category	iterator_category;
-		typedef typename iterator_type::value_type			value_type;
-		typedef typename iterator_type::difference_type		difference_type;
-		typedef typename iterator_type::pointer				pointer;
-		typedef typename iterator_type::reference			reference;
+		typedef Iterator												iterator_type;
+		typedef typename iterator_traits<Iterator>::iterator_category	iterator_category;
+		typedef typename iterator_traits<Iterator>::value_type			value_type;
+		typedef typename iterator_traits<Iterator>::difference_type		difference_type;
+		typedef typename iterator_traits<Iterator>::pointer				pointer;
+		typedef typename iterator_traits<Iterator>::reference			reference;
 
 	public:
 		reverse_iterator(void):
