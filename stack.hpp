@@ -19,7 +19,7 @@ namespace	ft
 	class	stack
 	{
 	public:
-		typedef T			T;
+		typedef T			value_type;
 		typedef Container	container_type;
 		typedef size_t		size_type;
 
@@ -36,20 +36,20 @@ namespace	ft
 			{ return (inner_container.size()); };
 		value_type&	top()
 			{ return (inner_container.back()); };
-		const value_type&	top() const;
+		const value_type&	top() const
 			{ return (inner_container.back()); };
 		void	push(const value_type& val)
-			{ inner_container.push_back(); };
+			{ inner_container.push_back(val); };
 		void	pop()
 			{ inner_container.pop_back(); };
 
-		template	<class T, class Container>
-		friend bool	operator==(const stack<T, Container>& lhs, const stack<T, Container>& rhs)
+		template	<class Tp, class Container_>
+		friend bool	operator==(const stack<Tp, Container_>& lhs, const stack<Tp, Container_>& rhs)
 			{ return (lhs.inner_container == rhs.inner_container); };
 
-		template	<class T, class Container>
-		friend bool	operator<(const stack<T, Container>& lhs, const stack<T, Container>& rhs)
-			{ return (lhs.inner_container < rhs.inner_container)};
+		template	<class Tp, class Container_>
+		friend bool	operator<(const stack<Tp, Container_>& lhs, const stack<Tp, Container_>& rhs)
+			{ return (lhs.inner_container < rhs.inner_container); };
 	};
 }
 
