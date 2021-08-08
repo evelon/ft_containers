@@ -2,7 +2,7 @@
 *.dSYM
 containers_test
 leaks
-test.cpp
+test*
 main.cpp
 
 # Created by https://www.toptal.com/developers/gitignore/api/c++
