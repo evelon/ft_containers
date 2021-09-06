@@ -23,33 +23,33 @@ namespace	ft
 		typedef Container	container_type;
 		typedef size_t		size_type;
 
-	private:
-		container_type	inner_container;
+	protected:
+		container_type	c;
 
 	public:
 		explicit stack(const container_type& ctnr = container_type()):
-			inner_container(ctnr) {};
+			c(ctnr) {};
 
 		bool	empty() const
-			{ return (inner_container.empty()); };
+			{ return (c.empty()); };
 		size_type	size() const
-			{ return (inner_container.size()); };
+			{ return (c.size()); };
 		value_type&	top()
-			{ return (inner_container.back()); };
+			{ return (c.back()); };
 		const value_type&	top() const
-			{ return (inner_container.back()); };
+			{ return (c.back()); };
 		void	push(const value_type& val)
-			{ inner_container.push_back(val); };
+			{ c.push_back(val); };
 		void	pop()
-			{ inner_container.pop_back(); };
+			{ c.pop_back(); };
 
 		template	<class Tp, class Container_>
 		friend bool	operator==(const stack<Tp, Container_>& lhs, const stack<Tp, Container_>& rhs)
-			{ return (lhs.inner_container == rhs.inner_container); };
+			{ return (lhs.c == rhs.c); };
 
 		template	<class Tp, class Container_>
 		friend bool	operator<(const stack<Tp, Container_>& lhs, const stack<Tp, Container_>& rhs)
-			{ return (lhs.inner_container < rhs.inner_container); };
+			{ return (lhs.c < rhs.c); };
 	};
 }
 

@@ -21,7 +21,7 @@ emoji[1]="🥵"
 
 function printheader ()
 {
-  printf "😪  jolim tester\n\n"
+  printf "😪...  jolim tester\n\n"
 }
 
 compile ()

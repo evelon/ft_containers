@@ -57,6 +57,10 @@ namespace	ft
 			value_compare(Compare c): comp(c) {};
 
 		public:
+			typedef bool		result_type;
+			typedef value_type	first_argument_type;
+			typedef value_type	second_argument_type;
+
 			bool	operator()(value_type const& x, value_type const& y) const
 			{ return (comp(x.first, y.first)); };
 		};
@@ -145,13 +149,13 @@ namespace	ft
 		size_type	count(key_type const& k) const
 			{ return (tree_.count(ft::make_pair(k, mapped_type()))); };
 		iterator	lower_bound(key_type const& k)
-			{ return (iterator(tree_.lower_bound(make_pair(k, mapped_type())))); };
+			{ return (iterator(tree_.lower_bound(ft::make_pair(k, mapped_type())))); };
 		const_iterator	lower_bound(key_type const& k) const
-			{ return (const_iterator(tree_.lower_bound(make_pair(k, mapped_type())))); };
+			{ return (const_iterator(tree_.lower_bound(ft::make_pair(k, mapped_type())))); };
 		iterator	upper_bound(key_type const& k)
-			{ return (iterator(tree_.upper_bound(make_pair(k, mapped_type())))); };
+			{ return (iterator(tree_.upper_bound(ft::make_pair(k, mapped_type())))); };
 		const_iterator	upper_bound(key_type const& k) const
-			{ return (const_iterator(tree_.upper_bound(make_pair(k, mapped_type())))); };
+			{ return (const_iterator(tree_.upper_bound(ft::make_pair(k, mapped_type())))); };
 		pair<iterator,iterator>	equal_range(const key_type& k)
 			{ return (pair<iterator, iterator>(lower_bound(k), upper_bound(k))); };
 		pair<const_iterator,const_iterator>	equal_range(const key_type& k) const
@@ -176,11 +180,7 @@ namespace	ft
 
 	template	<class Key, class T, class Compare, class Alloc>
 	void	swap(map<Key,T,Compare,Alloc>& x, map<Key,T,Compare,Alloc>& y)
-	{
-		map<Key, T, Compare, Alloc>	temp = x;
-		x = y;
-		y = temp;
-	};
+	{ x.swap(y); };
 
 	template	<typename Pair>
 	class	map_iterator : public TreeIterator<Pair>
