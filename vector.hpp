@@ -97,7 +97,7 @@ namespace	ft
 			if (capacity_)
 				*head_ = alloc_.allocate(capacity_);
 			for (size_type i = 0; i < n; i++)
-				(*head_)[i] = val;
+				alloc_.construct(*head_ + i, val);
 		};
 		// Constructs a container with as many elements as the range [first,last), with each element constructed from its corresponding element in that range, in the same order.
 		template <class InputIterator>
@@ -134,6 +134,10 @@ namespace	ft
 		// Destroys all container elements, and deallocates all the storage capacity.
 		~vector(void)
 		{
+			for (size_t i = 0; i < size_; ++i)
+			{
+				alloc_.destroy(*head_ + i);
+			}
 			if (capacity_)
 			{
 				alloc_.deallocate(*head_, capacity_);
@@ -142,6 +146,8 @@ namespace	ft
 		};
 		vector&	operator=(const vector& vec)
 		{
+			for (size_t i = 0; i < size_; ++i)
+				alloc_.destroy(*head_ + i);
 			if (capacity_)
 				this->alloc_.deallocate(*this->head_, this->capacity_);
 			if (this->capacity_ < vec.size_)
@@ -149,7 +155,7 @@ namespace	ft
 			*this->head_ = this->alloc_.allocate(capacity_);
 			this->size_ = vec.size_;
 			for (size_type i = 0; i < vec.size_; i++)
-				(*this->head_)[i] = (*vec.head_)[i];
+				alloc_.construct(*this->head_ + i, (*vec.head_)[i]);
 			return (*this);
 		};
 		// Returns an iterator pointing to the first element in the vector.
@@ -198,6 +204,8 @@ namespace	ft
 					*head_ = alloc_.allocate(n);
 					for (size_type i = 0; i < size_; i++ )
 						(*head_)[i] = temp[i];
+					for (size_t i = 0; i < size_; ++i)
+						alloc_.destroy(temp + i);
 					if (capacity_)
 						alloc_.deallocate(temp, capacity_);
 					capacity_ = n;
@@ -222,7 +230,9 @@ namespace	ft
 			temp = *head_;
 			*head_ = alloc_.allocate(n);
 			for (size_type i = 0; i < size_; i++ )
-				(*head_)[i] = temp[i];
+				alloc_.construct(*head_ + i, temp[i]);
+			for (size_t i = 0; i < size_; ++i)
+				alloc_.destroy(temp + i);
 			if (capacity_)
 				alloc_.deallocate(temp, capacity_);
 			capacity_ = n;
@@ -269,13 +279,15 @@ namespace	ft
 				diff++;
 			if (diff > capacity_)
 			{
+				for (size_t i = 0; i < size_; ++i)
+					alloc_.destroy(*head_ + i);
 				if (capacity_)
 					alloc_.deallocate(*head_, capacity_);
 				*head_ = alloc_.allocate(diff);
 				capacity_ = diff;
 			}
 			for (size_type i = 0; first != last; ++first)
-				(*head_)[i++] = *first;
+				alloc_.construct(*head_ + i++, *first);
 			size_ = diff;
 		};
 		// Assigns new contents to the vector, replacing its current contents, filling to "val" and modifying its size to "n" accordingly.
@@ -283,13 +295,15 @@ namespace	ft
 		{
 			if (n > capacity_)
 			{
+				for (size_t i = 0; i < size_; ++i)
+					alloc_.destroy(*head_ + i);
 				if (capacity_)
 					alloc_.deallocate(*head_, capacity_);
 				*head_ = alloc_.allocate(n);
 				capacity_ = n;
 			}
 			for (size_type i = 0; i < n; ++i)
-				(*head_)[i] = val;
+				alloc_.construct(*head_ + i, val);
 			size_ = n;
 		};
 		// Adds a new element at the end of the vector, after its current last element.
@@ -301,16 +315,21 @@ namespace	ft
 				temp = *head_;
 				*head_ = alloc_.allocate(capacity_ ? capacity_ * 2 : 1);
 				for (size_type i = 0; i < size_; ++i)
-					(*head_)[i] = temp[i];
+					alloc_.construct(*head_ + i, temp[i]);
+				for (size_t i = 0; i < size_; ++i)
+					alloc_.destroy(*head_ + i);
 				if (capacity_)
 					alloc_.deallocate(temp, capacity_);
 				capacity_ = capacity_ ? capacity_ * 2 : 1;
 			}
-			(*head_)[size_++] = val;
+			alloc_.construct(*head_ + size_++, val);
 		};
 		// Removes the last element in the vector, effectively reducing the container size by one.
 		void	pop_back(void)
-			{ size_--; };
+		{
+			alloc_.destroy(*head_ + size_ - 1);
+			size_--;
+		};
 		// The vector is extended by inserting a new element before the element at the specified position, effectively increasing the container size..
 		iterator	insert(iterator position, const value_type& val)
 		{
@@ -322,15 +341,22 @@ namespace	ft
 				temp = *head_;
 				*head_ = alloc_.allocate(capacity_ ? capacity_ * 2 : 1);
 				for (size_type i = 0; i < size_; ++i)
-					(*head_)[i] = temp[i];
+					alloc_.construct(*head_ + i, temp[i]);
+				for (size_t i = 0; i < size_; ++i)
+					alloc_.destroy(temp + i);
 				if (capacity_)
 					alloc_.deallocate(temp, capacity_);
 				capacity_ = capacity_ ? capacity_ * 2 : 1;
 			}
 			if (size_)
+			{
 				for (iterator it = end(); it > position && it > begin(); --it)
-					*it = *(it - 1);
-			*position = val;
+				{
+					alloc_.construct(&*it, *(it - 1));
+					alloc_.destroy(&*(it - 1));
+				}
+			}
+			alloc_.construct(&*position, val);
 			size_++;
 			return (position);
 		};
@@ -346,15 +372,17 @@ namespace	ft
 				size_type	new_capacity = size_ + n;
 				*head_ = alloc_.allocate(new_capacity);
 				for (size_type i = 0; i < size_; ++i)
-					(*head_)[i] = temp[i];
+					alloc_.construct(*head_ + i, temp[i]);
+				for (size_t i = 0; i < size_; ++i)
+					alloc_.destroy(temp + i);
 				if (capacity_)
 					alloc_.deallocate(temp, capacity_);
 				capacity_ = new_capacity;
 			}
 			for (iterator it = end() - 1; it >= position; --it)
-				*(it + n) = *it;
+				alloc_.construct(&*(it + n), *it);
 			for (size_type i = 0; i < n; i++)
-				*(position++) = val;
+				alloc_.construct(&*(position++), val);
 			size_ += n;
 		};
 		template	<class InputIterator>
@@ -376,7 +404,9 @@ namespace	ft
 				size_type	new_capacity = determineCapacity(size_ + diff);
 				*head_ = alloc_.allocate(new_capacity);
 				for (size_type i = 0; i < size_; ++i)
-					(*head_)[i] = temp[i];
+					alloc_.construct(*head_ + i, temp[i]);
+				for (size_t i = 0; i < size_; ++i)
+					alloc_.destroy(temp + i);
 				if (capacity_)
 					alloc_.deallocate(temp, capacity_);
 				capacity_ = new_capacity;
@@ -384,11 +414,11 @@ namespace	ft
 			iterator	it = end() + diff - 1;
 			for (iterator pos = position; pos < end(); ++pos)
 			{
-				*it = *(it - diff);
+				alloc_.construct(&*it, *(it - diff));
 				it--;
 			}
 			for (; ft::operator!=(first, last); ++first)
-				*(position++) = *first;
+				alloc_.construct(&*(position++), *first);
 			size_ += diff;
 		};
 		// Removes from the vector a single element at "position"
@@ -396,8 +426,9 @@ namespace	ft
 		{
 			if (position < begin() || position > end())
 				return (position);
+			alloc_.destroy(&*position);
 			for (iterator it = position; it < end() - 1; ++it)
-				*it = *(it + 1);
+				alloc_.construct(&*it, *(it + 1));
 			size_--;
 			return (position);
 		};
@@ -407,7 +438,10 @@ namespace	ft
 			iterator	ret = first;
 			size_type	diff = last - first;
 			while (last < end())
+			{
+				alloc_.destroy(&*first);
 				*(first++) = *(last++);
+			}
 			size_ -= diff;
 			return (ret);
 		};
@@ -426,7 +460,11 @@ namespace	ft
 		};
 		// Removes all elements from the vector (which are destroyed), leaving the container with a size of 0.
 		void	clear(void)
-			{ size_ = 0; };
+		{
+			for (size_t i = 0; i < size_; ++i)
+				alloc_.destroy(*head_ + i);
+			size_ = 0;
+		};
 		allocator_type	get_allocator(void) const
 			{ return (allocator_type()); };
 	};
