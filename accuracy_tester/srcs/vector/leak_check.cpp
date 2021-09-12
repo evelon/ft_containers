@@ -42,8 +42,8 @@ int main() {
 		b.resize(1);
 		NS::vector<Leaky>	c(1, Leaky("reserve"));
 		c.reserve(100);
-		// NS::vector<Leaky>	d(1, Leaky("iterator assignation"));
-		// // d.assign(b.begin(), b.end());
+		NS::vector<Leaky>	d(1, Leaky("iterator assignation"));
+		d.assign(b.begin(), b.end());
 		NS::vector<Leaky>	e(1, Leaky("value assignation"));
 		e.assign(3, Leaky("value"));
 		NS::vector<Leaky>	f(4, Leaky("pop_back"));

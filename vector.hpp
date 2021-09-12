@@ -135,9 +135,7 @@ namespace	ft
 		~vector(void)
 		{
 			for (size_t i = 0; i < size_; ++i)
-			{
 				alloc_.destroy(*head_ + i);
-			}
 			if (capacity_)
 			{
 				alloc_.deallocate(*head_, capacity_);
@@ -415,6 +413,7 @@ namespace	ft
 			for (iterator pos = position; pos < end(); ++pos)
 			{
 				alloc_.construct(&*it, *(it - diff));
+				alloc_.destroy(&*(it - diff));
 				it--;
 			}
 			for (; ft::operator!=(first, last); ++first)
