@@ -587,6 +587,8 @@ namespace	ft
 		};
 		tree_&	operator=(tree_ const& tree)
 		{
+			if (this == &tree)
+				return (*this);
 			if (tree.getRoot() != NULL)
 			{
 				if (this->getRoot() == NULL)
@@ -642,11 +644,12 @@ namespace	ft
 			{ return (addNode(val, unique)); };
 		iterator	insert(const_iterator position, value_type const& val, bool unique)
 		{
+
 			node_*	prev_node = (node_*)position.getNode();
 			node_*	next_node = (node_*)(++position).getNode();
 
-			if ((unique && prev_node->content < val && next_node->content > val)
-				|| (!unique && prev_node->content <= val && next_node->content >= val))
+			if ((position != end()) && ((unique && size_ && prev_node->content < val && next_node->content > val)
+				|| (!unique && size_&& prev_node->content <= val && next_node->content >= val)))
 			{
 				node_*	new_node;
 				new_node = newNode(val);
@@ -677,7 +680,7 @@ namespace	ft
 		}
 		size_type	erase(value_type const&	val)
 		{
-			pair<iterator, iterator> 	range = equal_range(val);
+			pair<iterator, iterator>	range = equal_range(val);
 			size_type	count = 0;
 			for (iterator it = range.first; it != range.second;)
 			{
@@ -788,7 +791,8 @@ namespace	ft
 		iterator	upper_bound(value_type const& val)
 		{
 			iterator	it = begin();
-			while (!comp_(val, *it) && it != end())
+
+			while (it != end() && !comp_(val, *it))
 				++it;
 			return (it);
 		};

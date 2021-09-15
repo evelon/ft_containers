@@ -1,37 +1,7 @@
 #include "vector_common.hpp"
 
-struct Leaky {
-	std::string* a;
-	Leaky();
-	Leaky(std::string str);
-	Leaky(const Leaky& a);
-	Leaky&  operator=(const Leaky& a);
-	~Leaky();
-};
-
-Leaky::Leaky() {
-	a = new std::string("a");
-}
-
-Leaky::Leaky(std::string str) {
-	a = new std::string(str + "a");
-}
-
-Leaky::Leaky(const Leaky& a) {
-	this->a = new std::string(*a.a);
-}
-
-Leaky& Leaky::operator=(const Leaky& a) {
-	delete this->a;
-	this->a = new std::string(*a.a);
-	return *this;
-}
-
-Leaky::~Leaky() {
-	delete a;
-}
-
-int main() {
+int main()
+{
 	{
 		NS::vector<Leaky>	a(1, Leaky("default contructor"));
 		a.clear();
@@ -65,5 +35,5 @@ int main() {
 		h.erase(h.begin());
 		h.erase(h.begin(), h.end());
 	}
-	system("leaks a.out | grep bytes)");
+	system("leaks a.out | grep bytes')'");
 }

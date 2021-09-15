@@ -71,6 +71,12 @@ namespace	ft
 		{};
 		~set(void) {};
 
+		set&	operator=(set const& set)
+		{
+			this->tree_ = set.tree_;
+			return (*this);
+		}
+
 		iterator	begin(void)
 			{ return (iterator(tree_.begin())); };
 		const_iterator	begin(void) const
@@ -153,9 +159,7 @@ namespace	ft
 	template	<typename T, class Compare, class Alloc>
 	void	swap(set<T, Compare, Alloc>& x, set<T, Compare, Alloc>& y)
 	{
-		set<T, Compare, Alloc>	temp = x;
-		x = y;
-		y = temp;
+		x.swap(y);
 	};
 
 	template	<typename T>

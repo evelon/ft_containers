@@ -114,6 +114,62 @@ public:
 
 class	A {};
 
+struct Leaky {
+	std::string* a;
+	Leaky();
+	Leaky(std::string str);
+	Leaky(const Leaky& a);
+	Leaky&  operator=(const Leaky& a);
+	~Leaky();
+};
+
+Leaky::Leaky() {
+	a = new std::string(" Leaky");
+}
+
+Leaky::Leaky(std::string str) {
+	a = new std::string(str + " Leaky");
+}
+
+Leaky::Leaky(const Leaky& a) {
+	this->a = new std::string(*a.a);
+}
+
+Leaky& Leaky::operator=(const Leaky& a) {
+	delete this->a;
+	this->a = new std::string(*a.a);
+	return *this;
+}
+
+Leaky::~Leaky() {
+	delete a;
+}
+
+bool	operator==(const Leaky& lhs, const Leaky& rhs)
+{
+	return (*lhs.a == *rhs.a);
+}
+bool	operator!=(const Leaky& lhs, const Leaky& rhs)
+{
+	return (*lhs.a != *rhs.a);
+}
+bool	operator<(const Leaky& lhs, const Leaky& rhs)
+{
+	return (*lhs.a < *rhs.a);
+}
+bool	operator<=(const Leaky& lhs, const Leaky& rhs)
+{
+	return (*lhs.a <= *rhs.a);
+}
+bool	operator>(const Leaky& lhs, const Leaky& rhs)
+{
+	return (*lhs.a > *rhs.a);
+}
+bool	operator>=(const Leaky& lhs, const Leaky& rhs)
+{
+	return (*lhs.a >= *rhs.a);
+}
+
 namespace	test
 {
 	template	<typename Arg1, typename Arg2, typename Result>

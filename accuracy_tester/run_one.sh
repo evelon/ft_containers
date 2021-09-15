@@ -17,6 +17,10 @@ else
 fi
 
 CC="clang++"
-CFLAGS="-Wall -Wextra -Werror -std=c++98 -fsanitize=address -g3"
+CFLAGS="-Wall -Wextra -Werror -std=c++98"
+
+if false; then
+  CFLAGS+=" -fsanitize=address -g3";
+fi
 
 eval "$CC $CFLAGS -I./$INCLUDE_PATH -DNAMESPACE=$NAMESPACE $1 && ./a.out"

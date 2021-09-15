@@ -27,5 +27,7 @@ int	main()
 	print_all(set2);
 	print_all(set3);
 
+	set3 = set3;
+
 	return (0);
 }
