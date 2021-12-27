@@ -1,5 +1,5 @@
 # ft_containers
-ft_containers subject from 42seoul
+ft_containers subject from 42seoul. Make your own STL containers!
 
 ## 두 개의 테스터 사용 방법.
 
